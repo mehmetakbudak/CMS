@@ -1,0 +1,57 @@
+﻿
+@{
+    ViewData["Title"] = "İletişim";
+}
+
+<nav class="breadcrumb" aria-label="breadcrumb">
+    <ul>
+        <li><a asp-controller="Home" asp-action="Index">Anasayfa</a></li>
+        <li class="is-active"><a asp-controller="Contact" asp-action="Index">İletişim</a></li>
+    </ul>
+</nav>
+
+<div id="contact">
+    <div class="card">
+        <div class="card-content">
+            <form v-on:submit="save">
+                <div class="columns">
+                    <div class="column is-6">
+                        <template>
+                            <section>
+                                <h3 class="subtitle">İletişim Formu</h3>                                
+                                <b-field label="Adı Soyadı">
+                                    <b-input v-model="contact.nameSurname"></b-input>
+                                </b-field>
+
+                                <b-field label="Email Adresi">
+                                    <b-input type="email" v-model="contact.emailAddress"></b-input>
+                                </b-field>
+
+                                <b-field label="Konusu">
+                                    <b-select placeholder="Konu Seçiniz" expanded v-model="contact.subject">
+                                        <option v-for="category in categories"
+                                                :value="category.id"
+                                                :key="category.id">
+                                            {{ category.name }}
+                                        </option>
+                                    </b-select>
+                                </b-field>
+
+                                <b-field label="Mesajı">
+                                    <b-input maxlength="500" type="textarea" v-model="contact.message"></b-input>
+                                </b-field>
+
+                                <button type="submit" class="button is-primary">Kaydet</button>
+
+                            </section>
+                        </template>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+       <script src="~/js/pages/fe/contact.js"></script>
+}

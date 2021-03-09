@@ -1,0 +1,150 @@
+﻿@{
+    ViewData["Title"] = "Canlı Destek";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb border-secondary">
+        <li class="breadcrumb-item">
+            <a class="text-decoration-none" asp-controller="Home" asp-action="Index">Anasayfa</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <a class="text-decoration-none" asp-controller="Chat" asp-action="Index">Canlı Destek</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="card shadow demo-section k-content" ng-controller="ChatController">
+    <div class="card-body">
+        <div ng-show="showFirstForm">
+            <form class="row" id="chatForm" kendo-validator="validatorFirstForm">
+                <div class="col-md-6 offset-md-3">
+                    <h5 class="pt-2 pb-4">Canlı Destek</h5>
+
+                    <div class="form-group">
+                        <label for="fullname">Adı Soyadı</label>
+                        <input type="text" id="fullname" name="fullname" ng-model="nameSurname" class="form-control" placeholder="Adı Soyadı" required validationMessage="Lütfen ad ve soyad giriniz." />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emailAddress">Email Adresi</label>
+                        <input type="email" id="emailAddress" name="emailAddress" ng-model="emailAddress" class="form-control" placeholder="Email Adresi" required data-required-msg="Lütfen email adresi giriniz." validationMessage="Lütfen geçerli bir email adresi giriniz." />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phoneNumber">Cep Telefonu</label>
+                        <input kendo-masked-text-box ng-model="phoneNumber" class="form-control" placeholder="Cep Telefonu" k-mask="'(999) 000-0000'" id="phoneNumber" name="phoneNumber" data-required-msg="Lütfen 10 basamaklı cep telefonu numarası giriniz." data-validmask-msg="Cep telefon numarası 10 haneli olmalıdır." required />
+                        <span data-for='phoneNumber' class='k-invalid-msg'></span>
+                    </div>
+
+                    <button class="btn btn-primary float-right mb-5" type="submit" ng-click="saveChat($event)">Sohbeti Başlat</button>
+
+                </div>
+            </form>
+        </div>
+        <div ng-show="showChatForm">
+            <div class="h-100">
+                <div class="alert alert-primary" role="alert">
+                    Hoşgeldin! <b>{{nameSurname}}</b>. Müşteri temsilcisi en kısa zamanda seninle iletişime geçecek.
+                </div>
+
+                <div ng-repeat="message in messageList">
+                    <div class="row" ng-if="message.nameSurname == nameSurname">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-9 float-right text-right">
+                            <div class="alert alert-success" role="alert">
+                                {{message.message}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" ng-if="message.nameSurname != nameSurname">
+                        <div class="col-md-9 float-left text-left">
+                            <div class="alert alert-danger" role="alert">
+                                {{message.message}}
+                            </div>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer" ng-show="showChatForm">
+        <form id="frmSendMessage" kendo-validator="validatorSendMessage">
+            <textarea id="newMessage" class="form-control mb-1" placeholder="Mesaj" ng-model="message" required data-required-msg="Lütfen mesaj giriniz.">
+                </textarea>
+            <button id="btnNewMessage" type="submit" class="btn btn-primary float-right" ng-click="sendMessage($event)">Gönder</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/aspnet-signalr/signalr.min.js"></script>
+    <script>
+        App.controller("ChatController", function ($scope, $http) {
+            var guid = null;
+            $scope.messageList = [];
+
+            $scope.showFirstForm = true;
+            $scope.showChatForm = false;
+
+            var connection = new signalR.HubConnectionBuilder().withUrl("/ChatHub").build();
+
+            connection.on("ReceiveMessage", function (response) {
+                console.log(response);
+                $scope.messageList = response;
+            });
+
+            $(function () {
+                var container = $("#chatForm");
+                kendo.init(container);
+                container.kendoValidator({
+                    rules: {
+                        validmask: function (input) {
+                            if (input.is("[data-validmask-msg]") && input.val() != "") {
+                                var maskedtextbox = input.data("kendoMaskedTextBox");
+                                return maskedtextbox.value().indexOf(maskedtextbox.options.promptChar) === -1;
+                            }
+                            return true;
+                        }
+                    }
+                });
+            });
+
+            $scope.saveChat = function (event) {
+                event.preventDefault();
+                if ($scope.validatorFirstForm.validate()) {
+                    var data = {
+                        nameSurname: $scope.nameSurname,
+                        emailAddress: $scope.emailAddress,
+                        phoneNumber: $scope.phoneNumber
+                    };
+                    $http.post("/api/chat", data)
+                        .then(function (response) {
+                            $scope.showFirstForm = false;
+                            $scope.showChatForm = true;
+                            guid = response.data.data.guid;
+                            showMessage("Mesaj", response.data.message);
+                        });
+                }
+            };
+
+            connection.start().then(function () {
+                document.getElementById('btnNewMessage').addEventListener('click', function (event) {
+                    if ($scope.validatorSendMessage.validate()) {
+                        var data = {
+                            message: $scope.message,
+                            chatGuid: guid
+                        }
+                        connection.invoke("SendMessage", data).catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                        $scope.message = "";
+                        $("#frmSendMessage").trigger('reset');
+                    }
+                    event.preventDefault();
+                });
+            });
+
+        });
+    </script>
+}

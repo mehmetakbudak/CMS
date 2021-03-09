@@ -1,0 +1,83 @@
+﻿
+@{
+    string title = ViewBag.Id == null ? "Yeni Sayfa Ekle" : "Sayfa Düzenle";
+    ViewData["Title"] = title;
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles{
+  <link href="/css/summernote-lite.min.css" rel="stylesheet" />}
+
+<nav class="breadcrumb" aria-label="breadcrumb">
+    <ul>
+        <li><a asp-controller="Home" asp-action="Index">Anasayfa</a></li>
+        <li><a asp-area="Admin" asp-controller="Page" asp-action="Index">Sayfalar</a></li>
+        <li class="is-active"><a>@title</a></li>
+    </ul>
+</nav>
+
+<div id="page">
+    <div class="card">
+        <div class="card-content">
+            <div class="columns">
+                <div>
+                    <template>
+                        <section class="column is-6">                            
+                            <input type="hidden" id="pageVal" value="@ViewBag.Id">
+
+                            <b-field label="Adı">
+                                <b-input v-model="page.name"></b-input>
+                            </b-field>
+
+                            <b-field label="Başlık">
+                                <b-input v-model="page.title"></b-input>
+                            </b-field>
+
+                            <b-field label="Url">
+                                <b-input v-model="page.url"></b-input>
+                            </b-field>
+
+                            <b-field label="Menü">
+                                <b-select placeholder="Menü Seçiniz" expanded v-model="page.menuId">
+                                    <option v-for="menu in menus"
+                                            :value="menu.id"
+                                            :key="menu.id">
+                                        {{ menu.name }}
+                                    </option>
+                                </b-select>
+                                <b-button type="is-primary" outlined icon-left="close" class="ml-1" v-on:click="clearMenu()"></b-button>
+                            </b-field>                              
+                        </section>
+
+                        <section class="column is-12">
+                            <b-field label="İçerik">
+                                <textarea v-model="page.content" id="summernote"></textarea>
+                            </b-field>
+                        </section>
+                        
+                        <section class="column is-6">
+                            <b-field label="Yayında">
+                                <b-checkbox v-model="page.published"></b-checkbox>
+                            </b-field>
+
+                            <b-field label="Aktif">
+                                <b-checkbox v-model="page.isActive"></b-checkbox>
+                            </b-field>
+
+                            <b-button type="is-primary"  v-on:click="save()">Kaydet</b-button>
+
+                        </section>
+
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/jquery-3.1.0.min.js"></script>
+    <script src="~/js/summernote-lite.min.js"></script>
+    <script src="~/js/summernote-tr-TR.min.js"></script>
+    <script src="~/js/pages/be/page.js"></script>
+}
