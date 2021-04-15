@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CMS.Service", "CMS.Service\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CMS.Web.Core", "CMS.Web.Core\CMS.Web.Core.csproj", "{8ED50172-3F32-48AC-AE61-AADA78D0B45C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CMS.UI", "CMS.UI\CMS.UI.csproj", "{D044F9C9-F624-4608-8FB7-F20DC9BDB865}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMS.Api", "CMS.API\CMS.Api.csproj", "{15D8AB99-E628-4372-AD86-CC5E7127E543}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{8ED50172-3F32-48AC-AE61-AADA78D0B45C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ED50172-3F32-48AC-AE61-AADA78D0B45C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8ED50172-3F32-48AC-AE61-AADA78D0B45C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D044F9C9-F624-4608-8FB7-F20DC9BDB865}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D044F9C9-F624-4608-8FB7-F20DC9BDB865}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D044F9C9-F624-4608-8FB7-F20DC9BDB865}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D044F9C9-F624-4608-8FB7-F20DC9BDB865}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15D8AB99-E628-4372-AD86-CC5E7127E543}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15D8AB99-E628-4372-AD86-CC5E7127E543}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15D8AB99-E628-4372-AD86-CC5E7127E543}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15D8AB99-E628-4372-AD86-CC5E7127E543}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

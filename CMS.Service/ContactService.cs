@@ -35,7 +35,7 @@ namespace CMS.Service
                 };
                 unitOfWork.Repository<Contact>().Add(contact);
                 unitOfWork.Save();
-                result.Exceptions.Add("Mesajınız başarıyla kaydedilmiştir.");
+                result.Message = "Mesajınız başarıyla kaydedilmiştir.";
             }
             catch (Exception ex)
             {

@@ -17,6 +17,8 @@ namespace CMS.Model.Model
 
     public class ServiceReturnModel
     {
+        public string Message { get; set; }
+
         public List<string> Exceptions { get; set; }
 
         public object Data { get; set; }
