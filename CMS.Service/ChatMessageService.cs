@@ -41,7 +41,7 @@ namespace CMS.Service
 
         public ServiceResult PostForClient(ChatMessageModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
@@ -59,15 +59,15 @@ namespace CMS.Service
             }
             catch (Exception ex)
             {
-                result.StatusCode = HttpStatusCode.InternalServerError;
-                result.Exceptions.Add(ex.Message);
+                result.StatusCode = (int)HttpStatusCode.InternalServerError;
+                result.Message = ex.Message;
             }
             return result;
         }
 
         public ServiceResult PostForUser(ChatMessageModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
@@ -87,8 +87,8 @@ namespace CMS.Service
             }
             catch (Exception ex)
             {
-                result.StatusCode = HttpStatusCode.InternalServerError;
-                result.Exceptions.Add(ex.Message);
+                result.StatusCode = (int)HttpStatusCode.InternalServerError;
+                result.Message = ex.Message;
             }
             return result;
         }

@@ -4,12 +4,11 @@ namespace CMS.Model.Helper
 {
     public static class HttpHelper
     {
-        public static ServiceReturnModel Result(ServiceResult model)
+        public static ServiceResult Result(ServiceResult model)
         {
-            return new ServiceReturnModel
+            return new ServiceResult
             {
                 Data = model.Data,
-                Exceptions = model.Exceptions,
                 StatusCode = model.StatusCode
             };
         }

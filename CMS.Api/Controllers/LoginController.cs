@@ -11,26 +11,17 @@ namespace CMS.Api
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private ILoginService loginService;
-        public LoginController(ILoginService loginService)
+        private IUserService userService;
+        public LoginController(IUserService userService)
         {
-            this.loginService = loginService;
+            this.userService = userService;
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] LoginModel login)
         {
-            var result = loginService.Post(login);
-
-            if (result.StatusCode == HttpStatusCode.OK)
-            {
-                var data = (LoginReturnModel)result.Data;
-                HttpContext.Session.SetInt32("UserId", data.UserId);
-                HttpContext.Session.SetInt32("UserType", data.UserType);
-                HttpContext.Session.SetString("UserFullname", data.UserFullName);
-                result.Data = data.UserFullName;
-            }
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            var result = userService.Authenticate(login);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

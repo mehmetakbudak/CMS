@@ -27,14 +27,14 @@ namespace CMS.Api
         public IActionResult CreateOrUpdate([FromBody] TodoModel model)
         {
             var result = todoService.CreateOrUpdate(model);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var result = todoService.Delete(id);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

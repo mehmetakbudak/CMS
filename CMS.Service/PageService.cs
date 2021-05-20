@@ -44,12 +44,12 @@ namespace CMS.Service
         {
             try
             {
-                var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+                var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
                 if (string.IsNullOrEmpty(url))
                 {
-                    result.StatusCode = HttpStatusCode.BadRequest;
-                    result.Exceptions.Add("Url bulunamadı.");
+                    result.StatusCode = (int)HttpStatusCode.BadRequest;
+                    result.Message = "Url bulunamadı.";
                 }
 
                 var page = unitOfWork.Repository<Page>().Find(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
@@ -60,8 +60,8 @@ namespace CMS.Service
                 }
                 else
                 {
-                    result.Exceptions.Add($"{url} ile sayfa bulunamadı.");
-                    result.StatusCode = HttpStatusCode.NotFound;
+                    result.Message = $"{url} ile sayfa bulunamadı.";
+                    result.StatusCode = (int)HttpStatusCode.NotFound;
                 }
                 return result;
             }
@@ -73,7 +73,7 @@ namespace CMS.Service
 
         public ServiceResult CreateOrUpdate(Page model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 if (model.Id == 0)
@@ -105,15 +105,15 @@ namespace CMS.Service
             }
             catch (Exception ex)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Exceptions.Add(ex.Message);
+                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+                serviceResult.Message = ex.Message;
             }
             return serviceResult;
         }
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 var page = unitOfWork.Repository<Page>()
@@ -126,14 +126,14 @@ namespace CMS.Service
                 }
                 else
                 {
-                    serviceResult.StatusCode = HttpStatusCode.NotFound;
-                    serviceResult.Exceptions.Add("Kayıt bulunamadı.");
+                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
+                    serviceResult.Message = "Kayıt bulunamadı.";
                 }
             }
             catch (Exception ex)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Exceptions.Add(ex.Message);
+                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+                serviceResult.Message = ex.Message;
             }
             return serviceResult;
         }

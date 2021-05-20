@@ -25,12 +25,12 @@ namespace CMS.Service
         {
             try
             {
-                var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-               
-                if(string.IsNullOrEmpty(url))
+                var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+
+                if (string.IsNullOrEmpty(url))
                 {
-                    result.StatusCode = HttpStatusCode.BadRequest;
-                    result.Exceptions.Add("Url bulunamadı.");
+                    result.StatusCode = (int)HttpStatusCode.BadRequest;
+                    result.Message = "Url bulunamadı.";
                 }
                 var blog = unitOfWork.Repository<Blog>()
                 .Find(x => x.Url == url &&
@@ -41,8 +41,8 @@ namespace CMS.Service
 
                 if (blog == null)
                 {
-                    result.Exceptions.Add("Kayıt bulunamadı.");
-                    result.StatusCode = HttpStatusCode.NotFound;
+                    result.Message = "Kayıt bulunamadı.";
+                    result.StatusCode = (int)HttpStatusCode.NotFound;
                 }
                 else
                 {

@@ -23,7 +23,7 @@ namespace CMS.Service
 
         public ServiceResult Post(ChatModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 var chat = new Chat
@@ -42,12 +42,12 @@ namespace CMS.Service
                 {
                     Guid = chat.ChatGuid
                 };
-                result.Exceptions.Add("Canlı destek kaydınız başarıyla alınmıştır.");
+                result.Message = "Canlı destek kaydınız başarıyla alınmıştır.";
             }
             catch (Exception ex)
             {
-                result.Exceptions.Add(ex.Message);
-                result.StatusCode = HttpStatusCode.InternalServerError;
+                result.Message = ex.Message;
+                result.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
             return result;
         }

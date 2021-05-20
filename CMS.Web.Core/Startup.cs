@@ -36,7 +36,6 @@ namespace CMS.Web.Core
             services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-            services.AddScoped<IJWTService, JWTService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<IAccessRightService, AccessRightService>();

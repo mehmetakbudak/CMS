@@ -38,11 +38,11 @@ namespace CMS.Web.Core.Api
             return Ok(menus);
         }
 
-        [CMSApiAuthorize]
+        [CMSAuthorize]
         [Route("backend")]
         public IActionResult GetBackEndMenu()
         {
-            List<AccessRightModel> list = new List<AccessRightModel>();
+            List<MenuModel> list = new List<MenuModel>();
             var userId = HttpContext.Session.GetInt32("UserId");
             var userType = HttpContext.Session.GetInt32("UserType");
             if (userId.HasValue && userType.HasValue)

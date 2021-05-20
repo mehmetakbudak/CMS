@@ -27,14 +27,14 @@ namespace CMS.Api
         public IActionResult CreateOrUpdate([FromBody] TodoCategory model)
         {
             var result = todoCategoryService.CreateOrUpdate(model);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var result = todoCategoryService.Delete(id);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

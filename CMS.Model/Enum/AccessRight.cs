@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CMS.Model.Enum
+﻿namespace CMS.Model.Enum
 {
-    public enum AccessRightCategoryType
+    public enum AccessRightType
     {
-        Frontend = 1,
-        Admin,
-        Api,
-        Page
+        Menu = 1,
+        Operation
     }
 
-    public enum HttpStatusType
+    public enum MethodType
     {
         GET = 1,
         POST,

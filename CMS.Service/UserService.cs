@@ -1,10 +1,10 @@
 ﻿using CMS.Data.Context;
-using CMS.Data.Repository;
-using CMS.Model.Dto;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
 using CMS.Model.Helper;
 using CMS.Model.Model;
+using CMS.Service.Helper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,23 +15,30 @@ namespace CMS.Service
     public interface IUserService
     {
         IQueryable<UserModel> GetAll();
+        User GetById(int id);
+        ServiceResult Authenticate(LoginModel model);
+        User GetTokenInfo(int userId, string token);
         List<LookupModel> Lookup();
-        ServiceResult CreateOrUpdate(UserModel model);
+        ServiceResult Post(UserModel model);
+        ServiceResult Put(UserModel model);
         ServiceResult Delete(int id);
     }
 
     public class UserService : IUserService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
-        public UserService(IUnitOfWork<CMSContext> unitOfWork)
+        private readonly CMSContext context;
+        private readonly IJwtHelper jwtHelper;
+        public UserService(CMSContext context,
+            IJwtHelper jwtHelper)
         {
-            this.unitOfWork = unitOfWork;
+            this.context = context;
+            this.jwtHelper = jwtHelper;
         }
 
         public IQueryable<UserModel> GetAll()
         {
-            return unitOfWork.Repository<User>()
-                .GetAll(x => !x.Deleted && x.UserType != UserType.Member)
+            return context.Users
+                .Where(x => !x.Deleted && x.UserType != UserType.Member)
                 .OrderByDescending(x => x.Id)
                 .Select(x => new UserModel
                 {
@@ -45,10 +52,87 @@ namespace CMS.Service
                 });
         }
 
+        public User GetById(int id)
+        {
+            return context.Users.FirstOrDefault(x => x.Id == id && !x.Deleted);
+        }
+
+        public ServiceResult Authenticate(LoginModel model)
+        {
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            try
+            {
+                var hassPassword = Security.MD5Crypt(model.Password);
+                var user = context.Users
+                    .Include(x => x.UserAccessRights)
+                    .ThenInclude(x => x.AccessRight)
+                    .FirstOrDefault(x =>
+                x.EmailAddress == model.EmailAddress &&
+                x.Password == hassPassword && !x.Deleted);
+
+                if (user == null)
+                {
+                    serviceResult.StatusCode = (int)HttpStatusCode.BadRequest;
+                    serviceResult.Message = "Email adresi veya şifre hatalıdır.";
+                    return serviceResult;
+                }
+
+                if (!user.IsActive)
+                {
+                    serviceResult.StatusCode = (int)HttpStatusCode.BadRequest;
+                    serviceResult.Message = "Hesabınız aktif değildir.";
+                    return serviceResult;
+                }
+
+                var tokenResult = jwtHelper.GenerateJwtToken(user);
+
+                user.Token = tokenResult.Token;
+                user.TokenExpireDate = tokenResult.ExpireDate;
+                context.SaveChanges();
+                List<AccessRight> accessRights = new List<AccessRight>();
+
+                if (user.UserType == UserType.SuperAdmin)
+                {
+                    accessRights = context.AccessRights.ToList();
+                }
+                else
+                {
+                    if (user.UserAccessRights != null && user.UserAccessRights.Any())
+                    {
+                        accessRights = user.UserAccessRights.Select(x => x.AccessRight).ToList();
+                    }
+                }
+
+                serviceResult.Data = new
+                {
+                    Token = tokenResult.Token,
+                    FullName = $"{user.Name} {user.Surname}",
+                    OperationAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Operation)
+                    .Select(x => x.Endpoint).ToList(),
+                    MenuAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Menu)
+                    .Select(x => x.Endpoint).ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                serviceResult.Message = ex.Message;
+                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+            return serviceResult;
+        }
+
+        public User GetTokenInfo(int userId, string token)
+        {
+            var user = context.Users
+                .Include(x => x.UserAccessRights)
+                .FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == userId && x.Token == token && x.TokenExpireDate >= DateTime.Now);
+            return user;
+        }
+
         public List<LookupModel> Lookup()
         {
-            return unitOfWork.Repository<User>()
-                .GetAll(x => !x.Deleted && x.IsActive && x.UserType != UserType.Member)
+            return context.Users
+                .Where(x => !x.Deleted && x.IsActive && x.UserType != UserType.Member)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
@@ -56,101 +140,99 @@ namespace CMS.Service
                 }).ToList();
         }
 
-        public ServiceResult CreateOrUpdate(UserModel model)
+        public ServiceResult Post(UserModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
-                if (model.Id == 0)
+                var checkEmail = context.Users
+                    .Any(x => x.EmailAddress == model.EmailAddress &&
+                    !x.Deleted);
+                if (!checkEmail)
                 {
-                    var checkEmail = unitOfWork.Repository<User>()
-                        .Find(x => x.EmailAddress == model.EmailAddress &&
-                        !x.Deleted);
-                    if (checkEmail == null)
+                    var user = new User
                     {
-                        var user = new User
-                        {
-                            Deleted = false,
-                            EmailAddress = model.EmailAddress,
-                            IsActive = model.IsActive,
-                            IsNewUser = true,
-                            Name = model.Name,
-                            Surname = model.Surname,
-                            UserType = (UserType)model.UserType
-                        };
-                        unitOfWork.Repository<User>().Add(user);
-                        unitOfWork.Save();
-                    }
-                    else
-                    {
-                        serviceResult.StatusCode = HttpStatusCode.Found;
-                        serviceResult.Exceptions.Add("Email adresi ile daha önce kullanıcı kaydedilmiş.");
-                    }
+                        Deleted = false,
+                        EmailAddress = model.EmailAddress,
+                        IsActive = model.IsActive,
+                        IsNewUser = true,
+                        Name = model.Name,
+                        Surname = model.Surname,
+                        UserType = (UserType)model.UserType
+                    };
+                    context.Users.Add(user);
+                    context.SaveChanges();
                 }
                 else
                 {
-                    var checkEmail = unitOfWork.Repository<User>()
-                       .Find(x => x.EmailAddress == model.EmailAddress &&
-                       !x.Deleted && x.Id != model.Id);
-
-                    if (checkEmail == null)
-                    {
-                        var user = unitOfWork.Repository<User>()
-                       .Find(x => !x.Deleted && x.Id == model.Id);
-
-                        if (user != null)
-                        {
-                            user.EmailAddress = model.EmailAddress;
-                            user.IsActive = model.IsActive;
-                            user.Name = model.Name;
-                            user.Surname = model.Surname;
-                            user.UserType = (UserType)model.UserType;
-                            unitOfWork.Save();
-                        }
-                        else
-                        {
-                            serviceResult.StatusCode = HttpStatusCode.NotFound;
-                            serviceResult.Exceptions.Add("Kayıt bulunamadı.");
-                        }
-                    }
-                    else
-                    {
-                        serviceResult.StatusCode = HttpStatusCode.BadRequest;
-                        serviceResult.Exceptions.Add("Email adresi ile daha önce kullanıcı kaydedilmiş.");
-                    }
+                    serviceResult.StatusCode = (int)HttpStatusCode.Found;
+                    serviceResult.Message = "Email adresi ile daha önce kullanıcı kaydedilmiş.";
                 }
             }
             catch (Exception ex)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Exceptions.Add(ex.Message);
+                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+                serviceResult.Message = ex.Message;
+            }
+            return serviceResult;
+        }
+
+        public ServiceResult Put(UserModel model)
+        {
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+
+            var isExistUser = context.Users
+                       .Any(x => x.EmailAddress == model.EmailAddress &&
+                       !x.Deleted && x.Id != model.Id);
+
+            if (!isExistUser)
+            {
+                var user = context.Users.FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
+                if (user != null)
+                {
+                    user.EmailAddress = model.EmailAddress;
+                    user.IsActive = model.IsActive;
+                    user.Name = model.Name;
+                    user.Surname = model.Surname;
+                    user.UserType = (UserType)model.UserType;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
+                    serviceResult.Message = "Kayıt bulunamadı.";
+                }
+            }
+            else
+            {
+                serviceResult.StatusCode = (int)HttpStatusCode.BadRequest;
+                serviceResult.Message = "Email adresi ile daha önce kullanıcı kaydedilmiş.";
             }
             return serviceResult;
         }
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
-                var user = unitOfWork.Repository<User>()
-                       .Find(x => x.Id == id);
+                var user = context.Users.FirstOrDefault(x => x.Id == id && !x.Deleted);
 
                 if (user != null)
                 {
                     user.Deleted = true;
-                    unitOfWork.Save();
+                    context.SaveChanges();
                 }
                 else
                 {
-                    serviceResult.StatusCode = HttpStatusCode.NotFound;
-                    serviceResult.Exceptions.Add("Kayıt bulunamadı.");
+                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
+                    serviceResult.Message = "Kayıt bulunamadı.";
                 }
             }
             catch (Exception ex)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Exceptions.Add(ex.Message);
+                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+                serviceResult.Message = ex.Message;
             }
             return serviceResult;
         }

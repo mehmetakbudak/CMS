@@ -8,14 +8,12 @@ namespace CMS.Api
     public class LookupController : ControllerBase
     {
         private readonly IContactCategoryService contactCategoryService;
-        private readonly IRoleService userGroupService;
         private readonly ITodoCategoryService todoCategoryService;
         private readonly ITodoStatusService todoStatusService;
         private readonly IUserService userService;
         private readonly IMenuService menuService;
 
         public LookupController(
-            IRoleService userGroupService,
             IContactCategoryService contactCategoryService,
             ITodoCategoryService todoCategoryService,
             ITodoStatusService todoStatusService,
@@ -23,7 +21,6 @@ namespace CMS.Api
             IMenuService menuService)
         {
             this.contactCategoryService = contactCategoryService;
-            this.userGroupService = userGroupService;
             this.todoCategoryService = todoCategoryService;
             this.todoStatusService = todoStatusService;
             this.userService = userService;
@@ -35,15 +32,7 @@ namespace CMS.Api
         {
             var list = contactCategoryService.Lookup();
             return Ok(list);
-        }
-
-        [HttpGet("Roles")]
-        public IActionResult GetRoles()
-        {
-            var list = userGroupService.Lookup();
-            return Ok(list);
-        }
-
+        }       
 
         [HttpGet("TodoCategories")]
         public IActionResult GetTodoCategories()

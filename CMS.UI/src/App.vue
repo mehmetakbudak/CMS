@@ -1,19 +1,16 @@
 <template>
-  <div>
-    <router-view></router-view>
+  <div class="mt-3">
+    <div class="mt-3 mb-3">
+      <ConfirmPopup></ConfirmPopup>
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
-
-export default { 
-  data: function () {
-    return {
-        
-    };
-  },
-  beforeCreate: function () {
-   
-  },
+export default {
+  name: "App",
+  components: {},
 };
 </script>
+

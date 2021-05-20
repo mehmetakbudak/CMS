@@ -1,39 +1,68 @@
 <template>
-  <nav class="navbar navbar-light bg-light border-bottom">
-    <div class="container">
-      <a class="navbar-brand" href="#">CMS</a>
-      <div>
-          <vue-tree-nav :items="menuDataSource"></vue-tree-nav>
-      </div>
-    </div>
-  </nav>
+  <Menubar :model="menuDatasource" class="border">
+    <template #start>
+      <router-link
+        class="h4 text-secondary text-decoration-none mr-3"
+        to="/"
+        style="padding-right: 30px"
+        >CMS</router-link
+      >
+    </template>
+    <template #end>
+      <Button
+        type="button"
+        icon="pi pi-user"
+        class="p-button-rounded p-button-primary"
+        @click="toggleRightMenu"
+      />
+      <Menu ref="menu" :model="rightMenuItems" :popup="true" />
+    </template>
+  </Menubar>
 </template>
 
 <script>
-import axios from "axios";
-  import treeNav from 'vue-tree-nav'
-
 export default {
   created() {
     this.loadMenu();
   },
-  components: {
-      'vue-tree-nav': treeNav
-  },
-  data: function () {
+  data() {
     return {
-      menuDataSource: [],
+      menuDatasource: [],
+      rightMenuItems: [
+        {
+          label: "Giriş Yap",
+          to: "/giris",
+        },
+        {
+          label: "Üye Ol",
+          to: "/uye-ol",
+        },
+      ],
     };
   },
   methods: {
     loadMenu() {
-      axios.get(`${process.env.VUE_APP_BASEURL}menu/frontend`).then((res) => {
-        this.menuDataSource = res.data;
-      });
+      this.axios
+        .get(process.env.VUE_APP_BASEURL + "menu/frontend")
+        .then((res) => {
+          this.menuDatasource = res.data;
+        });
     },
-    itemClick(e) {
-      this.$router.push(e.itemData.url).catch(() => {});
+    toggleRightMenu(event) {
+      this.$refs.menu.toggle(event);
     },
   },
 };
 </script>
+
+<style scoped>
+@media screen and (max-width: 768px) {
+  ::v-deep(.p-menubar-start) {
+    width: 75%;
+  }
+}
+
+.p-menubar {
+  background: unset !important;
+}
+</style>

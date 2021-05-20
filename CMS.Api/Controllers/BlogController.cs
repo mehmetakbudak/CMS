@@ -14,11 +14,11 @@ namespace CMS.Api
             this.blogService = blogService;
         }
 
-        [Route("GetBlogByUrl")]
+        [HttpGet("GetBlogByUrl")]
         public IActionResult GetBlogByUrl(string url)
         {
             var result = blogService.GetByUrl(url);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

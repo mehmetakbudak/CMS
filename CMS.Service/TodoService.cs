@@ -83,7 +83,7 @@ namespace CMS.Service
 
         public ServiceResult CreateOrUpdate(TodoModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 if (model.Id == 0)
@@ -120,22 +120,22 @@ namespace CMS.Service
                     }
                     else
                     {
-                        serviceResult.StatusCode = HttpStatusCode.NotFound;
-                        serviceResult.Exceptions.Add("Kayıt bulunamadı.");
+                        serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
+                        serviceResult.Message = "Kayıt bulunamadı.";
                     }
                 }
             }
             catch (Exception ex)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Exceptions.Add(ex.Message);
+                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+                serviceResult.Message = ex.Message;
             }
             return serviceResult;
         }
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 var todo = unitOfWork.Repository<Todo>()
@@ -148,14 +148,14 @@ namespace CMS.Service
                 }
                 else
                 {
-                    serviceResult.StatusCode = HttpStatusCode.NotFound;
-                    serviceResult.Exceptions.Add("Kayıt bulunamadı.");
+                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
+                    serviceResult.Message = "Kayıt bulunamadı.";
                 }
             }
             catch (Exception ex)
             {
-                serviceResult.StatusCode = HttpStatusCode.InternalServerError;
-                serviceResult.Exceptions.Add(ex.Message);
+                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+                serviceResult.Message = ex.Message;
             }
             return serviceResult;
         }

@@ -1,5 +1,7 @@
 ﻿using CMS.Model.Dto;
+using CMS.Model.Entity;
 using CMS.Model.Enum;
+using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Http;
@@ -14,15 +16,19 @@ namespace CMS.Api
     public class MenuController : ControllerBase
     {
         private readonly IAccessRightService accessRightService;
+        private readonly IMenuService menuService;
         private IMemoryCache memoryCache;
 
-        public MenuController(IAccessRightService accessRightService, IMemoryCache memoryCache)
+        public MenuController(IAccessRightService accessRightService,
+            IMenuService menuService,
+            IMemoryCache memoryCache)
         {
             this.accessRightService = accessRightService;
+            this.menuService = menuService;
             this.memoryCache = memoryCache;
         }
 
-        [Route("frontend")]
+        [HttpGet("Frontend")]
         public IActionResult GetFrontendMenu()
         {
             const string key = "frontEndMenu";
@@ -30,7 +36,7 @@ namespace CMS.Api
             if (memoryCache.TryGetValue(key, out object menus))
                 return Ok(menus);
 
-            menus = accessRightService.GetFrontEndMenu();
+            menus = menuService.GetFrontEndMenu();
             memoryCache.Set(key, menus, new MemoryCacheEntryOptions
             {
                 Priority = CacheItemPriority.Normal
@@ -38,17 +44,11 @@ namespace CMS.Api
             return Ok(menus);
         }
 
-        [CMSApiAuthorize]
-        [Route("backend")]
+        [HttpGet("Backend")]
+        [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult GetBackEndMenu()
         {
-            List<AccessRightModel> list = new List<AccessRightModel>();
-            var userId = HttpContext.Session.GetInt32("UserId");
-            var userType = HttpContext.Session.GetInt32("UserType");
-            if (userId.HasValue && userType.HasValue)
-            {
-                list = accessRightService.GetBackEndMenuByUserId(userId.Value, userType.Value);
-            }
+            var list = accessRightService.GetBackEndMenu();
             return Ok(list);
         }
     }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CMS.Web.Core.Api
 {
-    [CMSApiAuthorize]
+    [CMSAuthorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase

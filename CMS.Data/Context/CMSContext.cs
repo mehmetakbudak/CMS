@@ -10,14 +10,12 @@ namespace CMS.Data.Context
         public virtual DbSet<Author> Authors { get; set; }
 
         public virtual DbSet<ArticleCategory> ArticleCategories { get; set; }
-        
+
         public virtual DbSet<Article> Articles { get; set; }
 
         public virtual DbSet<Comment> Comments { get; set; }
 
         public virtual DbSet<User> Users { get; set; }
-
-        public virtual DbSet<AccessRightCategory> AccessRightCategories { get; set; }
 
         public virtual DbSet<AccessRight> AccessRights { get; set; }
 
@@ -35,15 +33,11 @@ namespace CMS.Data.Context
 
         public virtual DbSet<TodoStatus> TodoStatuses { get; set; }
 
-        public virtual DbSet<Role> Roles { get; set; }
-
-        public virtual DbSet<RoleAccessRight> RoleAccessRights { get; set; }
-
         public virtual DbSet<UserAccessRight> UserAccessRights { get; set; }
 
-        public virtual DbSet<UserRole> UserRoles { get; set; }
-
         public virtual DbSet<Menu> Menus { get; set; }
+
+        public virtual DbSet<MenuItems> MenuItems { get; set; }
 
         public virtual DbSet<Page> Pages { get; set; }
 

@@ -44,12 +44,12 @@ namespace CMS.Service
         {
             try
             {
-                var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+                var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
                 if (string.IsNullOrEmpty(url))
                 {
-                    result.StatusCode = HttpStatusCode.BadRequest;
-                    result.Exceptions.Add("Url bulunamadı.");
+                    result.StatusCode = (int)HttpStatusCode.BadRequest;
+                    result.Message = "Url bulunamadı.";
                 }
 
                 var categoryBlog = unitOfWork.Repository<BlogCategory>().Find(x =>
@@ -83,8 +83,8 @@ namespace CMS.Service
                 }
                 else
                 {
-                    result.StatusCode = HttpStatusCode.NotFound;
-                    result.Exceptions.Add($"{url} ile blog kategorisi bulunamadı.");
+                    result.StatusCode = (int)HttpStatusCode.NotFound;
+                    result.Message = $"{url} ile blog kategorisi bulunamadı.";
                 }
                 return result;
             }

@@ -22,7 +22,7 @@ namespace CMS.Service
 
         public ServiceResult Post(ContactModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             try
             {
                 var contact = new Contact
@@ -39,8 +39,8 @@ namespace CMS.Service
             }
             catch (Exception ex)
             {
-                result.Exceptions.Add(ex.Message);
-                result.StatusCode = HttpStatusCode.InternalServerError;
+                result.Message = ex.Message;
+                result.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
             return result;
         }

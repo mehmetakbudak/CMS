@@ -21,7 +21,7 @@ namespace CMS.Api
         public IActionResult GetBlogByCategoryUrl(string url, int page)
         {
             var result = blogCategoryService.GetBlogByCategoryUrl(url, page);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

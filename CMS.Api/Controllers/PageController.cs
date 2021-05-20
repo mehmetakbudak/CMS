@@ -16,6 +16,7 @@ namespace CMS.Api
             this.pageService = pageService;
         }
 
+        [HttpGet]
         public IActionResult Get()
         {
             var list = pageService.GetAll().ToList();
@@ -29,25 +30,25 @@ namespace CMS.Api
             return Ok(page);
         }
 
-        [Route("GetByUrl")]
+        [HttpGet("GetByUrl")]
         public IActionResult GetByUrl(string url)
         {
             var result = pageService.GetByUrl(url);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("CreateOrUpdate")]
         public IActionResult CreateOrUpdate([FromBody] Page model)
         {
             var result = pageService.CreateOrUpdate(model);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var result = pageService.Delete(id);
-            return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

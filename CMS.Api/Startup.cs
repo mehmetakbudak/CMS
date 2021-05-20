@@ -2,6 +2,7 @@ using CMS.Data.Context;
 using CMS.Data.Repository;
 using CMS.Model.Model;
 using CMS.Service;
+using CMS.Service.Helper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -37,19 +38,15 @@ namespace CMS.Api
             services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-            services.AddScoped<IJWTService, JWTService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ILoginService, LoginService>();
+            services.AddScoped<IJwtHelper, JwtHelper>();
             services.AddScoped<IAccessRightService, AccessRightService>();
             services.AddScoped<IContactCategoryService, ContactCategoryService>();
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IChatMessageService, ChatMessageService>();
-            services.AddScoped<IUserGroupAccessRightService, RoleAccessRightService>();
-            services.AddScoped<IUserUserGroupService, UserRoleService>();
             services.AddScoped<IUserAccessRightService, UserAccessRightService>();
             services.AddScoped<IAccessRightService, AccessRightService>();
-            services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IPageService, PageService>();
             services.AddScoped<IBlogCategoryService, BlogCategoryService>();
             services.AddScoped<IBlogService, BlogService>();
@@ -91,7 +88,7 @@ namespace CMS.Api
                         return new BadRequestObjectResult(
                             new ServiceResult
                             {
-                                Exceptions = errors
+                                Message = errors.First()
                             });
                     };
                 }).AddJsonOptions(options =>
@@ -100,6 +97,9 @@ namespace CMS.Api
                 });
 
             services.AddMemoryCache();
+
+            services.AddSwaggerGen();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -119,12 +119,16 @@ namespace CMS.Api
             .AllowAnyMethod()
             .AllowAnyHeader());
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            Global.Initialize(Configuration);
 
-          
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
         }
     }
 }

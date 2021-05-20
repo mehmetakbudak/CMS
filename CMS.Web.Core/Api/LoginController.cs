@@ -20,16 +20,7 @@ namespace CMS.Web.Core.Api
         [HttpPost]
         public IActionResult Post([FromBody] LoginModel login)
         {
-            var result = loginService.Post(login);
-
-            if (result.StatusCode == HttpStatusCode.OK)
-            {
-                var data = (LoginReturnModel)result.Data;
-                HttpContext.Session.SetInt32("UserId", data.UserId);
-                HttpContext.Session.SetInt32("UserType", data.UserType);
-                HttpContext.Session.SetString("UserFullname", data.UserFullName);
-                result.Data = data.UserFullName;
-            }
+            var result = loginService.Post(login);            
             return StatusCode(result.IntStatusCode, HttpHelper.Result(result));
         }
     }

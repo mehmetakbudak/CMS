@@ -1,12 +1,18 @@
-﻿using CMS.Model.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace CMS.Model.Dto
+namespace CMS.Model.Model
 {
-    public class AccessRightModel : BaseModel
+    public class AccessRightModel
     {
-        public string Title { get; set; }
-        public string Url { get; set; }
-        public List<AccessRightModel> Items { get; set; }
+        public List<TreeModel> OperationAccessRights { get; set; }
+        public List<TreeModel> MenuAccessRights { get; set; }
+    }
+
+    public class UserAccessRightModel
+    {
+        public int UserId { get; set; }
+        public List<int> OperationUserAccessRights { get; set; }
+        public List<int> MenuUserAccessRights { get; set; }
+
     }
 }

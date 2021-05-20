@@ -1,255 +1,164 @@
-﻿using System;
-using CMS.Data.Context;
-using CMS.Data.Repository;
+﻿using CMS.Data.Context;
 using CMS.Model.Dto;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
+using CMS.Model.Model;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace CMS.Service
 {
     public interface IAccessRightService
     {
-        IQueryable<AccessRightModel> GetAll(AccessRightCategoryType menuType);
-        List<AccessRightModel> GetFrontEndMenu();
-        List<AccessRightModel> GetBackEndMenuByUserId(int userId, int userType);
-        List<AccessRight> GetAccessRightsByUserId(int userId, bool isShowMenu);
+        AccessRightModel Get();
+        List<TreeMenuModel> GetBackEndMenu();
     }
     public class AccessRightService : IAccessRightService
     {
         private readonly IUserAccessRightService userAccessRightService;
-        private readonly IUserUserGroupService userUserGroupService;
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly CMSContext context;
 
         public AccessRightService(
             IUserAccessRightService userAccessRightService,
-            IUserUserGroupService userUserGroupService,
-            IUnitOfWork<CMSContext> unitOfWork)
+            CMSContext context)
         {
             this.userAccessRightService = userAccessRightService;
-            this.userUserGroupService = userUserGroupService;
-            this.unitOfWork = unitOfWork;
+            this.context = context;
         }
 
-        public IQueryable<AccessRightModel> GetAll(AccessRightCategoryType menuType)
+        public AccessRightModel Get()
         {
-            List<AccessRightModel> list = new List<AccessRightModel>();
+            var model = new AccessRightModel();
+            var accessRights = context.AccessRights.Where(x => !x.Deleted).ToList();
 
-            var accessRights = unitOfWork
-                .Repository<AccessRight>()
-                .GetAll(x => x.ParentId == null,
-                x => x.Include(o => o.AccessRightCategory))
-                .Where(x => !x.Deleted &&
-                x.AccessRightCategory.Type == menuType).ToList();
-
-            foreach (var x in accessRights)
+            if (accessRights != null && accessRights.Any())
             {
-                AccessRightModel item = new AccessRightModel();
-                item.Id = x.Id;
-                item.Title = x.LinkName;
-                item.Url = x.LinkUrl;
-                var subMenus = GetAccessRightSubItems(x.Id, menuType);
-                if (subMenus.Any())
-                    item.Items = subMenus;
-                list.Add(item);
+                var operationAccessRights = accessRights
+                    .Where(x => x.Type == AccessRightType.Operation && x.ParentId == null).ToList();
+                if (operationAccessRights != null && operationAccessRights.Any())
+                {
+                    model.OperationAccessRights = operationAccessRights.Select(x => new TreeModel
+                    {
+                        Key = x.Id,
+                        Label = x.Name,
+                        Children = GetSubAccessRights(x.Id, accessRights)
+                    }).ToList();
+                }
+
+                var menuAccessRights = accessRights.Where(x => x.Type == AccessRightType.Menu && x.ParentId == null).ToList();
+                if (menuAccessRights != null || menuAccessRights.Any())
+                {
+                    model.MenuAccessRights = menuAccessRights.Select(x => new TreeModel
+                    {
+                        Key = x.Id,
+                        Label = x.Name,
+                        Children = GetSubAccessRights(x.Id, accessRights)
+                    }).ToList();
+                }
             }
-            return list.AsQueryable();
+            return model;
         }
 
-        public List<AccessRightModel> GetAccessRightSubItems(int? parentId, AccessRightCategoryType menuType)
+        private List<TreeModel> GetSubAccessRights(int parentId, List<AccessRight> menuItems)
         {
-            List<AccessRightModel> list = new List<AccessRightModel>();
-
-            var accessRights = unitOfWork.Repository<AccessRight>()
-                .GetAll(x => !x.Deleted &&
-                x.AccessRightCategory.Type == menuType &&
-                x.ParentId == parentId &&
-                x.IsShowMenu)
-                .OrderBy(x => x.Order).ToList();
-
-            foreach (var x in accessRights)
+            try
             {
-                AccessRightModel item = new AccessRightModel();
-                item.Id = x.Id;
-                item.Title = x.LinkName;
-                item.Url = x.LinkUrl;
-                var subMenus = GetAccessRightSubItems(x.Id, menuType);
-                if (subMenus.Any())
-                    item.Items = subMenus;
-                list.Add(item);
+                List<TreeModel> list = null;
+                var items = menuItems.Where(x => x.ParentId != null &&
+                            x.ParentId == parentId)
+                            .OrderBy(x => x.Order).ToList();
+
+                if (items != null && items.Any())
+                {
+                    list = items.Select(x => new TreeModel
+                    {
+                        Key = x.Id,
+                        Label = x.Name,
+                        Children = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
+                    }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public List<TreeMenuModel> GetBackEndMenu()
+        {
+            var list = new List<TreeMenuModel>();
+            try
+            {
+                var user = context.Users.FirstOrDefault(x => x.Id == AuthTokenContent.Current.UserId);
+                List<AccessRight> accessRights = new List<AccessRight>();
+
+                if (user.UserType == UserType.SuperAdmin)
+                {
+                    accessRights = context.AccessRights
+                        .Where(x => x.Type == AccessRightType.Menu).ToList();                    
+                }
+                else
+                {
+                    var userAccessRights = context.UserAccessRights
+                        .Include(x => x.AccessRight)
+                        .Where(x => x.UserId == user.Id).ToList();
+
+                    if (userAccessRights != null && userAccessRights.Any())
+                    {
+                        accessRights = userAccessRights.Select(x => x.AccessRight).ToList();                        
+                    }
+                }
+
+                if (accessRights.Any())
+                {
+                    var menuItems = accessRights
+                            .Where(x => x.ParentId == null &&
+                            x.IsActive && !x.Deleted)
+                            .OrderBy(x => x.Order).ToList();
+
+                    list = menuItems.Select(x => new TreeMenuModel
+                    {
+                        Key = x.Id,
+                        Label = x.Name,
+                        To = x.Endpoint,
+                        Children = GetSubMenuForBackEnd(x.Id, accessRights)
+                    }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
             return list;
         }
 
-        public List<AccessRight> GetAccessRightsByUserId(int userId, bool isShowMenu)
+        private List<TreeMenuModel> GetSubMenuForBackEnd(int parentId, List<AccessRight> menuItems)
         {
-            List<AccessRight> accessRights = new List<AccessRight>();
+            List<TreeMenuModel> menus = new List<TreeMenuModel>();
             try
             {
-                var userAccessRights = userAccessRightService.GetAll().Where(x =>
-                    x.UserId == userId &&
-                    !x.AccessRight.Deleted &&
-                    x.AccessRight.IsShowMenu == isShowMenu)
-                    .Select(x => x.AccessRight).ToList();
+                var list = new List<MenuModel>();
+                var items = menuItems.Where(x => x.ParentId != null &&
+                            x.ParentId == parentId)
+                            .OrderBy(x => x.Order).ToList();
 
-                if (userAccessRights.Any())
-                    accessRights.AddRange(userAccessRights);
-
-                var userRole = userUserGroupService.GetAll()
-                    .Where(x => x.UserId == userId).ToList();
-
-                foreach (var item in userRole)
+                return items.Select(x => new TreeMenuModel
                 {
-                    var accessRightList = item.Role.RoleAccessRights.Where(x =>
-                        x.AccessRight.IsShowMenu == isShowMenu &&
-                        !x.AccessRight.Deleted)
-                        .Select(x => x.AccessRight).ToList();
-
-                    foreach (var accessRight in accessRightList)
-                    {
-                        var checkAccessRight = accessRights.Any(x => x.Id == accessRight.Id);
-                        if (!checkAccessRight)
-                            accessRights.Add(accessRight);
-                    }
-                }
+                    Key = x.Id,
+                    Label = x.Name,
+                    To = x.Endpoint,
+                    Children = x.ParentId.HasValue ? GetSubMenuForBackEnd(x.Id, menuItems) : null
+                }).ToList();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            return accessRights;
         }
 
-        public List<AccessRightModel> GetFrontEndMenu()
-        {
-            List<AccessRightModel> menus = new List<AccessRightModel>();
-            try
-            {
-                var list = unitOfWork.Repository<AccessRight>()
-                .GetAll(x => !x.Deleted &&
-                x.AccessRightCategory.Type == AccessRightCategoryType.Frontend &&
-                x.ParentId == null &&
-                x.IsShowMenu,
-                x => x.Include(o => o.AccessRightCategory))
-                .OrderBy(x => x.Order).ToList();
-
-                foreach (var x in list)
-                {
-                    AccessRightModel menu = new AccessRightModel();
-                    menu.Id = x.Id;
-                    menu.Title = x.LinkName;
-                    menu.Url = x.LinkUrl;
-                    var subMenus = GetSubMenuForFrontEnd(x.Id);
-                    if (subMenus.Any())
-                        menu.Items = subMenus;
-                    menus.Add(menu);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return menus;
-        }
-
-        public List<AccessRightModel> GetSubMenuForFrontEnd(int? parentId)
-        {
-            List<AccessRightModel> menus = new List<AccessRightModel>();
-            try
-            {
-                var list = unitOfWork.Repository<AccessRight>()
-                    .GetAll(
-                    x => !x.Deleted &&
-                    x.AccessRightCategory.Type == AccessRightCategoryType.Frontend &&
-                    x.ParentId == parentId
-                    && x.IsShowMenu,
-                    x => x.Include(o => o.AccessRightCategory))
-                    .OrderBy(x => x.Order).ToList();
-
-                foreach (var x in list)
-                {
-                    AccessRightModel menu = new AccessRightModel();
-                    menu.Id = x.Id;
-                    menu.Title = x.LinkName;
-                    menu.Url = x.LinkUrl;
-                    var subMenus = GetSubMenuForFrontEnd(x.Id);
-                    if (subMenus.Any())
-                        menu.Items = subMenus;
-                    menus.Add(menu);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return menus;
-        }
-
-        public List<AccessRightModel> GetSubMenuForBackEnd(List<AccessRight> list, int? parentId)
-        {
-            List<AccessRightModel> menus = new List<AccessRightModel>();
-            try
-            {
-                var accessRights = list.Where(x => !x.Deleted &&
-                  x.AccessRightCategory.Type == AccessRightCategoryType.Admin &&
-                  x.ParentId == parentId &&
-                  x.IsShowMenu)
-                    .OrderBy(x => x.Order).ToList();
-
-                foreach (var x in accessRights)
-                {
-                    AccessRightModel menu = new AccessRightModel();
-                    menu.Id = x.Id;
-                    menu.Title = x.LinkName;
-                    menu.Url = x.LinkUrl;
-                    var subMenus = GetSubMenuForBackEnd(list, x.Id);
-                    if (subMenus.Any())
-                        menu.Items = subMenus;
-                    menus.Add(menu);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return menus;
-        }
-
-        public List<AccessRightModel> GetBackEndMenuByUserId(int userId, int userType)
-        {
-            List<AccessRightModel> menus = new List<AccessRightModel>();
-            try
-            {
-                var type = (UserType)userType;
-
-                if (type == UserType.SuperAdmin)
-                {
-                    return GetAll(AccessRightCategoryType.Admin).ToList();
-                }
-
-                var list = GetAccessRightsByUserId(userId, true);
-
-                var accessRights = list.Where(x => x.ParentId == null).OrderBy(x => x.Order).ToList();
-
-                foreach (var x in accessRights)
-                {
-                    AccessRightModel menu = new AccessRightModel();
-                    menu.Id = x.Id;
-                    menu.Title = x.LinkName;
-                    menu.Url = x.LinkUrl;
-                    var subMenus = GetSubMenuForBackEnd(list, x.Id);
-                    if (subMenus.Any())
-                        menu.Items = subMenus;
-                    menus.Add(menu);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return menus;
-        }
     }
 }
