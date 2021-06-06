@@ -1,7 +1,7 @@
 <template>
   <Panel header="Admin Menü">
     <template #icons>
-      <button class="p-panel-header-icon p-link p-mr-2" @click="add">
+      <button class="p-panel-header-icon p-link p-mr-2" @click="add()">
         <span class="pi pi-plus"></span>
       </button>
     </template>
@@ -132,12 +132,16 @@ export default {
       this.displayModal = true;
       this.modalTitle = "Admin Menü Ekle";
     },
-    edit(e) {},
-    remove(e) {},
+    edit(e) {
+      console.log(e);
+    },
+    remove(e) {
+      console.log(e);
+    },
     save() {
-      if (this.accessRight.id == 0) {
-      } else {
-      }
+      // if (this.accessRight.id == 0) {
+      // } else {
+      // }
     },
   },
 };
