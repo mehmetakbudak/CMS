@@ -2,8 +2,8 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
+using CMS.Service.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq;
 using System.Net;
 
@@ -26,72 +26,56 @@ namespace CMS.Service
 
         public IQueryable<BlogCategory> GetAll()
         {
-            try
-            {
-                var entity = unitOfWork.Repository<BlogCategory>()
-                    .GetAll(x =>
-                    !x.Deleted && x.IsActive,
-                    x => x.Include(y => y.Blogs));
-                return entity;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entity = unitOfWork.Repository<BlogCategory>()
+                .GetAll(x =>
+                !x.Deleted && x.IsActive,
+                x => x.Include(y => y.Blogs));
+            return entity;
         }
 
         public ServiceResult GetBlogByCategoryUrl(string url, int page)
         {
-            try
+            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+
+            if (string.IsNullOrEmpty(url))
             {
-                var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+                throw new NotFoundException("Url bulunamadı.");
+            }
 
-                if (string.IsNullOrEmpty(url))
+            var categoryBlog = unitOfWork.Repository<BlogCategory>().Find(x =>
+                x.Url == url &&
+                !x.Deleted && x.IsActive,
+                x => x.Include(y => y.Blogs));
+
+            if (categoryBlog != null)
+            {
+                var skip = (page - 1) * 10;
+                var blogs = categoryBlog.Blogs
+                    .Where(x => x.IsActive && !x.Deleted && x.Published)
+                    .OrderBy(x => x.Sequence)
+                    .ToList();
+
+                result.Data = new BlogCategoryModel
                 {
-                    result.StatusCode = (int)HttpStatusCode.BadRequest;
-                    result.Message = "Url bulunamadı.";
-                }
-
-                var categoryBlog = unitOfWork.Repository<BlogCategory>().Find(x =>
-                    x.Url == url &&
-                    !x.Deleted && x.IsActive,
-                    x => x.Include(y => y.Blogs));
-
-                if (categoryBlog != null)
-                {
-                    var skip = (page - 1) * 10;
-                    var blogs = categoryBlog.Blogs
-                        .Where(x => x.IsActive && !x.Deleted && x.Published)
-                        .OrderBy(x => x.Sequence)
-                        .ToList();
-
-                    result.Data = new BlogCategoryModel
+                    Id = categoryBlog.Id,
+                    Name = categoryBlog.Name,
+                    Url = categoryBlog.Url,
+                    TotalCount = blogs.Count,
+                    Blogs = blogs.Skip(skip).Take(10)
+                    .Select(x => new BlogModel
                     {
-                        Id = categoryBlog.Id,
-                        Name = categoryBlog.Name,
-                        Url = categoryBlog.Url,
-                        TotalCount = blogs.Count,
-                        Blogs = blogs.Skip(skip).Take(10)
-                        .Select(x => new BlogModel
-                        {
-                            Content = x.Content,
-                            Id = x.Id,
-                            Title = x.Title,
-                            Url = x.Url
-                        }).ToList()
-                    };
-                }
-                else
-                {
-                    result.StatusCode = (int)HttpStatusCode.NotFound;
-                    result.Message = $"{url} ile blog kategorisi bulunamadı.";
-                }
-                return result;
+                        Content = x.Content,
+                        Id = x.Id,
+                        Title = x.Title,
+                        Url = x.Url
+                    }).ToList()
+                };
             }
-            catch (Exception ex)
+            else
             {
-                throw new Exception(ex.Message);
+                throw new NotFoundException($"{url} ile blog kategorisi bulunamadı.");
             }
+            return result;
         }
     }
 }

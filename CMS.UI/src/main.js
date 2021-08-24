@@ -1,3 +1,11 @@
+import 'primeflex/primeflex.css';
+import 'primevue/resources/themes/bootstrap4-light-blue/theme.css';
+import 'primevue/resources/primevue.min.css';
+import 'primeicons/primeicons.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap";
+import "./assets/style.css";
+
 import {
     createApp
 } from 'vue'
@@ -95,14 +103,6 @@ import Tree from 'primevue/tree';
 import TreeSelect from 'primevue/treeselect';
 import TreeTable from 'primevue/treetable';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
-
-
-import 'primevue/resources/themes/bootstrap4-light-blue/theme.css';
-import 'primevue/resources/primevue.min.css';
-import 'primeicons/primeicons.css';
-import 'primeflex/primeflex.css';
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap";
 
 const app = createApp(App);
 

@@ -16,6 +16,14 @@ namespace CMS.Model.Model
         [Required(ErrorMessage = "Kullanıcı soyadı zorunludur.")]
         public string Surname { get; set; }
 
+        public string FullName
+        {
+            get
+            {
+                return $"{Name} {Surname}";
+            }
+        }
+
         [Required(ErrorMessage = "Email adresi zorunludur.")]
         [EmailAddress(ErrorMessage = "Email formatı uygun değildir.")]
         public string EmailAddress { get; set; }

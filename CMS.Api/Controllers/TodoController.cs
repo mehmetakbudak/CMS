@@ -23,10 +23,17 @@ namespace CMS.Api
             return Ok(list);
         }
 
-        [HttpPost("CreateOrUpdate")]
-        public IActionResult CreateOrUpdate([FromBody] TodoModel model)
+        [HttpPost]
+        public IActionResult Post([FromBody] TodoModel model)
         {
-            var result = todoService.CreateOrUpdate(model);
+            var result = todoService.Post(model);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut]
+        public IActionResult Put([FromBody] TodoModel model)
+        {
+            var result = todoService.Put(model);
             return StatusCode(result.StatusCode, result);
         }
 

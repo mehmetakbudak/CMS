@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import AccessRightService from "../services/AccessRightService";
+import AccessRightService from "../../../services/AccessRightService";
 
 export default {
   data() {

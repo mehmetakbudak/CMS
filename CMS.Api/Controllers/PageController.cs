@@ -37,10 +37,17 @@ namespace CMS.Api
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPost("CreateOrUpdate")]
-        public IActionResult CreateOrUpdate([FromBody] Page model)
+        [HttpPost]
+        public IActionResult Post([FromBody] Page model)
         {
-            var result = pageService.CreateOrUpdate(model);
+            var result = pageService.Post(model);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut]
+        public IActionResult Put([FromBody] Page model)
+        {
+            var result = pageService.Put(model);
             return StatusCode(result.StatusCode, result);
         }
 

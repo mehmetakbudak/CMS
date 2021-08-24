@@ -88,8 +88,6 @@ namespace CMS.Data.Repository
                 throw new ArgumentNullException("entity is null");
 
             _dbSet.Update(entity);
-
-            // _context.Entry<TEntity>(entity).State = EntityState.Modified;
         }
 
         public void Dispose()

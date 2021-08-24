@@ -2,6 +2,7 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
+using CMS.Service.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Net;
@@ -23,46 +24,38 @@ namespace CMS.Service
         }
         public ServiceResult GetByUrl(string url)
         {
-            try
-            {
-                var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-                if (string.IsNullOrEmpty(url))
-                {
-                    result.StatusCode = (int)HttpStatusCode.BadRequest;
-                    result.Message = "Url bulunamadı.";
-                }
-                var blog = unitOfWork.Repository<Blog>()
-                .Find(x => x.Url == url &&
-                    !x.Deleted &&
-                    x.Published &&
-                    x.IsActive,
-                    x => x.Include(y => y.BlogCategory));
+            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-                if (blog == null)
-                {
-                    result.Message = "Kayıt bulunamadı.";
-                    result.StatusCode = (int)HttpStatusCode.NotFound;
-                }
-                else
-                {
-                    result.Data = new BlogDetailModel
-                    {
-                        Content = blog.Content,
-                        Count = blog.Count,
-                        Id = blog.Id,
-                        InsertedDate = blog.InsertedDate,
-                        Title = blog.Title,
-                        CategoryName = blog.BlogCategory.Name,
-                        CategoryUrl = blog.BlogCategory.Url
-                    };
-                }
-                return result;
-            }
-            catch (Exception ex)
+            if (string.IsNullOrEmpty(url))
             {
-                throw new Exception(ex.Message);
+                throw new NotFoundException("Url bulunamadı.");
             }
+            var blog = unitOfWork.Repository<Blog>()
+            .Find(x => x.Url == url &&
+                !x.Deleted &&
+                x.Published &&
+                x.IsActive,
+                x => x.Include(y => y.BlogCategory));
+
+            if (blog == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            else
+            {
+                result.Data = new BlogDetailModel
+                {
+                    Content = blog.Content,
+                    Count = blog.Count,
+                    Id = blog.Id,
+                    InsertedDate = blog.InsertedDate,
+                    Title = blog.Title,
+                    CategoryName = blog.BlogCategory.Name,
+                    CategoryUrl = blog.BlogCategory.Url
+                };
+            }
+            return result;
         }
     }
 }

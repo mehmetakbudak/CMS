@@ -13,6 +13,7 @@
             class="me-3 p-button-sm"
             icon="pi pi-th-large"
             @click="visibleLeft = true"
+            label="Menü"
           />
           <Button
             type="button"
@@ -49,8 +50,13 @@
     <div class="mt-3">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-md-3 border-end">
-            <Tree :value="leftMenu" :filter="true" filterMode="lenient">
+          <div class="col-md-3 border">
+            <Tree
+              class="p-2"
+              :value="leftMenu"
+              :filter="true"
+              filterMode="lenient"
+            >
               <template #default="menu">
                 <a
                   class="text-dark text-decoration-none"
@@ -88,6 +94,10 @@ export default {
       visibleLeft: false,
       leftMenu: [],
       rightMenuItems: [
+        {
+          label: "Siteye Git",
+          to: "/",
+        },
         {
           label: "Çıkış Yap",
           command: () => {

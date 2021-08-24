@@ -15,6 +15,7 @@
     </div>
     <div class="border border-top-0">
       <DataTable
+        showGridlines
         :value="users"
         :paginator="true"
         :rows="5"
@@ -23,7 +24,7 @@
         responsiveLayout="scroll"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
       >
-        <Column header="">
+        <Column header="" class="w-120">
           <template #body="slotProps">
             <Button
               icon="pi pi-pencil"
@@ -55,7 +56,7 @@
     :header="modalTitle"
     v-model:visible="displayModal"
     :modal="true"
-    :breakpoints="{ '960px': '75vw' }"
+    :breakpoints="{ '960px': '95vw' }"
     :style="{ width: '50vw' }"
   >
     <div>
@@ -119,7 +120,7 @@
 </template>
 
 <script>
-import userService from "../services/UserService";
+import userService from "../../services/UserService";
 
 export default {
   data() {

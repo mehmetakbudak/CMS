@@ -2,7 +2,7 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
-using System;
+using CMS.Service.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,7 +13,8 @@ namespace CMS.Service
     {
         IQueryable<TodoCategory> GetAll();
         List<LookupModel> Lookup();
-        ServiceResult CreateOrUpdate(TodoCategory model);
+        ServiceResult Post(TodoCategory model);
+        ServiceResult Put(TodoCategory model);
         ServiceResult Delete(int id);
     }
 
@@ -45,71 +46,60 @@ namespace CMS.Service
                 }).ToList();
         }
 
-        public ServiceResult CreateOrUpdate(TodoCategory model)
+        public ServiceResult Post(TodoCategory model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
-            {
-                if (model.Id == 0)
-                {
-                    var todoCategory = new TodoCategory
-                    {
-                        Deleted = false,
-                        IsActive = model.IsActive,
-                        Name = model.Name
-                    };
-                    unitOfWork.Repository<TodoCategory>().Add(todoCategory);
-                    unitOfWork.Save();
-                }
-                else
-                {
-                    var todoCategory = unitOfWork.Repository<TodoCategory>()
-                        .Find(x => x.Id == model.Id);
 
-                    if (todoCategory != null)
-                    {
-                        todoCategory.Name = model.Name;
-                        todoCategory.IsActive = model.IsActive;
-                        unitOfWork.Save();
-                    }
-                    else
-                    {
-                        serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
-                        serviceResult.Message = "Kayıt bulunamadı.";
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (model.Id == 0)
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                var todoCategory = new TodoCategory
+                {
+                    Deleted = false,
+                    IsActive = model.IsActive,
+                    Name = model.Name
+                };
+                unitOfWork.Repository<TodoCategory>().Add(todoCategory);
+                unitOfWork.Save();
             }
             return serviceResult;
         }
 
+        public ServiceResult Put(TodoCategory model)
+        {
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+
+            var todoCategory = unitOfWork.Repository<TodoCategory>()
+                    .Find(x => x.Id == model.Id);
+
+            if (todoCategory != null)
+            {
+                todoCategory.Name = model.Name;
+                todoCategory.IsActive = model.IsActive;
+                unitOfWork.Save();
+            }
+            else
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            return serviceResult;
+        }
+
+
         public ServiceResult Delete(int id)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
-            {
-                var todoCategory = unitOfWork.Repository<TodoCategory>()
-                       .Find(x => x.Id == id);
 
-                if (todoCategory != null)
-                {
-                    todoCategory.Deleted = true;
-                    unitOfWork.Save();
-                }
-                else
-                {
-                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
-                    serviceResult.Message = "Kayıt bulunamadı.";
-                }
-            }
-            catch (Exception ex)
+            var todoCategory = unitOfWork.Repository<TodoCategory>()
+                   .Find(x => x.Id == id);
+
+            if (todoCategory != null)
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                todoCategory.Deleted = true;
+                unitOfWork.Save();
+            }
+            else
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
             return serviceResult;
         }

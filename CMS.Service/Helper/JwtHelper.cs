@@ -1,8 +1,8 @@
 ﻿using CMS.Model.Entity;
 using CMS.Model.Model;
+using CMS.Service.Exceptions;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -44,30 +44,28 @@ namespace CMS.Service.Helper
 
         public JwtSecurityToken ValidateToken(string token)
         {
-            try
-            {
-                JwtSecurityToken jwtToken = null;
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(Global.Secret);
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
 
-                if (validatedToken != null)
-                {
-                    jwtToken = (JwtSecurityToken)validatedToken;
-                }
-                return jwtToken;
-            }
-            catch
+            JwtSecurityToken jwtToken = null;
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(Global.Secret);
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
-                throw new Exception("Token doğrulanamadı.");
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            }, out SecurityToken validatedToken);
+
+            if (validatedToken != null)
+            {
+                jwtToken = (JwtSecurityToken)validatedToken;
             }
+            else
+            {
+                throw new BadRequestException("Token doğrulanamadı.");
+            }
+            return jwtToken;
         }
     }
 }

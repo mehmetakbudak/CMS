@@ -2,7 +2,7 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
-using System;
+using CMS.Service.Exceptions;
 using System.Linq;
 using System.Net;
 
@@ -13,7 +13,8 @@ namespace CMS.Service
         IQueryable<Page> GetAll();
         Page GetById(int id);
         ServiceResult GetByUrl(string url);
-        ServiceResult CreateOrUpdate(Page model);
+        ServiceResult Post(Page model);
+        ServiceResult Put(Page model);
         ServiceResult Delete(int id);
     }
 
@@ -42,71 +43,59 @@ namespace CMS.Service
 
         public ServiceResult GetByUrl(string url)
         {
-            try
+            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+
+            if (string.IsNullOrEmpty(url))
             {
-                var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-
-                if (string.IsNullOrEmpty(url))
-                {
-                    result.StatusCode = (int)HttpStatusCode.BadRequest;
-                    result.Message = "Url bulunamadı.";
-                }
-
-                var page = unitOfWork.Repository<Page>().Find(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
-
-                if (page != null)
-                {
-                    result.Data = page;
-                }
-                else
-                {
-                    result.Message = $"{url} ile sayfa bulunamadı.";
-                    result.StatusCode = (int)HttpStatusCode.NotFound;
-                }
-                return result;
+                throw new NotFoundException("Url bulunamadı.");
             }
-            catch (Exception ex)
+
+            var page = unitOfWork.Repository<Page>().Find(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
+
+            if (page != null)
             {
-                throw new Exception(ex.Message);
+                result.Data = page;
             }
+            else
+            {
+                throw new NotFoundException($"{url} ile sayfa bulunamadı.");
+            }
+            return result;
         }
 
-        public ServiceResult CreateOrUpdate(Page model)
+        public ServiceResult Post(Page model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
+
+            if (model.Id == 0)
             {
-                if (model.Id == 0)
-                {
-                    model.Deleted = false;
-                    unitOfWork.Repository<Page>().Add(model);
-                    unitOfWork.Save();
-                }
-                else
-                {
-                    var page = unitOfWork.Repository<Page>()
-                        .Find(x => x.Id == model.Id);
-                    if (page != null)
-                    {
-                        page.Content = model.Content;
-                        page.IsActive = model.IsActive;
-                        page.MenuId = model.MenuId;
-                        page.Name = model.Name;
-                        page.Published = model.Published;
-                        page.Title = model.Title;
-                        page.Url = model.Url;
-                        unitOfWork.Save();
-                    }
-                    else
-                    {
-                        throw new Exception("Kayıt bulunamadı.");
-                    }
-                }
+                model.Deleted = false;
+                unitOfWork.Repository<Page>().Add(model);
+                unitOfWork.Save();
             }
-            catch (Exception ex)
+            return serviceResult;
+        }
+
+        public ServiceResult Put(Page model)
+        {
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+
+            var page = unitOfWork.Repository<Page>()
+                                 .Find(x => x.Id == model.Id);
+            if (page != null)
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                page.Content = model.Content;
+                page.IsActive = model.IsActive;
+                page.MenuId = model.MenuId;
+                page.Name = model.Name;
+                page.Published = model.Published;
+                page.Title = model.Title;
+                page.Url = model.Url;
+                unitOfWork.Save();
+            }
+            else
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
             return serviceResult;
         }
@@ -114,26 +103,18 @@ namespace CMS.Service
         public ServiceResult Delete(int id)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
-            {
-                var page = unitOfWork.Repository<Page>()
-                       .Find(x => x.Id == id);
 
-                if (page != null)
-                {
-                    page.Deleted = true;
-                    unitOfWork.Save();
-                }
-                else
-                {
-                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
-                    serviceResult.Message = "Kayıt bulunamadı.";
-                }
-            }
-            catch (Exception ex)
+            var page = unitOfWork.Repository<Page>()
+                   .Find(x => x.Id == id);
+
+            if (page != null)
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                page.Deleted = true;
+                unitOfWork.Save();
+            }
+            else
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
             return serviceResult;
         }

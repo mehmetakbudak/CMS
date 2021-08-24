@@ -1,7 +1,11 @@
 <template>
   <div class="mt-3">
     <div class="mt-3 mb-3">
-      <ConfirmPopup></ConfirmPopup>
+      <div>
+        <Toast></Toast>
+        <ConfirmDialog></ConfirmDialog>
+      </div>
+
       <router-view></router-view>
     </div>
   </div>

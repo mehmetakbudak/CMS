@@ -23,25 +23,19 @@ namespace CMS.Service
         public ServiceResult Post(ContactModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
+
+            var contact = new Contact
             {
-                var contact = new Contact
-                {
-                    ContactCategoryId = model.Subject.Value,
-                    EmailAddress = model.EmailAddress,
-                    Message = model.Message,
-                    NameSurname = model.NameSurname,
-                    InsertDate = DateTime.Now
-                };
-                unitOfWork.Repository<Contact>().Add(contact);
-                unitOfWork.Save();
-                result.Message = "Mesajınız başarıyla kaydedilmiştir.";
-            }
-            catch (Exception ex)
-            {
-                result.Message = ex.Message;
-                result.StatusCode = (int)HttpStatusCode.InternalServerError;
-            }
+                ContactCategoryId = model.ContactCategoryId,
+                EmailAddress = model.EmailAddress,
+                Message = model.Message,
+                NameSurname = model.NameSurname,
+                InsertDate = DateTime.Now
+            };
+            unitOfWork.Repository<Contact>().Add(contact);
+            unitOfWork.Save();
+            result.Message = "Mesajınız başarıyla kaydedilmiştir.";
+
             return result;
         }
     }

@@ -23,10 +23,17 @@ namespace CMS.Api
             return Ok(list);
         }
 
-        [HttpPost("CreateOrUpdate")]
-        public IActionResult CreateOrUpdate([FromBody] TodoCategory model)
+        [HttpPost]
+        public IActionResult Post([FromBody] TodoCategory model)
         {
-            var result = todoCategoryService.CreateOrUpdate(model);
+            var result = todoCategoryService.Post(model);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut]
+        public IActionResult Put([FromBody] TodoCategory model)
+        {
+            var result = todoCategoryService.Put(model);
             return StatusCode(result.StatusCode, result);
         }
 

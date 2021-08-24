@@ -1,0 +1,15 @@
+.w-50px {
+    width: 50px;
+}
+
+.mt-5px {
+    margin-top: 5px !important;
+}
+
+.p-accordion .p-accordion-header .p-accordion-header-link {
+    padding: 0.5rem 1.25rem !important;
+}
+
+.p-menuitem {
+    border-bottom: 1px solid #dee2e6;
+}

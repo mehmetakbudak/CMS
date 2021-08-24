@@ -42,15 +42,7 @@ namespace CMS.Data.Repository
 
         public void Save()
         {
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            _context.SaveChanges();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -58,7 +50,7 @@ namespace CMS.Data.Repository
             if (!_disposed)
             {
                 if (disposing)
-                _context.Dispose();
+                    _context.Dispose();
             }
             this._disposed = true;
         }

@@ -9,16 +9,10 @@ namespace CMS.Model.Dto
         [Required(ErrorMessage = "Kategori seçiniz.")]
         public int TodoCategoryId { get; set; }
 
-        public string TodoCategoryName { get; set; }
-
         [Required(ErrorMessage = "Durum seçiniz.")]
         public int TodoStatusId { get; set; }
 
-        public string TodoStatusName { get; set; }
-
         public int? UserId { get; set; }
-
-        public string UserNameSurname { get; set; }
 
         [Required(ErrorMessage = "Başlık zorunludur.")]
         public string Title { get; set; }
@@ -27,10 +21,16 @@ namespace CMS.Model.Dto
 
         public string UserComment { get; set; }
 
-        public DateTime InsertDate { get; set; }
+        public bool IsActive { get; set; }
+    }
 
+    public class TodoGetModel : TodoModel
+    {
+        public string UserNameSurname { get; set; }
+        public string TodoStatusName { get; set; }
+        public string TodoCategoryName { get; set; }
+        public DateTime InsertDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
-        public bool IsActive { get; set; }
     }
 }

@@ -4,7 +4,6 @@ using CMS.Model.Entity;
 using CMS.Model.Enum;
 using CMS.Model.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -63,75 +62,62 @@ namespace CMS.Service
 
         private List<TreeModel> GetSubAccessRights(int parentId, List<AccessRight> menuItems)
         {
-            try
-            {
-                List<TreeModel> list = null;
-                var items = menuItems.Where(x => x.ParentId != null &&
-                            x.ParentId == parentId)
-                            .OrderBy(x => x.Order).ToList();
 
-                if (items != null && items.Any())
-                {
-                    list = items.Select(x => new TreeModel
-                    {
-                        Key = x.Id,
-                        Label = x.Name,
-                        Children = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
-                    }).ToList();
-                }
-                return list;
-            }
-            catch (Exception ex)
+            List<TreeModel> list = null;
+            var items = menuItems.Where(x => x.ParentId != null &&
+                        x.ParentId == parentId)
+                        .OrderBy(x => x.Order).ToList();
+
+            if (items != null && items.Any())
             {
-                throw new Exception(ex.Message);
+                list = items.Select(x => new TreeModel
+                {
+                    Key = x.Id,
+                    Label = x.Name,
+                    Children = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
+                }).ToList();
             }
+            return list;
         }
 
         public List<TreeMenuModel> GetBackEndMenu()
         {
             var list = new List<TreeMenuModel>();
-            try
+
+            var user = context.Users.FirstOrDefault(x => x.Id == AuthTokenContent.Current.UserId);
+            List<AccessRight> accessRights = new List<AccessRight>();
+
+            if (user.UserType == UserType.SuperAdmin)
             {
-                var user = context.Users.FirstOrDefault(x => x.Id == AuthTokenContent.Current.UserId);
-                List<AccessRight> accessRights = new List<AccessRight>();
-
-                if (user.UserType == UserType.SuperAdmin)
-                {
-                    accessRights = context.AccessRights
-                        .Where(x => x.Type == AccessRightType.Menu).ToList();                    
-                }
-                else
-                {
-                    var userAccessRights = context.UserAccessRights
-                        .Include(x => x.AccessRight)
-                        .Where(x => x.UserId == user.Id).ToList();
-
-                    if (userAccessRights != null && userAccessRights.Any())
-                    {
-                        accessRights = userAccessRights.Select(x => x.AccessRight).ToList();                        
-                    }
-                }
-
-                if (accessRights.Any())
-                {
-                    var menuItems = accessRights
-                            .Where(x => x.ParentId == null &&
-                            x.IsActive && !x.Deleted)
-                            .OrderBy(x => x.Order).ToList();
-
-                    list = menuItems.Select(x => new TreeMenuModel
-                    {
-                        Key = x.Id,
-                        Label = x.Name,
-                        To = x.Endpoint,
-                        Children = GetSubMenuForBackEnd(x.Id, accessRights)
-                    }).ToList();
-                }
-                return list;
+                accessRights = context.AccessRights
+                    .Where(x => x.Type == AccessRightType.Menu).ToList();
             }
-            catch (Exception ex)
+            else
             {
-                throw new Exception(ex.Message);
+                var userAccessRights = context.UserAccessRights
+                    .Include(x => x.AccessRight)
+                    .Where(x => x.UserId == user.Id).ToList();
+
+                if (userAccessRights != null && userAccessRights.Any())
+                {
+                    accessRights = userAccessRights.Select(x => x.AccessRight).ToList();
+                }
+            }
+
+            if (accessRights.Any())
+            {
+                var menuItems = accessRights
+                        .Where(x => x.ParentId == null &&
+                        x.IsActive && !x.Deleted)
+                        .OrderBy(x => x.Order).ToList();
+
+                list = menuItems.Select(x => new TreeMenuModel
+                {
+                    Key = x.Id,
+                    Label = x.Name,
+                    To = x.Endpoint,
+                    Children = GetSubMenuForBackEnd(x.Id, accessRights)
+                }).ToList();
             }
             return list;
         }
@@ -139,26 +125,19 @@ namespace CMS.Service
         private List<TreeMenuModel> GetSubMenuForBackEnd(int parentId, List<AccessRight> menuItems)
         {
             List<TreeMenuModel> menus = new List<TreeMenuModel>();
-            try
-            {
-                var list = new List<MenuModel>();
-                var items = menuItems.Where(x => x.ParentId != null &&
-                            x.ParentId == parentId)
-                            .OrderBy(x => x.Order).ToList();
 
-                return items.Select(x => new TreeMenuModel
-                {
-                    Key = x.Id,
-                    Label = x.Name,
-                    To = x.Endpoint,
-                    Children = x.ParentId.HasValue ? GetSubMenuForBackEnd(x.Id, menuItems) : null
-                }).ToList();
-            }
-            catch (Exception ex)
+            var list = new List<MenuModel>();
+            var items = menuItems.Where(x => x.ParentId != null &&
+                        x.ParentId == parentId)
+                        .OrderBy(x => x.Order).ToList();
+
+            return items.Select(x => new TreeMenuModel
             {
-                throw new Exception(ex.Message);
-            }
+                Key = x.Id,
+                Label = x.Name,
+                To = x.Endpoint,
+                Children = x.ParentId.HasValue ? GetSubMenuForBackEnd(x.Id, menuItems) : null
+            }).ToList();
         }
-
     }
 }

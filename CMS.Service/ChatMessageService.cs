@@ -42,25 +42,18 @@ namespace CMS.Service
         public ServiceResult PostForClient(ChatMessageModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
+
+            var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
+            if (chat != null)
             {
-                var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
-                if (chat != null)
+                var chatMessage = new ChatMessage
                 {
-                    var chatMessage = new ChatMessage
-                    {
-                        ChatId = chat.Id,
-                        InsertDate = DateTime.Now,
-                        Message = model.Message
-                    };
-                    unitOfWork.Repository<ChatMessage>().Add(chatMessage);
-                    unitOfWork.Save();
-                }
-            }
-            catch (Exception ex)
-            {
-                result.StatusCode = (int)HttpStatusCode.InternalServerError;
-                result.Message = ex.Message;
+                    ChatId = chat.Id,
+                    InsertDate = DateTime.Now,
+                    Message = model.Message
+                };
+                unitOfWork.Repository<ChatMessage>().Add(chatMessage);
+                unitOfWork.Save();
             }
             return result;
         }
@@ -68,28 +61,22 @@ namespace CMS.Service
         public ServiceResult PostForUser(ChatMessageModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
+
+            var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
+            if (chat != null)
             {
-                var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
-                if (chat != null)
+                var chatMessage = new ChatMessage
                 {
-                    var chatMessage = new ChatMessage
-                    {
-                        ChatId = chat.Id,
-                        UserId = model.UserId,
-                        InsertDate = DateTime.Now,
-                        Message = model.Message
-                    };
-                    unitOfWork.Repository<ChatMessage>().Add(chatMessage);
-                    chat.ChatStatus = ChatStatus.Started;
-                    unitOfWork.Save();
-                }
+                    ChatId = chat.Id,
+                    UserId = model.UserId,
+                    InsertDate = DateTime.Now,
+                    Message = model.Message
+                };
+                unitOfWork.Repository<ChatMessage>().Add(chatMessage);
+                chat.ChatStatus = ChatStatus.Started;
+                unitOfWork.Save();
             }
-            catch (Exception ex)
-            {
-                result.StatusCode = (int)HttpStatusCode.InternalServerError;
-                result.Message = ex.Message;
-            }
+
             return result;
         }
     }

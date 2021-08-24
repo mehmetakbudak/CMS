@@ -29,7 +29,6 @@ namespace CMS.Model.Entity
 
         public ArticleCategory ArticleCategory { get; set; }
 
-        [ForeignKey("AuthorId")]
         public virtual Author Author { get; set; }
 
         public ICollection<Comment> Comment { get; set; }

@@ -3,6 +3,7 @@ using CMS.Model.Entity;
 using CMS.Model.Enum;
 using CMS.Model.Helper;
 using CMS.Model.Model;
+using CMS.Service.Exceptions;
 using CMS.Service.Helper;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -60,64 +61,53 @@ namespace CMS.Service
         public ServiceResult Authenticate(LoginModel model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
+
+            var hassPassword = Security.MD5Crypt(model.Password);
+            var user = context.Users
+                .Include(x => x.UserAccessRights)
+                .ThenInclude(x => x.AccessRight)
+                .FirstOrDefault(x =>
+            x.EmailAddress == model.EmailAddress &&
+            x.Password == hassPassword && !x.Deleted);
+
+            if (user == null)
             {
-                var hassPassword = Security.MD5Crypt(model.Password);
-                var user = context.Users
-                    .Include(x => x.UserAccessRights)
-                    .ThenInclude(x => x.AccessRight)
-                    .FirstOrDefault(x =>
-                x.EmailAddress == model.EmailAddress &&
-                x.Password == hassPassword && !x.Deleted);
-
-                if (user == null)
-                {
-                    serviceResult.StatusCode = (int)HttpStatusCode.BadRequest;
-                    serviceResult.Message = "Email adresi veya şifre hatalıdır.";
-                    return serviceResult;
-                }
-
-                if (!user.IsActive)
-                {
-                    serviceResult.StatusCode = (int)HttpStatusCode.BadRequest;
-                    serviceResult.Message = "Hesabınız aktif değildir.";
-                    return serviceResult;
-                }
-
-                var tokenResult = jwtHelper.GenerateJwtToken(user);
-
-                user.Token = tokenResult.Token;
-                user.TokenExpireDate = tokenResult.ExpireDate;
-                context.SaveChanges();
-                List<AccessRight> accessRights = new List<AccessRight>();
-
-                if (user.UserType == UserType.SuperAdmin)
-                {
-                    accessRights = context.AccessRights.ToList();
-                }
-                else
-                {
-                    if (user.UserAccessRights != null && user.UserAccessRights.Any())
-                    {
-                        accessRights = user.UserAccessRights.Select(x => x.AccessRight).ToList();
-                    }
-                }
-
-                serviceResult.Data = new
-                {
-                    Token = tokenResult.Token,
-                    FullName = $"{user.Name} {user.Surname}",
-                    OperationAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Operation)
-                    .Select(x => x.Endpoint).ToList(),
-                    MenuAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Menu)
-                    .Select(x => x.Endpoint).ToList()
-                };
+                throw new NotFoundException("Email adresi veya şifre hatalıdır.");
             }
-            catch (Exception ex)
+
+            if (!user.IsActive)
             {
-                serviceResult.Message = ex.Message;
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+                throw new BadRequestException("Hesabınız aktif değildir.");
             }
+
+            var tokenResult = jwtHelper.GenerateJwtToken(user);
+
+            user.Token = tokenResult.Token;
+            user.TokenExpireDate = tokenResult.ExpireDate;
+            context.SaveChanges();
+            List<AccessRight> accessRights = new List<AccessRight>();
+
+            if (user.UserType == UserType.SuperAdmin)
+            {
+                accessRights = context.AccessRights.ToList();
+            }
+            else
+            {
+                if (user.UserAccessRights != null && user.UserAccessRights.Any())
+                {
+                    accessRights = user.UserAccessRights.Select(x => x.AccessRight).ToList();
+                }
+            }
+
+            serviceResult.Data = new
+            {
+                Token = tokenResult.Token,
+                FullName = $"{user.Name} {user.Surname}",
+                OperationAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Operation)
+                .Select(x => x.Endpoint).ToList(),
+                MenuAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Menu)
+                .Select(x => x.Endpoint).ToList()
+            };
             return serviceResult;
         }
 
@@ -143,36 +133,29 @@ namespace CMS.Service
         public ServiceResult Post(UserModel model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
+
+            var checkEmail = context.Users
+                .Any(x => x.EmailAddress == model.EmailAddress &&
+                !x.Deleted);
+
+            if (!checkEmail)
             {
-                var checkEmail = context.Users
-                    .Any(x => x.EmailAddress == model.EmailAddress &&
-                    !x.Deleted);
-                if (!checkEmail)
+                var user = new User
                 {
-                    var user = new User
-                    {
-                        Deleted = false,
-                        EmailAddress = model.EmailAddress,
-                        IsActive = model.IsActive,
-                        IsNewUser = true,
-                        Name = model.Name,
-                        Surname = model.Surname,
-                        UserType = (UserType)model.UserType
-                    };
-                    context.Users.Add(user);
-                    context.SaveChanges();
-                }
-                else
-                {
-                    serviceResult.StatusCode = (int)HttpStatusCode.Found;
-                    serviceResult.Message = "Email adresi ile daha önce kullanıcı kaydedilmiş.";
-                }
+                    Deleted = false,
+                    EmailAddress = model.EmailAddress,
+                    IsActive = model.IsActive,
+                    IsNewUser = true,
+                    Name = model.Name,
+                    Surname = model.Surname,
+                    UserType = (UserType)model.UserType
+                };
+                context.Users.Add(user);
+                context.SaveChanges();
             }
-            catch (Exception ex)
+            else
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
             }
             return serviceResult;
         }
@@ -199,14 +182,12 @@ namespace CMS.Service
                 }
                 else
                 {
-                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
-                    serviceResult.Message = "Kayıt bulunamadı.";
+                    throw new NotFoundException("Kayıt bulunamadı.");
                 }
             }
             else
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.BadRequest;
-                serviceResult.Message = "Email adresi ile daha önce kullanıcı kaydedilmiş.";
+                throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
             }
             return serviceResult;
         }
@@ -214,25 +195,17 @@ namespace CMS.Service
         public ServiceResult Delete(int id)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
-            {
-                var user = context.Users.FirstOrDefault(x => x.Id == id && !x.Deleted);
 
-                if (user != null)
-                {
-                    user.Deleted = true;
-                    context.SaveChanges();
-                }
-                else
-                {
-                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
-                    serviceResult.Message = "Kayıt bulunamadı.";
-                }
-            }
-            catch (Exception ex)
+            var user = context.Users.FirstOrDefault(x => x.Id == id && !x.Deleted);
+
+            if (user != null)
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                user.Deleted = true;
+                context.SaveChanges();
+            }
+            else
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
             return serviceResult;
         }

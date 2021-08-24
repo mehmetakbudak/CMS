@@ -3,6 +3,7 @@ using CMS.Data.Repository;
 using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Helper;
+using CMS.Service.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
+using System.Net;
 
 namespace CMS.Api
 {
@@ -27,7 +29,6 @@ namespace CMS.Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
@@ -54,21 +55,21 @@ namespace CMS.Api
             services.AddScoped<ITodoStatusService, TodoStatusService>();
             services.AddScoped<ITodoService, TodoService>();
             services.AddScoped<IMenuService, MenuService>();
-
+            services.AddScoped<IAuthorService, AuthorService>();
 
             services.ConfigureApplicationCookie(s =>
             {
                 s.LoginPath = new PathString("/login");
                 s.Cookie = new CookieBuilder
                 {
-                    Name = "cms", //Oluþturulacak Cookie'yi isimlendiriyoruz.
-                    HttpOnly = false, //Kötü niyetli insanlarýn client-side tarafýndan Cookie'ye eriþmesini engelliyoruz.
-                    Expiration = TimeSpan.FromMinutes(2), //Oluþturulacak Cookie'nin vadesini belirliyoruz.
-                    SameSite = SameSiteMode.Lax, //Top level navigasyonlara sebep olmayan requestlere Cookie'nin gönderilmemesini belirtiyoruz.
-                    SecurePolicy = CookieSecurePolicy.Always //HTTPS üzerinden eriþilebilir yapýyoruz.                    
+                    Name = "cms",
+                    HttpOnly = false,
+                    Expiration = TimeSpan.FromMinutes(2),
+                    SameSite = SameSiteMode.Lax,
+                    SecurePolicy = CookieSecurePolicy.Always
                 };
-                s.SlidingExpiration = true; //Expiration süresinin yarýsý kadar süre zarfýnda istekte bulunulursa eðer geri kalan yarýsýný tekrar sýfýrlayarak ilk ayarlanan süreyi tazeleyecektir.
-                s.ExpireTimeSpan = TimeSpan.FromMinutes(2); //CookieBuilder nesnesinde tanýmlanan Expiration deðerinin varsayýlan deðerlerle ezilme ihtimaline karþýn tekrardan Cookie vadesi burada da belirtiliyor.
+                s.SlidingExpiration = true;
+                s.ExpireTimeSpan = TimeSpan.FromMinutes(2);
             });
 
             services.AddSession();
@@ -86,9 +87,10 @@ namespace CMS.Api
                         .Select(p => p.ErrorMessage)).ToList();
 
                         return new BadRequestObjectResult(
-                            new ServiceResult
+                            new BaseResult
                             {
-                                Message = errors.First()
+                                Message = errors.First(),
+                                StatusCode = (int)HttpStatusCode.BadRequest
                             });
                     };
                 }).AddJsonOptions(options =>
@@ -99,16 +101,16 @@ namespace CMS.Api
             services.AddMemoryCache();
 
             services.AddSwaggerGen();
-
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            
+            app.ErrorHandler();
 
             app.UseRouting();
 

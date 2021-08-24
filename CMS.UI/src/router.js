@@ -1,6 +1,7 @@
 import {
     createWebHistory,
-    createRouter
+    createRouter,
+    RouterView
 } from "vue-router";
 import Layout from "./views/Layout.vue";
 import Home from "./views/Home.vue";
@@ -15,9 +16,27 @@ import store from '@/store';
 // admin routes
 import AdminLayout from "./admin/AdminLayout.vue";
 import Dashboard from "./admin/Dashboard.vue";
-import Users from "./admin/Users.vue";
-import UserAuthorization from "./admin/UserAuthorization.vue";
-import AdminMenu from "./admin/AdminMenu.vue";
+import Users from "./admin/definitions/Users.vue";
+import UserAuthorization from "./admin/definitions/UserAuthorization.vue";
+import AdminMenu from "./admin/definitions/menus/AdminMenu.vue";
+import BlogCategory from './admin/definitions/BlogCategory.vue';
+import TodoCategory from './admin/definitions/TodoCategory.vue';
+import TodoStatus from './admin/definitions/TodoStatus.vue';
+import Author from './admin/definitions/Author.vue';
+
+import WaitingApproveComment from './admin/comments/WaitingApproveComment.vue';
+import ApprovedComment from './admin/comments/ApprovedComment.vue';
+import RejectedComment from './admin/comments/RejectedComment.vue';
+import Announcement from './admin/contents/Announcement.vue';
+import Article from './admin/contents/Article.vue';
+import Blog from './admin/contents/Blog.vue';
+import ContactMessages from './admin/contents/ContactMessages.vue';
+import Pages from './admin/contents/Pages.vue';
+import PhotoGallery from './admin/contents/PhotoGallery.vue';
+import VideoGallery from './admin/contents/VideoGallery.vue';
+
+import MyTodos from "./admin/tools/MyTodos.vue";
+import Todos from "./admin/tools/Todos.vue";
 
 const routes = [{
         path: "/",
@@ -72,27 +91,115 @@ const routes = [{
         },
         children: [{
                 path: "",
-                component: Dashboard,
-                name: "Dashboard"
+                component: Dashboard
             },
             {
-                path: "kullanicilar",
-                component: Users,
-                name: "User"
-            },
-            {
-                path: "kullanici-yetkilendirme",
-                component: UserAuthorization,
-                name: "UserAuthorization"
-            },
-            {
-                path: "menuler",
-                name: "Menus",
-                component: AdminMenu,
+                path: "icerikler",
+                component: RouterView,
                 children: [{
-                    path: "admin-menu",
-                    component: AdminMenu
-                }]
+                        path: "bloglar",
+                        component: Blog
+                    },
+                    {
+                        path: "sayfalar",
+                        component: Pages
+                    },
+                    {
+                        path: "duyurular",
+                        component: Announcement
+                    },
+                    {
+                        path: "iletisim-mesajlari",
+                        component: ContactMessages
+                    },
+                    {
+                        path: "blog",
+                        component: Blog
+                    },
+                    {
+                        path: "yazar-yazilari",
+                        component: Article
+                    },
+                    {
+                        path: "sayfalar",
+                        component: Pages
+                    },
+                    {
+                        path: "foto-galeri",
+                        component: PhotoGallery
+                    },
+                    {
+                        path: "video-galeri",
+                        component: VideoGallery
+                    }
+                ]
+            },
+            {
+                path: "tanimlar",
+                component: RouterView,
+                children: [{
+                        path: "kullanicilar",
+                        component: Users
+                    },
+                    {
+                        path: "kullanici-yetkilendirme",
+                        component: UserAuthorization
+                    },
+                    {
+                        path: "blog-kategorileri",
+                        component: BlogCategory
+                    },
+                    {
+                        path: "yapilacak-kategorileri",
+                        component: TodoCategory
+                    },
+                    {
+                        path: "yapilacak-durumlari",
+                        component: TodoStatus
+                    },
+                    {
+                        path: "yazarlar",
+                        component: Author
+                    },
+                    {
+                        path: "menuler",
+                        component: RouterView,
+                        children: [{
+                            path: "admin-menu",
+                            component: AdminMenu
+                        }, ]
+                    },
+                ]
+            },
+            {
+                path: "yorumlar",
+                component: RouterView,
+                children: [{
+                        path: "onay-bekleyenler",
+                        component: WaitingApproveComment
+                    },
+                    {
+                        path: "onaylananlar",
+                        component: ApprovedComment
+                    },
+                    {
+                        path: "reddedilenler",
+                        component: RejectedComment
+                    }
+                ],
+            },
+            {
+                path: "araclar",
+                component: RouterView,
+                children: [{
+                        path: "yapilacaklar",
+                        component: Todos
+                    },
+                    {
+                        path: "bana-atananlar",
+                        component: MyTodos
+                    }
+                ]
             }
         ]
     }

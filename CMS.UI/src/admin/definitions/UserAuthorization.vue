@@ -50,9 +50,9 @@
 </template>
 
 <script>
-import lookupService from "../services/LookupService";
-import accessRightService from "../services/AccessRightService";
-import userAccessRightService from "../services/UserAccessRightService";
+import lookupService from "../../services/LookupService";
+import accessRightService from "../../services/AccessRightService";
+import userAccessRightService from "../../services/UserAccessRightService";
 
 export default {
   data() {

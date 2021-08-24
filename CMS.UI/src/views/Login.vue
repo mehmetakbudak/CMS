@@ -3,7 +3,7 @@
     <div class="card-body content">
       <div class="col-md-4 offset-4">
         <div class="card">
-          <h3 class="card-header">Giriş Yap</h3>
+          <h5 class="card-header py-3">Giriş Yap</h5>
           <div class="card-body">
             <Message v-for="item of exceptions" severity="error" :key="item">{{
               item

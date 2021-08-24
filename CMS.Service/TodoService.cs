@@ -1,8 +1,10 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Model.Consts;
 using CMS.Model.Dto;
 using CMS.Model.Entity;
 using CMS.Model.Model;
+using CMS.Service.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -12,9 +14,10 @@ namespace CMS.Service
 {
     public interface ITodoService
     {
-        IQueryable<TodoModel> GetAll();
-        IQueryable<TodoModel> GetUserTodos(int userId);
-        ServiceResult CreateOrUpdate(TodoModel model);
+        IQueryable<TodoGetModel> GetAll();
+        IQueryable<TodoGetModel> GetUserTodos(int userId);
+        ServiceResult Post(TodoModel model);
+        ServiceResult Put(TodoModel model);
         ServiceResult Delete(int id);
     }
 
@@ -27,14 +30,14 @@ namespace CMS.Service
             this.unitOfWork = unitOfWork;
         }
 
-        public IQueryable<TodoModel> GetAll()
+        public IQueryable<TodoGetModel> GetAll()
         {
             return unitOfWork.Repository<Todo>()
                 .GetAll(x => !x.Deleted, x => x
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
                 .Include(x => x.User))
-                .Select(x => new TodoModel
+                .Select(x => new TodoGetModel
                 {
                     Description = x.Description,
                     Id = x.Id,
@@ -54,14 +57,14 @@ namespace CMS.Service
                 .AsQueryable();
         }
 
-        public IQueryable<TodoModel> GetUserTodos(int userId)
+        public IQueryable<TodoGetModel> GetUserTodos(int userId)
         {
             return unitOfWork.Repository<Todo>()
                 .GetAll(x => !x.Deleted && x.IsActive && x.UserId == userId, x => x
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
                 .Include(x => x.User))
-                .Select(x => new TodoModel
+                .Select(x => new TodoGetModel
                 {
                     Description = x.Description,
                     Id = x.Id,
@@ -81,81 +84,69 @@ namespace CMS.Service
                 .AsQueryable();
         }
 
-        public ServiceResult CreateOrUpdate(TodoModel model)
+        public ServiceResult Post(TodoModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
-            {
-                if (model.Id == 0)
-                {
-                    var todo = new Todo
-                    {
-                        Deleted = false,
-                        Description = model.Description,
-                        InsertDate = DateTime.Now,
-                        IsActive = model.IsActive,
-                        TodoCategoryId = model.TodoCategoryId,
-                        Title = model.Title,
-                        TodoStatusId = model.TodoStatusId,
-                        UserId = model.UserId
-                    };
-                    unitOfWork.Repository<Todo>().Add(todo);
-                    unitOfWork.Save();
-                }
-                else
-                {
-                    var todo = unitOfWork.Repository<Todo>()
-                        .Find(x => x.Id == model.Id);
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Post };
 
-                    if (todo != null)
-                    {
-                        todo.Description = model.Description;
-                        todo.IsActive = model.IsActive;
-                        todo.Title = model.Title;
-                        todo.TodoCategoryId = model.TodoCategoryId;
-                        todo.TodoStatusId = model.TodoStatusId;
-                        todo.UpdateDate = DateTime.Now;
-                        todo.UserId = model.UserId;
-                        unitOfWork.Save();
-                    }
-                    else
-                    {
-                        serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
-                        serviceResult.Message = "Kayıt bulunamadı.";
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (model.Id == 0)
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                var todo = new Todo
+                {
+                    Deleted = false,
+                    Description = model.Description,
+                    InsertDate = DateTime.Now,
+                    IsActive = model.IsActive,
+                    TodoCategoryId = model.TodoCategoryId,
+                    Title = model.Title,
+                    TodoStatusId = model.TodoStatusId,
+                    UserId = model.UserId
+                };
+                unitOfWork.Repository<Todo>().Add(todo);
+                unitOfWork.Save();
+            }
+            return serviceResult;
+        }
+
+        public ServiceResult Put(TodoModel model)
+        {
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
+
+            var todo = unitOfWork.Repository<Todo>()
+                   .Find(x => x.Id == model.Id);
+
+            if (todo != null)
+            {
+                todo.Description = model.Description;
+                todo.IsActive = model.IsActive;
+                todo.Title = model.Title;
+                todo.TodoCategoryId = model.TodoCategoryId;
+                todo.TodoStatusId = model.TodoStatusId;
+                todo.UpdateDate = DateTime.Now;
+                todo.UserId = model.UserId;
+                unitOfWork.Save();
+            }
+            else
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
             return serviceResult;
         }
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            try
-            {
-                var todo = unitOfWork.Repository<Todo>()
-                       .Find(x => x.Id == id);
+            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Delete };
 
-                if (todo != null)
-                {
-                    todo.Deleted = true;
-                    unitOfWork.Save();
-                }
-                else
-                {
-                    serviceResult.StatusCode = (int)HttpStatusCode.NotFound;
-                    serviceResult.Message = "Kayıt bulunamadı.";
-                }
-            }
-            catch (Exception ex)
+            var todo = unitOfWork.Repository<Todo>()
+                   .Find(x => x.Id == id);
+
+            if (todo != null)
             {
-                serviceResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                serviceResult.Message = ex.Message;
+                todo.Deleted = true;
+                unitOfWork.Save();
+            }
+            else
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
             return serviceResult;
         }

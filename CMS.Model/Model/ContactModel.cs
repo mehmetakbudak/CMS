@@ -13,7 +13,7 @@ namespace CMS.Model.Model
         public string EmailAddress { get; set; }
 
         [Required(ErrorMessage = "Lütfen konu seçiniz.")]
-        public int? Subject { get; set; }
+        public int ContactCategoryId { get; set; }
 
         [Required(ErrorMessage = "Lütfen mesaj giriniz.")]
         [StringLength(500, ErrorMessage = "Mesaj alanına en fazla 500 karakter girilebilir.")]
