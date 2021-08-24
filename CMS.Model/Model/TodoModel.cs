@@ -33,4 +33,15 @@ namespace CMS.Model.Dto
         public DateTime? UpdateDate { get; set; }
 
     }
+
+    public class TodoFilterModel
+    {
+        public int? TodoCategoryId { get; set; }
+        public string Title { get; set; }
+        public int? UserId { get; set; }
+        public int? TodoStatusId { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool? IsActive { get; set; }
+    }
 }

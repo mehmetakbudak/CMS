@@ -16,10 +16,10 @@ namespace CMS.Api
             this.todoService = todoService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
+        [HttpPost("Grid")]
+        public IActionResult Grid([FromBody]TodoFilterModel model)
         {
-            var list = todoService.GetAll().ToList();
+            var list = todoService.GetAll(model);
             return Ok(list);
         }
 

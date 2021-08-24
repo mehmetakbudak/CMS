@@ -73,7 +73,7 @@
               </template>
             </Tree>
           </div>
-          <div class="col-md-9">
+          <div class="col-md-9 pe-0">
             <div class="">
               <router-view></router-view>
             </div>

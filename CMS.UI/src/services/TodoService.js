@@ -6,8 +6,8 @@ import {
 
 export class TodoService {
 
-    getAll() {
-        return axios.get(Endpoints.Todo, {
+    getAll(data) {
+        return axios.post(Endpoints.Todo + "/Grid", data, {
             headers: authHeader()
         });
     }
