@@ -2,7 +2,7 @@
   <div id="name">
     <div class="row mb-2">
       <div class="col-6">
-        <h5>Yazarlar</h5>
+        <h5>{{ title }}</h5>
       </div>
       <div class="col-6">
         <Button
@@ -13,7 +13,7 @@
         />
       </div>
     </div>
-    <div class="border border-top-0">
+    <div class="border border-top-0" v-if="showGrid">
       <DataTable
         showGridlines
         :value="authors"
@@ -24,18 +24,14 @@
         responsiveLayout="scroll"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
       >
-        <Column header="" class="w-120">
+        <Column header="" class="w-50px">
           <template #body="slotProps">
             <Button
-              icon="pi pi-pencil"
-              class="p-button-rounded p-button-info p-button-sm"
-              @click="edit(slotProps.data)"
+              icon="pi pi-cog"
+              class="p-button-rounded p-button-primary p-button-sm"
+              @click="toggleGridMenu($event, slotProps.data)"
             />
-            <Button
-              icon="pi pi-trash"
-              class="p-button-rounded p-button-danger p-button-sm ms-2"
-              @click="remove($event, slotProps.data)"
-            />
+            <Menu ref="menu" :model="gridMenuItems" :popup="true" />
           </template>
         </Column>
         <Column field="nameSurname" header="Yazar Adı"></Column>
@@ -49,91 +45,124 @@
       </DataTable>
     </div>
 
-    <Dialog
-      :header="modalTitle"
-      v-model:visible="displayModal"
-      :modal="true"
-      :breakpoints="{ '960px': '95vw' }"
-      :style="{ width: '50vw' }"
-    >
-      <div>
-        <Message v-for="item of exceptions" severity="error" :key="item">{{
-          item
-        }}</Message>
-      </div>
-      <div class="mb-3">
-        <label>Adı</label>
-        <InputText
-          type="text"
-          v-model="user.name"
-          placeholder="Adı"
-          class="w-100"
-        />
-      </div>
-      <div class="mb-3">
-        <label>Soyadı</label>
-        <InputText
-          type="text"
-          v-model="user.surname"
-          placeholder="Soyadı"
-          class="w-100"
-        />
-      </div>
-      <div class="mb-3">
-        <label>Email Adresi</label>
-        <InputText
-          type="email"
-          v-model="user.emailAddress"
-          placeholder="Email Adresi"
-          class="w-100"
-        />
-      </div>
-      <div class="mb-3">
-        <label>Tipi</label>
-        <Dropdown
-          class="w-100"
-          v-model="user.userType"
-          :options="userTypes"
-          optionLabel="name"
-          optionValue="value"
-          placeholder="Kullanıcı tipi seçiniz."
-        />
-      </div>
-      <div class="mb-3">
-        <label>Aktif</label>
-        <div>
-          <InputSwitch v-model="user.isActive" />
+    <div class="card" v-if="showForm">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label>Adı Soyadı</label>
+              <InputText
+                type="text"
+                v-model="author.nameSurname"
+                placeholder="Adı"
+                class="w-100"
+              />
+            </div>
+            <div class="mb-3" v-if="author.fileUrl != ''">
+              <FileUpload
+                ref="file"
+                chooseLabel="Dosya Seç"
+                v-model="author.file"
+                mode="basic"
+                accept="image/*"
+                @change="onUpload()"
+              />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <img class="img-thumbnail" />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label>Hayatı</label>
+          <Editor v-model="author.resume" editorStyle="height: 320px" />
+        </div>
+
+        <div class="mb-3">
+          <label>Aktif</label>
+          <div>
+            <InputSwitch v-model="author.isActive" />
+          </div>
+        </div>
+
+        <div class="float-end">
+          <Button
+            label="Vazgeç"
+            @click="reset()"
+            class="p-button-outlined p-button-secondary"
+          />
+          <Button class="ms-2" label="Kaydet" @click="save()" />
         </div>
       </div>
-      <template #footer>
-        <Button
-          label="Kapat"
-          @click="displayModal = false"
-          class="p-button-outlined p-button-secondary"
-        />
-        <Button label="Kaydet" @click="save()" autofocus />
-      </template>
-    </Dialog>
+    </div>
   </div>
 </template>
 
 <script>
 import authorService from "../../services/AuthorService";
+import alertService from "../../services/AlertService";
 
 export default {
   name: "name",
+  mixins: [alertService],
   data() {
     return {
       authors: [],
       exceptions: [],
-      displayModal: false,
-      modalTitle: "",
+      showGrid: true,
+      showForm: false,
+      selectedAuthor: {},
+      title: "Yazarlar",
       author: {
         id: 0,
-        name: "",
+        nameSurname: "",
         resume: "",
+        file: new FormData(),
+        fileUrl: "",
         isActive: true,
       },
+      gridMenuItems: [
+        {
+          label: "Düzenle",
+          command: () => {
+            this.title = "Yapılacak Düzenle";
+            this.showForm = true;
+            this.showGrid = false;
+            var e = this.selectedAuthor;
+            this.author = {
+              id: e.id,
+              nameSurname: e.nameSurname,
+              resume: e.resume,
+              isActive: e.isActive,
+              fileUrl: e.fileUrl,
+            };
+            this.getAuthors();
+          },
+        },
+        {
+          label: "Sil",
+          command: () => {
+            this.$confirm.require({
+              message: "Silmek istediğinize emin misiniz?",
+              header: "Silme Onayı",
+              icon: "pi pi-exclamation-triangle",
+              acceptLabel: "Evet",
+              rejectLabel: "Hayır",
+              accept: () => {
+                authorService
+                  .delete(this.selectedAuthor.id)
+                  .then((res) => {
+                    this.getAuthors();
+                    this.successMessage(this, res.data.message);
+                  })
+                  .catch((e) => {
+                    this.errorMessage(this, e.response.data.message);
+                  });
+              },
+            });
+          },
+        },
+      ],
     };
   },
   created() {
@@ -145,12 +174,59 @@ export default {
         this.authors = res.data;
       });
     },
+    toggleGridMenu(event, data) {
+      this.selectedAuthor = data;
+      this.$refs.menu.toggle(event);
+    },
     add() {
-      this.displayModal = true;
-      this.modalTitle = "Yeni Yazar Ekle";
+      this.showForm = true;
+      this.showGrid = false;
+      this.title = "Yeni Yazar Ekle";
     },
     edit() {},
     remove() {},
+    onUpload() {
+      this.author.file = this.$refs.file.files[0];
+    },
+    save() {
+      console.log(this.author);
+      if (this.author.id == 0) {
+        authorService
+          .post(this.author)
+          .then((res) => {
+            this.getAuthors();
+            this.reset();
+            this.successMessage(this, res.data.message);
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      } else {
+        authorService
+          .put(this.author)
+          .then((res) => {
+            this.getAuthors();
+            this.reset();
+            this.successMessage(this, res.data.message);
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      }
+    },
+    reset() {
+      this.author = {
+        id: 0,
+        nameSurname: "",
+        resume: "",
+        file: new FormData(),
+        fileUrl: "",
+        isActive: true,
+      };
+      this.showForm = false;
+      this.showGrid = true;
+      this.title = "Yazarlar";
+    },
   },
 };
 </script>

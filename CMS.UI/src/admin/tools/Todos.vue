@@ -24,118 +24,107 @@
 
     <div v-if="showGrid">
       <div class="mt-3 mb-3">
-        <Accordion>
-          <AccordionTab>
-            <template #header>
-              <div class="row w-100">
-                <div class="col-md-6">
-                  <div class="mt-5px">Filtrele</div>
-                </div>
-                <div class="col-md-6">
-                  <Button
-                    icon="pi pi-search"
-                    class="p-button-raised p-button-rounded float-end ms-2"
-                    @click="filterTodos()"
-                  />
-                  <Button
-                    icon="pi pi-times"
-                    class="
-                      p-button-raised p-button-rounded p-button-help
-                      float-end
-                    "
-                    @click="filterReset()"
-                  />
-                </div>
+        <Panel header="Filtrele" :toggleable="true" :collapsed="true">
+          <template #icons>
+            <Button
+              icon="pi pi-times"
+              class="p-button-raised p-button-rounded p-button-help ms-5"
+              @click="filterReset()"
+            />
+
+            <Button
+              icon="pi pi-search"
+              class="p-button-raised p-button-rounded ms-3 mr-20px"
+              @click="filterTodos()"
+            />
+          </template>
+          <div class="row pb-0">
+            <div class="col-md-4">
+              <div class="pt-3">
+                <Dropdown
+                  class="w-100"
+                  v-model="filter.todoCategoryId"
+                  :options="todoCategories"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Kategori seçiniz."
+                  :showClear="true"
+                  @change="getTodoStatuses(filter.todoCategoryId)"
+                />
               </div>
-            </template>
-            <div class="row pb-0">
-              <div class="col-md-4">
-                <div class="pt-3">
-                  <Dropdown
-                    class="w-100"
-                    v-model="filter.todoCategoryId"
-                    :options="todoCategories"
-                    optionLabel="name"
-                    optionValue="id"
-                    placeholder="Kategori seçiniz."
-                    :showClear="true"
-                    @change="getTodoStatuses(filter.todoCategoryId)"
-                  />
-                </div>
+            </div>
+            <div class="col-md-4">
+              <div class="pt-3">
+                <InputText
+                  type="text"
+                  v-model="filter.title"
+                  placeholder="Başlık"
+                  class="w-100"
+                />
               </div>
-              <div class="col-md-4">
-                <div class="pt-3">
-                  <InputText
-                    type="text"
-                    v-model="filter.title"
-                    placeholder="Başlık"
-                    class="w-100"
-                  />
-                </div>
+            </div>
+            <div class="col-md-4">
+              <div class="pt-3">
+                <Dropdown
+                  class="w-100"
+                  v-model="filter.userId"
+                  :options="users"
+                  optionLabel="fullName"
+                  optionValue="id"
+                  :showClear="true"
+                  placeholder="Kullanıcı seçiniz."
+                />
               </div>
-              <div class="col-md-4">
-                <div class="pt-3">
-                  <Dropdown
-                    class="w-100"
-                    v-model="filter.userId"
-                    :options="users"
-                    optionLabel="fullName"
-                    optionValue="id"
-                    :showClear="true"
-                    placeholder="Kullanıcı seçiniz."
-                  />
-                </div>
+            </div>
+            <div class="col-md-4">
+              <div class="pt-3">
+                <Dropdown
+                  class="w-100"
+                  v-model="filter.todoStatusId"
+                  :options="todoStatuses"
+                  optionLabel="name"
+                  optionValue="id"
+                  :showClear="true"
+                  placeholder="Durum seçiniz."
+                />
               </div>
-              <div class="col-md-4">
-                <div class="pt-3">
-                  <Dropdown
-                    class="w-100"
-                    v-model="filter.todoStatusId"
-                    :options="todoStatuses"
-                    optionLabel="name"
-                    optionValue="id"
-                    :showClear="true"
-                    placeholder="Durum seçiniz."
-                  />
-                </div>
+            </div>
+            <div class="col-md-4">
+              <div class="pt-3">
+                <Calendar
+                  class="w-100"
+                  placeholder="Başlangıç Tarihi"
+                  v-model="filter.startDate"
+                  :showIcon="true"
+                  dateFormat="dd.mm.yy"
+                  :showButtonBar="true"
+                />
               </div>
-              <div class="col-md-4">
-                <div class="pt-3">
-                  <Calendar
-                    class="w-100"
-                    placeholder="Başlangıç Tarihi"
-                    v-model="filter.startDate"
-                    :showIcon="true"
-                    dateFormat="dd.mm.yy"
-                    :showButtonBar="true"
-                  />
-                </div>
+            </div>
+            <div class="col-md-4">
+              <div class="pt-3">
+                <Calendar
+                  class="w-100"
+                  placeholder="Bitiş Tarihi"
+                  v-model="filter.endDate"
+                  :showIcon="true"
+                  dateFormat="dd.mm.yy"
+                  :showButtonBar="true"
+                />
               </div>
-              <div class="col-md-4">
-                <div class="pt-3">
-                  <Calendar
-                    class="w-100"
-                    placeholder="Bitiş Tarihi"
-                    v-model="filter.endDate"
-                    :showIcon="true"
-                    dateFormat="dd.mm.yy"
-                    :showButtonBar="true"
-                  />
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="pt-3">
-                  <div class="row row-cols-auto">
-                    <div class="col">
-                      <InputSwitch v-model="filter.isActive" />
-                    </div>
-                    <div class="col">Aktif</div>
+            </div>
+            <div class="col-md-4">
+              <div class="pt-3">
+                <div class="row row-cols-auto">
+                  <div class="col">
+                    <InputSwitch v-model="filter.isActive" />
                   </div>
+                  <div class="col">Aktif</div>
                 </div>
               </div>
             </div>
-          </AccordionTab>
-        </Accordion>
+          </div>
+        </Panel>
       </div>
 
       <DataTable
@@ -152,7 +141,7 @@
           <template #body="slotProps">
             <Button
               icon="pi pi-cog"
-              class="p-button-rounded p-button-primary p-button-sm"
+              class="p-button-rounded p-button-info p-button-sm"
               @click="toggleGridMenu($event, slotProps.data)"
             />
             <Menu ref="menu" :model="gridMenuItems" :popup="true" />
@@ -453,7 +442,6 @@ export default {
       this.title = "Yapılacaklar";
     },
     filterReset() {
-      this.getAll();
       this.filter = {
         todoCategoryId: null,
         title: null,
@@ -463,6 +451,7 @@ export default {
         endDate: null,
         isActive: null,
       };
+      this.getAll();
     },
   },
 };

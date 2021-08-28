@@ -11,6 +11,24 @@ export class AuthorService {
             headers: authHeader()
         });
     }
+
+    post(data) {
+        return axios.post(Endpoints.Author, data, {
+            headers: authHeader()
+        });
+    }
+
+    put(data) {
+        return axios.put(Endpoints.Author, data, {
+            headers: authHeader()
+        });
+    }
+
+    delete(id) {
+        return axios.delete(Endpoints.Author + "/" + id, {
+            headers: authHeader()
+        });
+    }
 }
 
 export default new AuthorService();

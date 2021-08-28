@@ -39,12 +39,18 @@ namespace CMS.Service
 
             if (model.Id == 0)
             {
+                if (model.File != null)
+                {
+
+                }
+
                 var entity = new Author()
                 {
                     Deleted = false,
                     IsActive = model.IsActive,
                     NameSurname = model.NameSurname,
-                    Resume = model.Resume
+                    Resume = model.Resume,
+                    
                 };
                 unitOfWork.Repository<Author>().Add(entity);
                 unitOfWork.Save();
