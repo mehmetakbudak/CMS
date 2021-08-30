@@ -62,7 +62,6 @@
               <FileUpload
                 ref="file"
                 chooseLabel="Dosya Seç"
-                v-model="author.file"
                 mode="basic"
                 accept="image/*"
                 @change="onUpload()"
@@ -70,14 +69,13 @@
             </div>
           </div>
           <div class="col-md-6">
-            <img class="img-thumbnail" />
+            <img :src="author.fileSrc" class="img-thumbnail" />
           </div>
         </div>
         <div class="mb-3">
           <label>Hayatı</label>
           <Editor v-model="author.resume" editorStyle="height: 320px" />
         </div>
-
         <div class="mb-3">
           <label>Aktif</label>
           <div>
@@ -118,7 +116,7 @@ export default {
         nameSurname: "",
         resume: "",
         file: new FormData(),
-        fileUrl: "",
+        fileSrc: "",
         isActive: true,
       },
       gridMenuItems: [
@@ -134,7 +132,7 @@ export default {
               nameSurname: e.nameSurname,
               resume: e.resume,
               isActive: e.isActive,
-              fileUrl: e.fileUrl,
+              fileSrc: e.fileUrl,
             };
             this.getAuthors();
           },
@@ -186,6 +184,7 @@ export default {
     edit() {},
     remove() {},
     onUpload() {
+      console.log(this.$refs.file.files[0]);
       this.author.file = this.$refs.file.files[0];
     },
     save() {
