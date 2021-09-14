@@ -8,6 +8,7 @@
           style="padding-right: 30px"
           >CMS Admin Paneli</router-link
         >
+
         <div class="float-end">
           <Button
             class="me-3 p-button-sm"

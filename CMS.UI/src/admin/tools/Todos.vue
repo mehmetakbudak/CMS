@@ -2,7 +2,7 @@
   <div id="name">
     <div class="row mb-2">
       <div class="col-6">
-        <h5>{{ title }}</h5>
+        <h4>{{ title }}</h4>
       </div>
       <div class="col-6">
         <Button
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div v-if="showGrid">
+    <div class="shadow p-2 border" v-if="showGrid">
       <div class="mt-3 mb-3">
         <Panel header="Filtrele" :toggleable="true" :collapsed="true">
           <template #icons>
@@ -174,10 +174,12 @@
       </DataTable>
     </div>
 
-    <div class="card" v-if="showForm">
+    <div class="card shadow" v-if="showForm">
       <div class="card-body">
         <div class="row">
           <div class="col-md-6">
+            <h5>Bilgiler</h5>
+            <div class="border-bottom mb-3"></div>
             <div class="mb-3">
               <label>Kategori Adı</label>
               <Dropdown
@@ -235,16 +237,6 @@
               />
             </div>
             <div class="mb-3">
-              <label>Atanan Kullanıcı Yorumu</label>
-              <Textarea
-                v-model="todo.userComment"
-                :disabled="true"
-                placeholder="Atanan Kullanıcı Yorumu"
-                rows="5"
-                class="w-100"
-              />
-            </div>
-            <div class="mb-3">
               <label>Aktif</label>
               <div>
                 <InputSwitch v-model="todo.isActive" />
@@ -258,6 +250,33 @@
                 class="p-button-outlined p-button-secondary"
               />
               <Button class="ms-2" label="Kaydet" @click="save()" />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-6">
+                <h5>Yorumlar</h5>
+              </div>
+              <div class="col-md-6">
+                <div class="">
+                  <Button
+                    label="Ekle"
+                    icon="pi pi-plus"
+                    class="p-button-primary p-button-sm float-end"
+                    @click="addComment()"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="border-bottom mb-3"></div>
+            <div class="mb-3" v-if="showNewComment">
+              <label>Yorumunuz</label>
+              <Textarea
+                v-model="comment"
+                placeholder="Yorumunuz"
+                rows="3"
+                class="w-100"
+              />
             </div>
           </div>
         </div>
@@ -287,6 +306,7 @@ export default {
       showForm: false,
       showGrid: true,
       title: "Yapılacaklar",
+      showNewComment: false,
       todo: {
         id: 0,
         todoCategoryId: 0,
@@ -452,6 +472,9 @@ export default {
         isActive: null,
       };
       this.getAll();
+    },
+    addComment() {
+      this.showNewComment = true;
     },
   },
 };

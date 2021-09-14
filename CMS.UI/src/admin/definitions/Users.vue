@@ -2,7 +2,7 @@
   <div>
     <div class="row mb-2">
       <div class="col-6">
-        <h5>Kullanıcılar</h5>
+        <h4>Kullanıcılar</h4>
       </div>
       <div class="col-6">
         <Button
@@ -52,18 +52,7 @@
       </DataTable>
     </div>
   </div>
-  <Dialog
-    :header="modalTitle"
-    v-model:visible="displayModal"
-    :modal="true"
-    :breakpoints="{ '960px': '95vw' }"
-    :style="{ width: '50vw' }"
-  >
-    <div>
-      <Message v-for="item of exceptions" severity="error" :key="item">{{
-        item
-      }}</Message>
-    </div>
+  <div>
     <div class="mb-3">
       <label>Adı</label>
       <InputText
@@ -108,15 +97,13 @@
         <InputSwitch v-model="user.isActive" />
       </div>
     </div>
-    <template #footer>
-      <Button
-        label="Kapat"
-        @click="displayModal = false"
-        class="p-button-outlined p-button-secondary"
-      />
-      <Button label="Kaydet" @click="save()" autofocus />
-    </template>
-  </Dialog>
+    <Button
+      label="Kapat"
+      @click="displayModal = false"
+      class="p-button-outlined p-button-secondary"
+    />
+    <Button label="Kaydet" @click="save()" autofocus />
+  </div>
 </template>
 
 <script>
