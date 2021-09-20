@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card shadow">
     <div class="card-body content">
       <div class="col-md-4 offset-4">
         <div class="card">
