@@ -29,8 +29,9 @@ namespace CMS.Service
                 ContactCategoryId = model.ContactCategoryId,
                 EmailAddress = model.EmailAddress,
                 Message = model.Message,
-                NameSurname = model.NameSurname,
-                InsertDate = DateTime.Now
+                Name = model.Name,
+                Surname = model.Surname,
+                InsertedDate = DateTime.Now
             };
             unitOfWork.Repository<Contact>().Add(contact);
             unitOfWork.Save();

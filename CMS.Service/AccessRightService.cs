@@ -66,7 +66,7 @@ namespace CMS.Service
             List<TreeModel> list = null;
             var items = menuItems.Where(x => x.ParentId != null &&
                         x.ParentId == parentId)
-                        .OrderBy(x => x.Order).ToList();
+                        .OrderBy(x => x.DisplayOrder).ToList();
 
             if (items != null && items.Any())
             {
@@ -109,7 +109,7 @@ namespace CMS.Service
                 var menuItems = accessRights
                         .Where(x => x.ParentId == null &&
                         x.IsActive && !x.Deleted)
-                        .OrderBy(x => x.Order).ToList();
+                        .OrderBy(x => x.DisplayOrder).ToList();
 
                 list = menuItems.Select(x => new TreeMenuModel
                 {
@@ -129,7 +129,7 @@ namespace CMS.Service
             var list = new List<MenuModel>();
             var items = menuItems.Where(x => x.ParentId != null &&
                         x.ParentId == parentId)
-                        .OrderBy(x => x.Order).ToList();
+                        .OrderBy(x => x.DisplayOrder).ToList();
 
             return items.Select(x => new TreeMenuModel
             {

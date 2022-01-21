@@ -1,52 +1,54 @@
 <template>
-  <div id="name">
-    <div class="row mb-2">
-      <div class="col-6">
-        <h5>{{ title }}</h5>
+  <Card>
+    <template #title>
+      <div class="row mb-2">
+        <div class="col-6">
+          <h5>{{ title }}</h5>
+        </div>
+        <div class="col-6">
+          <Button
+            label="Ekle"
+            icon="pi pi-plus"
+            class="p-button-primary p-button-sm float-end"
+            @click="add()"
+          />
+        </div>
       </div>
-      <div class="col-6">
-        <Button
-          label="Ekle"
-          icon="pi pi-plus"
-          class="p-button-primary p-button-sm float-end"
-          @click="add()"
-        />
+    </template>
+    <template #content>
+      <div class="border border-top-0" v-if="showGrid">
+        <DataTable
+          showGridlines
+          :value="authors"
+          :paginator="true"
+          :rows="5"
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+          :rowsPerPageOptions="[5, 10, 20, 50]"
+          responsiveLayout="scroll"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+        >
+          <Column header="" class="w-50px">
+            <template #body="slotProps">
+              <Button
+                icon="pi pi-cog"
+                class="p-button-rounded p-button-primary p-button-sm"
+                @click="toggleGridMenu($event, slotProps.data)"
+              />
+              <Menu ref="menu" :model="gridMenuItems" :popup="true" />
+            </template>
+          </Column>
+          <Column field="nameSurname" header="Yazar Adı"></Column>
+          <Column field="isActive" header="Aktif">
+            <template #body="slotProps">
+              <div>
+                {{ slotProps.data.isActive ? "Aktif" : "Pasif" }}
+              </div>
+            </template>
+          </Column>
+        </DataTable>
       </div>
-    </div>
-    <div class="border border-top-0" v-if="showGrid">
-      <DataTable
-        showGridlines
-        :value="authors"
-        :paginator="true"
-        :rows="5"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-        :rowsPerPageOptions="[5, 10, 20, 50]"
-        responsiveLayout="scroll"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-      >
-        <Column header="" class="w-50px">
-          <template #body="slotProps">
-            <Button
-              icon="pi pi-cog"
-              class="p-button-rounded p-button-primary p-button-sm"
-              @click="toggleGridMenu($event, slotProps.data)"
-            />
-            <Menu ref="menu" :model="gridMenuItems" :popup="true" />
-          </template>
-        </Column>
-        <Column field="nameSurname" header="Yazar Adı"></Column>
-        <Column field="isActive" header="Aktif">
-          <template #body="slotProps">
-            <div>
-              {{ slotProps.data.isActive ? "Aktif" : "Pasif" }}
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
 
-    <div class="card" v-if="showForm">
-      <div class="card-body">
+      <div class="mb-3 pb-3" v-if="showForm">
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
@@ -92,8 +94,8 @@
           <Button class="ms-2" label="Kaydet" @click="save()" />
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </Card>
 </template>
 
 <script>

@@ -5,8 +5,8 @@ namespace CMS.Model.Dto
 {
     public class MenuModel : BaseModel
     {
-        public string Label { get; set; }
-        public string To { get; set; }
+        public string Title { get; set; }
+        public string Url { get; set; }
         public List<MenuModel> Items { get; set; }
     }
 

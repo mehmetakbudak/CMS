@@ -27,19 +27,19 @@ namespace CMS.Service
 
             var chat = new Chat
             {
-                ChatGuid = Guid.NewGuid(),
-                ChatStatus = ChatStatus.NotStarted,
-                Deleted = false,
+                Code = Guid.NewGuid(),
+                Status = ChatStatus.NotStarted,
                 EmailAddress = model.EmailAddress,
-                InsertDate = DateTime.Now,
-                NameSurname = model.NameSurname,
-                PhoneNumber = model.PhoneNumber
+                InsertedDate = DateTime.Now,
+                Name= model.Name,
+                Surname=model.Surname,
+                Phone = model.Phone
             };
             unitOfWork.Repository<Chat>().Add(chat);
             unitOfWork.Save();
             result.Data = new
             {
-                Guid = chat.ChatGuid
+                Guid = chat.Code
             };
             result.Message = "Canlı destek kaydınız başarıyla alınmıştır.";
 

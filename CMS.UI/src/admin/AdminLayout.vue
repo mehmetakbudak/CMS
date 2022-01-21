@@ -1,33 +1,30 @@
 <template>
-  <div class="container-fluid">
-    <div class="card bg-pi">
-      <div class="card-body">
-        <router-link
-          class="h5 text-secondary text-decoration-none mr-3"
-          to="/admin"
-          style="padding-right: 30px"
-          >CMS Admin Paneli</router-link
-        >
-
+  <nav class="navbar navbar-light bg-light border fixed-top">
+    <div class="container-fluid">
+      <router-link class="navbar-brand" to="/admin"
+        >CMS Admin Paneli</router-link
+      >
+      <div class="d-flex">
         <div class="float-end">
           <Button
-            class="me-3 p-button-sm"
+            class="me-3 p-button-rounded p-button-primary p-button-outlined p-button-sm"
             icon="pi pi-th-large"
             @click="visibleLeft = true"
-            label="Menü"
+            :label="windowWidth > 768 ? 'Menü' : ''"
           />
           <Button
-            type="button"
-            icon="pi pi-user"
-            class="p-button-rounded p-button-primary p-button-sm"
             :label="currentUser?.fullName"
             @click="toggleRightMenu"
+            class="p-button-rounded p-button-primary p-button-outlined p-button-sm"
+            icon="pi pi-user"
           />
           <Menu ref="menu" :model="rightMenuItems" :popup="true" />
         </div>
       </div>
     </div>
-    <Sidebar v-model:visible="visibleLeft" :baseZIndex="1000">
+  </nav>
+  <div class="container-fluid position-relative" style="top: 50px;">
+    <Sidebar v-model:visible="visibleLeft" :baseZIndex="10000">
       <h3>Menü</h3>
       <div>
         <Tree :value="leftMenu" :filter="true" filterMode="lenient">
@@ -49,33 +46,37 @@
       </div>
     </Sidebar>
     <div class="mt-3">
-      <div class="container-fluid">
+      <div class="container-fluid px-0 px-md-2">
         <div class="row">
-          <div class="col-md-3 border">
-            <Tree
-              class="p-2"
-              :value="leftMenu"
-              :filter="true"
-              filterMode="lenient"
-            >
-              <template #default="menu">
-                <a
-                  class="text-dark text-decoration-none"
-                  v-if="menu.node.to == null"
-                  >{{ menu.node?.label }}</a
+          <div class="col-md-3 mb-3" v-if="windowWidth > 768">
+            <Card>
+              <template #content>
+                <Tree
+                  class="px-2"
+                  :value="leftMenu"
+                  :filter="true"
+                  filterMode="lenient"
                 >
-                <router-link
-                  v-if="menu.node.to != null"
-                  class="text-dark text-decoration-none"
-                  :to="menu.node?.to"
-                >
-                  {{ menu.node?.label }}
-                </router-link>
+                  <template #default="menu">
+                    <a
+                      class="text-dark text-decoration-none"
+                      v-if="menu.node.to == null"
+                      >{{ menu.node?.label }}</a
+                    >
+                    <router-link
+                      v-if="menu.node.to != null"
+                      class="text-dark text-decoration-none"
+                      :to="menu.node?.to"
+                    >
+                      {{ menu.node?.label }}
+                    </router-link>
+                  </template>
+                </Tree>
               </template>
-            </Tree>
+            </Card>
           </div>
-          <div class="col-md-9 pe-0">
-            <div class="">
+          <div class="col-md-9">
+            <div class="mb-3">
               <router-view></router-view>
             </div>
           </div>
@@ -93,6 +94,7 @@ export default {
     return {
       currentUser: "",
       visibleLeft: false,
+      windowWidth: 0,
       leftMenu: [],
       rightMenuItems: [
         {
@@ -111,7 +113,8 @@ export default {
   },
   created() {
     this.loadMenu();
-    if (window.innerWidth > 768) {
+    this.windowWidth = window.innerWidth;
+    if (this.windowWidth > 768) {
       this.currentUser = this.$store.state.auth.user;
     }
   },

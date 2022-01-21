@@ -26,16 +26,16 @@ namespace CMS.Service
             this.unitOfWork = unitOfWork;
         }
 
-        public List<ChatMessageModel> Get(Guid guid)
+        public List<ChatMessageModel> Get(Guid code)
         {
             return unitOfWork.Repository<ChatMessage>()
-                .GetAll(x => x.Chat.ChatGuid == guid, x => x.Include(o => o.Chat))
+                .GetAll(x => x.Chat.Code == code, x => x.Include(o => o.Chat))
                 .Select(x => new ChatMessageModel
                 {
-                    ChatGuid = x.Chat.ChatGuid,
-                    NameSurname = x.UserId == null ? x.Chat.NameSurname : (x.User.Name + " " + x.User.Surname),
+                    Code = x.Chat.Code,
+                    NameSurname = x.UserId == null ? x.Chat.Name : (x.User.Name + " " + x.User.Surname),
                     Message = x.Message,
-                    InsertDate = x.InsertDate
+                    InsertDate = x.InsertedDate
                 }).ToList();
         }
 
@@ -43,13 +43,13 @@ namespace CMS.Service
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
+            var chat = unitOfWork.Repository<Chat>().Find(x => x.Code == model.Code);
             if (chat != null)
             {
                 var chatMessage = new ChatMessage
                 {
                     ChatId = chat.Id,
-                    InsertDate = DateTime.Now,
+                    InsertedDate = DateTime.Now,
                     Message = model.Message
                 };
                 unitOfWork.Repository<ChatMessage>().Add(chatMessage);
@@ -62,18 +62,18 @@ namespace CMS.Service
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var chat = unitOfWork.Repository<Chat>().Find(x => x.ChatGuid == model.ChatGuid);
+            var chat = unitOfWork.Repository<Chat>().Find(x => x.Code == model.Code);
             if (chat != null)
             {
                 var chatMessage = new ChatMessage
                 {
                     ChatId = chat.Id,
                     UserId = model.UserId,
-                    InsertDate = DateTime.Now,
+                    InsertedDate = DateTime.Now,
                     Message = model.Message
                 };
                 unitOfWork.Repository<ChatMessage>().Add(chatMessage);
-                chat.ChatStatus = ChatStatus.Started;
+                chat.Status = ChatStatus.Started;
                 unitOfWork.Save();
             }
 

@@ -145,10 +145,10 @@ namespace CMS.Service
                     Deleted = false,
                     EmailAddress = model.EmailAddress,
                     IsActive = model.IsActive,
-                    IsNewUser = true,
                     Name = model.Name,
                     Surname = model.Surname,
-                    UserType = (UserType)model.UserType
+                    UserType = (UserType)model.UserType,
+                    InsertedDate = DateTime.Now
                 };
                 context.Users.Add(user);
                 context.SaveChanges();

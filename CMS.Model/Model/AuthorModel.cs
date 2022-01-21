@@ -7,7 +7,10 @@ namespace CMS.Model.Model
     public class AuthorModel : BaseModel
     {
         [Required(ErrorMessage = "Yazar adı zorunludur.")]
-        public string NameSurname { get; set; }
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Yazar soyadı zorunludur.")]
+        public string Surname { get; set; }
 
         public string Resume { get; set; }
 

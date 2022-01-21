@@ -5,8 +5,11 @@ namespace CMS.Model.Model
 {
     public class ContactModel : BaseModel
     {
-        [Required(ErrorMessage = "Adı Soyadı zorunludur.")]
-        public string NameSurname { get; set; }
+        [Required(ErrorMessage = "Adı zorunludur.")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Soyadı zorunludur.")]
+        public string Surname { get; set; }
 
         [Required(ErrorMessage = "Email adresi zorunludur.")]
         [EmailAddress(ErrorMessage = "Email formatı uygun değil.")]

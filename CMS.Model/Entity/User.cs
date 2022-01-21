@@ -15,13 +15,9 @@ namespace CMS.Model.Entity
 
         public string Password { get; set; }
 
-        public string HashCode { get; set; }
+        public string HashCode { get; set; }        
 
-        public bool IsActive { get; set; }
-
-        public bool Deleted { get; set; }
-
-        public bool IsNewUser { get; set; }
+        public DateTime? PasswordExpireDate { get; set; }
 
         public UserType UserType { get; set; }
 
@@ -29,8 +25,16 @@ namespace CMS.Model.Entity
 
         public DateTime? TokenExpireDate { get; set; }
 
-        public ICollection<ChatMessage> ChatMessages { get; set; }
+        public DateTime? UpdatedDate { get; set; }
 
-        public ICollection<UserAccessRight> UserAccessRights { get; set; }
+        public DateTime InsertedDate { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public bool Deleted { get; set; }
+
+        public virtual ICollection<ChatMessage> ChatMessages { get; set; }
+
+        public virtual ICollection<UserAccessRight> UserAccessRights { get; set; }
     }
 }

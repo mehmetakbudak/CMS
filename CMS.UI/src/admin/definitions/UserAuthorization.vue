@@ -1,52 +1,58 @@
 <template>
-  <div class="row mb-2">
-    <div class="col-md-12">
-      <h5>Kullanıcı Yetkilendirme</h5>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <div class="mb-3">
-        <label>Kullanıcı</label>
-        <Dropdown
-          class="w-100"
-          v-model="userId"
-          :options="users"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="Kullanıcı seçiniz."
-          @change="changeUser($event)"
-        />
-      </div>
-    </div>
-  </div>
-  <div>
-    <TabView class="border p-2">
-      <TabPanel header="Sayfa Yetkilendirme">
-        <div>
-          <Tree
-            ref="treeMenu"
-            :value="menus"
-            selectionMode="checkbox"
-            v-model:selectionKeys="selectedMenus"
-          ></Tree>
+  <Card>
+    <template #title>
+      <div class="row mb-2">
+        <div class="col-md-12">
+          <h5>Kullanıcı Yetkilendirme</h5>
         </div>
-      </TabPanel>
-      <TabPanel header="İşlem Yetkilendirme">
-        <Tree
-          :value="operations"
-          selectionMode="checkbox"
-          v-model:selectionKeys="selectedOperations"
-          :metaKeySelection="false"
-        ></Tree>
-      </TabPanel>
-    </TabView>
-  </div>
-  <div class="row mt-3">
-    <div class="col-md-12">
-      <Button class="float-end" label="Kaydet" @click="save()" />
-    </div>
-  </div>
+      </div>
+    </template>
+    <template #content>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label>Kullanıcı</label>
+            <Dropdown
+              class="w-100"
+              v-model="userId"
+              :options="users"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Kullanıcı seçiniz."
+              @change="changeUser($event)"
+            />
+          </div>
+        </div>
+      </div>
+      <div>
+        <TabView>
+          <TabPanel header="Sayfa Yetkilendirme">
+            <div>
+              <Tree
+                ref="treeMenu"
+                :value="menus"
+                selectionMode="checkbox"
+                v-model:selectionKeys="selectedMenus"
+              ></Tree>
+            </div>
+          </TabPanel>
+          <TabPanel header="İşlem Yetkilendirme">
+            <Tree
+              :value="operations"
+              selectionMode="checkbox"
+              v-model:selectionKeys="selectedOperations"
+              :metaKeySelection="false"
+            ></Tree>
+          </TabPanel>
+        </TabView>
+      </div>
+      <div class="row mt-3">
+        <div class="col-md-12">
+          <Button class="float-end" label="Kaydet" @click="save()" />
+        </div>
+      </div>
+    </template>
+  </Card>
 </template>
 
 <script>
@@ -153,5 +159,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

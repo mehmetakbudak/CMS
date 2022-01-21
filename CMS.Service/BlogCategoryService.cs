@@ -52,7 +52,7 @@ namespace CMS.Service
                 var skip = (page - 1) * 10;
                 var blogs = categoryBlog.Blogs
                     .Where(x => x.IsActive && !x.Deleted && x.Published)
-                    .OrderBy(x => x.Sequence)
+                    .OrderBy(x => x.DisplayOrder)
                     .ToList();
 
                 result.Data = new BlogCategoryModel

@@ -32,7 +32,7 @@ namespace CMS.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<CMSContext>(options => options.UseSqlite("FileName=database.db"));
+            services.AddDbContext<CMSContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AppConnectionString")));
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -77,7 +77,7 @@ namespace CMS.Api
             services.AddCors();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest)
-                 .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .ConfigureApiBehaviorOptions(options =>
                 {
                     options.InvalidModelStateResponseFactory = (context) =>

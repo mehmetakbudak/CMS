@@ -4,7 +4,6 @@ using CMS.Model.Entity;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Net;
 
 namespace CMS.Service
@@ -47,7 +46,7 @@ namespace CMS.Service
                 result.Data = new BlogDetailModel
                 {
                     Content = blog.Content,
-                    Count = blog.Count,
+                    NumberOfView = blog.NumberOfView,
                     Id = blog.Id,
                     InsertedDate = blog.InsertedDate,
                     Title = blog.Title,

@@ -9,7 +9,7 @@ namespace CMS.Model.Model
         public string CategoryName { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public int Count { get; set; }
+        public int NumberOfView { get; set; }
         public DateTime InsertedDate { get; set; }
     }
 }

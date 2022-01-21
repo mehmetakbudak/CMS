@@ -35,14 +35,14 @@ namespace CMS.Service
 
             var menuItems = menu.MenuItems
                 .Where(x => x.ParentId == null && x.IsActive && !x.Deleted)
-                .OrderBy(x => x.Order).ToList();
+                .OrderBy(x => x.DisplayOrder).ToList();
 
             list = menuItems.Select(x => new MenuModel
             {
                 Id = x.Id,
-                Label = x.Label,
-                To = x.To,
-                Items = GetSubMenuItems(x.Id, menu.MenuItems)
+                Title = x.Title,
+                Url = x.Url,
+                Items = GetSubMenuItems(x.Id, menu.MenuItems.ToList())
             }).ToList();
 
             return list;
@@ -53,15 +53,15 @@ namespace CMS.Service
             List<MenuModel> list = null;
             var items = menuItems.Where(x => x.ParentId != null &&
                         x.ParentId == parentId)
-                        .OrderBy(x => x.Order).ToList();
+                        .OrderBy(x => x.DisplayOrder).ToList();
 
             if (items.Any())
             {
                 list = items.Select(x => new MenuModel
                 {
                     Id = x.Id,
-                    Label = x.Label,
-                    To = x.To,
+                    Title = x.Title,
+                    Url = x.Url,
                     Items = x.ParentId.HasValue ? GetSubMenuItems(x.Id, menuItems) : null
                 }).ToList();
             }

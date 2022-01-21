@@ -37,13 +37,13 @@ namespace CMS.Service
                 .GetAll(x => !x.Deleted)
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
-                .Include(x => x.User)
+                .Include(x => x.AssignUser)
                 .AsQueryable();
 
             if (model.EndDate.HasValue)
-                data = data.Where(x => x.InsertDate.Date <= model.EndDate.Value.Date);
+                data = data.Where(x => x.InsertedDate.Date <= model.EndDate.Value.Date);
             if (model.StartDate.HasValue)
-                data = data.Where(x => x.InsertDate.Date >= model.StartDate.Value.Date);
+                data = data.Where(x => x.InsertedDate.Date >= model.StartDate.Value.Date);
             if (!string.IsNullOrEmpty(model.Title))
                 data = data.Where(x => x.Title.Contains(model.Title));
             if (model.TodoCategoryId.HasValue)
@@ -51,7 +51,7 @@ namespace CMS.Service
             if (model.TodoStatusId.HasValue)
                 data = data.Where(x => x.TodoStatusId== model.TodoStatusId.Value);
             if (model.UserId.HasValue)
-                data = data.Where(x => x.UserId == model.UserId.Value);
+                data = data.Where(x => x.AssignUserId == model.UserId.Value);
             if (model.IsActive.HasValue)
                 data = data.Where(x => x.IsActive == model.IsActive.Value);
 
@@ -59,17 +59,16 @@ namespace CMS.Service
             {
                 Description = x.Description,
                 Id = x.Id,
-                InsertDate = x.InsertDate,
+                InsertedDate = x.InsertedDate,
                 IsActive = x.IsActive,
                 Title = x.Title,
                 TodoCategoryId = x.TodoCategoryId,
                 TodoCategoryName = x.TodoCategory.Name,
                 TodoStatusId = x.TodoStatusId,
                 TodoStatusName = x.TodoStatus.Name,
-                UpdateDate = x.UpdateDate,
-                UserComment = x.UserComment,
-                UserId = x.UserId,
-                UserNameSurname = x.User.Name + " " + x.User.Surname
+                UpdatedDate = x.UpdatedDate,
+                AssignUserId = x.AssignUserId,
+                UserNameSurname = x.AssignUser.Name + " " + x.AssignUser.Surname
             }).OrderByDescending(x => x.Id).ToList();
             return list;
         }
@@ -77,25 +76,24 @@ namespace CMS.Service
         public IQueryable<TodoGetModel> GetUserTodos(int userId)
         {
             return unitOfWork.Repository<Todo>()
-                .GetAll(x => !x.Deleted && x.IsActive && x.UserId == userId, x => x
+                .GetAll(x => !x.Deleted && x.IsActive && x.AssignUserId == userId, x => x
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
-                .Include(x => x.User))
+                .Include(x => x.AssignUser))
                 .Select(x => new TodoGetModel
                 {
                     Description = x.Description,
                     Id = x.Id,
-                    InsertDate = x.InsertDate,
+                    InsertedDate = x.InsertedDate,
                     IsActive = x.IsActive,
                     Title = x.Title,
                     TodoCategoryId = x.TodoCategoryId,
                     TodoCategoryName = x.TodoCategory.Name,
                     TodoStatusId = x.TodoStatusId,
                     TodoStatusName = x.TodoStatus.Name,
-                    UpdateDate = x.UpdateDate,
-                    UserComment = x.UserComment,
-                    UserId = x.UserId,
-                    UserNameSurname = x.User.Name + " " + x.User.Surname
+                    UpdatedDate = x.UpdatedDate,
+                    AssignUserId = x.AssignUserId,
+                    UserNameSurname = x.AssignUser.Name + " " + x.AssignUser.Surname
                 })
                 .OrderByDescending(x => x.Id)
                 .AsQueryable();
@@ -111,12 +109,12 @@ namespace CMS.Service
                 {
                     Deleted = false,
                     Description = model.Description,
-                    InsertDate = DateTime.Now,
+                    InsertedDate = DateTime.Now,
                     IsActive = model.IsActive,
                     TodoCategoryId = model.TodoCategoryId,
                     Title = model.Title,
                     TodoStatusId = model.TodoStatusId,
-                    UserId = model.UserId
+                    AssignUserId = model.AssignUserId
                 };
                 unitOfWork.Repository<Todo>().Add(todo);
                 unitOfWork.Save();
@@ -138,8 +136,8 @@ namespace CMS.Service
                 todo.Title = model.Title;
                 todo.TodoCategoryId = model.TodoCategoryId;
                 todo.TodoStatusId = model.TodoStatusId;
-                todo.UpdateDate = DateTime.Now;
-                todo.UserId = model.UserId;
+                todo.UpdatedDate = DateTime.Now;
+                todo.AssignUserId = model.AssignUserId;
                 unitOfWork.Save();
             }
             else

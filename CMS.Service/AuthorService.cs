@@ -48,9 +48,10 @@ namespace CMS.Service
                 {
                     Deleted = false,
                     IsActive = model.IsActive,
-                    NameSurname = model.NameSurname,
+                    Name = model.Name,
+                    Surname = model.Surname,
                     Resume = model.Resume,
-                    
+
                 };
                 unitOfWork.Repository<Author>().Add(entity);
                 unitOfWork.Save();
@@ -66,7 +67,8 @@ namespace CMS.Service
                 .Find(x => x.Id == model.Id && !x.Deleted);
             if (entity != null)
             {
-                entity.NameSurname = model.NameSurname;
+                entity.Name = model.Name;
+                entity.Surname = model.Surname;
                 entity.Resume = model.Resume;
                 entity.IsActive = model.IsActive;
                 unitOfWork.Repository<Author>().Update(entity);

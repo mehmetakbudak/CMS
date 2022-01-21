@@ -17,7 +17,7 @@ namespace CMS.Model.Entity
 
         public AccessRightType Type { get; set; }
 
-        public int Order { get; set; }
+        public int DisplayOrder { get; set; }
 
         public bool IsActive { get; set; }
 

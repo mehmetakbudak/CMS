@@ -8,11 +8,11 @@
 
         public int? ParentId { get; set; }
 
-        public string Label { get; set; }
+        public string Title { get; set; }
 
-        public string To { get; set; }
+        public string Url { get; set; }
 
-        public int Order { get; set; }
+        public int DisplayOrder { get; set; }
 
         public bool IsActive { get; set; }
 

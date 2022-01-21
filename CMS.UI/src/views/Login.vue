@@ -1,32 +1,67 @@
 <template>
-  <div class="card shadow">
-    <div class="card-body content">
-      <div class="col-md-4 offset-4">
-        <div class="card">
-          <h5 class="card-header py-3">Giriş Yap</h5>
-          <div class="card-body">
-            <Message v-for="item of exceptions" severity="error" :key="item">{{
-              item
-            }}</Message>
-
-            <div class="p-fluid">
-              <div class="p-field">
-                <label>Email Adresi</label>
-                <InputText type="email" v-model="data.emailAddress" />
-              </div>
-              <div class="p-field">
-                <label>Şifre</label>
-                <InputText type="password" v-model="data.password" />
-              </div>
-              <div class="p-field">
-                <Button type="submit" label="Giriş Yap" @click="login"></Button>
-              </div>
+  <Card>
+    <template #content>
+      <div class="col-md-4 offset-4" style="padding: 100px 0;">
+        <Panel v-if="showLogin">
+          <template #header>
+            <h4>Giriş Yap</h4>
+          </template>
+          <div class="p-fluid">
+            <div class="p-field">
+              <label>Email Adresi</label>
+              <InputText type="email" v-model="data.emailAddress" />
+            </div>
+            <div class="p-field">
+              <label>Şifre</label>
+              <InputText type="password" v-model="data.password" />
+            </div>
+            <div>
+              <a class="float-start pb-3" @click="showForgotPassword()"
+                >Şifremi Unuttum</a
+              >
+            </div>
+            <div class="p-field">
+              <Button type="submit" label="Giriş Yap" @click="login"></Button>
             </div>
           </div>
-        </div>
+        </Panel>
+        <Panel v-if="showForgotPassword">
+          <template #header>
+            <h4>Giriş Yap</h4>
+          </template>
+          <div class="p-fluid">
+            <div class="p-field">
+              <label>Email Adresi</label>
+              <InputText type="email" v-model="data.emailAddress" />
+            </div>
+            <div class="p-field">
+              <label>Şifre</label>
+              <InputText type="password" v-model="data.password" />
+            </div>
+            <div class="row">
+              <div class="col-6">
+                <div class="p-field-checkbox float-start">
+                  <Checkbox />
+                  <label class="pe-2">Beni Hatırla</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <a
+                  class="float-end pb-3"
+                  @click="showForgotPassword()"
+                >
+                  Şifremi Unuttum
+                </a>
+              </div>
+            </div>
+            <div class="p-field">
+              <Button type="submit" label="Giriş Yap" @click="login"></Button>
+            </div>
+          </div>
+        </Panel>
       </div>
-    </div>
-  </div>
+    </template>
+  </Card>
 </template>
 
 <script>
@@ -68,6 +103,7 @@ export default {
         }
       );
     },
+    showForgotPassword() {},
   },
 };
 </script>
