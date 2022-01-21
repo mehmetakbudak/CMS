@@ -1,14 +1,20 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light mt-2 border" style="border-radius: 5px;">
+  <nav
+    class="navbar navbar-expand-lg navbar-light bg-light mt-2 border"
+    style="border-radius: 5px;"
+  >
     <div class="container-fluid">
       <router-link class="navbar-brand" to="/">CMS</router-link>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <router-link class="nav-link active" to="/">Anasayfa</router-link>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
+            <router-link class="nav-link" to="/haberler">Haberler</router-link>
+          </li>
+            <li class="nav-item">
+            <router-link class="nav-link" to="/iletisim">İletişim</router-link>
           </li>
           <li class="nav-item dropdown">
             <a
@@ -19,7 +25,7 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              Dropdown
+              Blog
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="#">Action</a></li>
@@ -49,7 +55,7 @@
         </div>
       </div>
     </div>
-  </nav> 
+  </nav>
 </template>
 
 <script>

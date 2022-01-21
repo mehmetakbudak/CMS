@@ -1,36 +1,47 @@
- <template>
-  <h3>Haberler</h3>
+<template>
   <div class="card mt-3">
-    <DataView :value="news" :layout="layout" :paginator="true" :rows="9">
-      <template #grid="slotProps">
-        <div class="p-col-12 p-md-4">
-          <div class="card">
-            <img
-              class="card-img-top"
-              src="http://via.placeholder.com/268x180"
-              :alt="slotProps.data.title"
-            />
-            <div class="card-body">
-              <div class="badge bg-secondary mt-2">
-                {{ slotProps.data.category }}
-              </div>
-              <h5 class="card-title mt-2 mb-2">{{ slotProps.data.title }}</h5>
-              <p class="card-text mt-2 mb-2">
-                {{ slotProps.data.description }}
-              </p>
-              <div class="mt-3"></div>
-            </div>
-            <div class="card-footer">
-              <router-link
-                to="/haberler/detay"
-                class="btn btn-primary float-end"
-                >Detaylar</router-link
-              >
-            </div>
-          </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h3 class="p-2">Haberler</h3>
         </div>
-      </template>
-    </DataView>
+        <div class="col-md-6"></div>
+      </div>
+      <div class="row">
+        <DataView :value="news" :layout="layout" :paginator="true" :rows="9">
+          <template #grid="slotProps">
+            <div class="col-md-4 p-2">
+              <div class="card">
+                <img
+                  class="card-img-top"
+                  src="http://via.placeholder.com/268x180"
+                  :alt="slotProps.data.title"
+                />
+                <div class="card-body">
+                  <div class="badge bg-secondary mt-2">
+                    {{ slotProps.data.category }}
+                  </div>
+                  <h5 class="card-title mt-2 mb-2">
+                    {{ slotProps.data.title }}
+                  </h5>
+                  <p class="card-text mt-2 mb-2">
+                    {{ slotProps.data.description }}
+                  </p>
+                  <div class="mt-3"></div>
+                </div>
+                <div class="card-footer">
+                  <router-link
+                    to="/haberler/detay"
+                    class="btn btn-primary float-end"
+                    >Detaylar</router-link
+                  >
+                </div>
+              </div>
+            </div>
+          </template>
+        </DataView>
+      </div>
+    </div>
   </div>
 </template>
 
