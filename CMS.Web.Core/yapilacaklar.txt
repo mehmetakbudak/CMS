@@ -1,2 +1,0 @@
-﻿- Menu yetkileri altyapısı
-- Roller altyapısı(Access rights)   
