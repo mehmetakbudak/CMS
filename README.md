@@ -1,5 +1,5 @@
 # CMS
 
-- Asp.Net Core MVC 
-- Vue.js 
+- Asp.Net Core - Web Api 
+- Vue 3 - PrimeVue 
 - SQLite
