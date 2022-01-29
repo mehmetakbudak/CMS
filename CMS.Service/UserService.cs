@@ -103,6 +103,7 @@ namespace CMS.Service
             {
                 Token = tokenResult.Token,
                 FullName = $"{user.Name} {user.Surname}",
+                IsAccessAdminPanel = user.UserType != UserType.Member ? true : false,
                 OperationAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Operation)
                 .Select(x => x.Endpoint).ToList(),
                 MenuAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Menu)

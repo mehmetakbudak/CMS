@@ -1,46 +1,58 @@
-import { createWebHistory, createRouter, RouterView } from "vue-router";
-
-import Layout from "./views/Layout.vue";
-import Home from "./views/Home.vue";
-import Page from "./views/Page.vue";
-import News from "./views/News.vue";
-import NewsDetail from "./views/NewsDetail.vue";
-import Contact from "./views/Contact.vue";
-import Login from "./views/Login.vue";
-import FAQ from "./views/FAQ.vue";
+import {
+  createWebHistory,
+  createRouter,
+  RouterView
+} from "vue-router";
 import store from "@/store";
 
+// frontend routes
+import Layout from "./views/frontend/Layout.vue";
+import Home from "./views/frontend/Home.vue";
+import Page from "./views/frontend/Page.vue";
+import Blog from "./views/frontend/Blog.vue";
+import BlogDetail from "./views/frontend/BlogDetail.vue";
+import Contact from "./views/frontend/Contact.vue";
+import Login from "./views/frontend/Login.vue";
+import Register from "./views/frontend/Register.vue";
+import FAQ from "./views/frontend/FAQ.vue";
+
 // admin routes
-import AdminLayout from "./admin/AdminLayout.vue";
-import Dashboard from "./admin/Dashboard.vue";
-import Users from "./admin/definitions/Users.vue";
-import UserAuthorization from "./admin/definitions/UserAuthorization.vue";
-import AdminMenu from "./admin/definitions/menus/AdminMenu.vue";
-import BlogCategory from "./admin/definitions/BlogCategory.vue";
-import TodoCategory from "./admin/definitions/TodoCategory.vue";
-import TodoStatus from "./admin/definitions/TodoStatus.vue";
-import Author from "./admin/definitions/Author.vue";
+import AdminLayout from "./views/admin/AdminLayout.vue";
+import Dashboard from "./views/admin/Dashboard.vue";
+import Users from "./views/admin/definitions/Users.vue";
+import UserAuthorization from "./views/admin/definitions/UserAuthorization.vue";
+import AdminMenu from "./views/admin/definitions/menus/AdminMenu.vue";
+import BlogCategory from "./views/admin/definitions/BlogCategory.vue";
+import TodoCategory from "./views/admin/definitions/TodoCategory.vue";
+import TodoStatus from "./views/admin/definitions/TodoStatus.vue";
+import Author from "./views/admin/definitions/Author.vue";
+import WaitingApproveComment from "./views/admin/comments/WaitingApproveComment.vue";
+import ApprovedComment from "./views/admin/comments/ApprovedComment.vue";
+import RejectedComment from "./views/admin/comments/RejectedComment.vue";
+import Announcement from "./views/admin/contents/Announcement.vue";
+import Article from "./views/admin/contents/Article.vue";
+import AdminBlog from "./views/admin/contents/Blog.vue";
+import ContactMessages from "./views/admin/contents/ContactMessages.vue";
+import Pages from "./views/admin/contents/Pages.vue";
+import PhotoGallery from "./views/admin/contents/PhotoGallery.vue";
+import VideoGallery from "./views/admin/contents/VideoGallery.vue";
+import MyTodos from "./views/admin/tools/MyTodos.vue";
+import Todos from "./views/admin/tools/Todos.vue";
 
-import WaitingApproveComment from "./admin/comments/WaitingApproveComment.vue";
-import ApprovedComment from "./admin/comments/ApprovedComment.vue";
-import RejectedComment from "./admin/comments/RejectedComment.vue";
-import Announcement from "./admin/contents/Announcement.vue";
-import Article from "./admin/contents/Article.vue";
-import Blog from "./admin/contents/Blog.vue";
-import ContactMessages from "./admin/contents/ContactMessages.vue";
-import Pages from "./admin/contents/Pages.vue";
-import PhotoGallery from "./admin/contents/PhotoGallery.vue";
-import VideoGallery from "./admin/contents/VideoGallery.vue";
+// member routes
+import MemberLayout from "./views/member/MemberLayout.vue";
+import Profile from "./views/member/Profile.vue";
+import ChangePassword from "./views/member/ChangePassword.vue";
+import MemberComments from "./views/member/MemberComments.vue";
 
-import MyTodos from "./admin/tools/MyTodos.vue";
-import Todos from "./admin/tools/Todos.vue";
-
-const routes = [
-  {
+const routes = [{
     path: "/",
     component: Layout,
-    children: [
-      {
+    meta: {
+      requireAuth: false,
+      isAccessAdminPanel: false,
+    },
+    children: [{
         path: "",
         component: Home,
       },
@@ -50,14 +62,14 @@ const routes = [
         component: Page,
       },
       {
-        path: "/haberler",
-        name: "News",
-        component: News,
+        path: "/blog/:categoryUrl",
+        name: "Blog",
+        component: Blog,
       },
       {
-        path: "/haberler/:url",
-        name: "NewsDetail",
-        component: NewsDetail,
+        path: "/blog/:categoryUrl/:url",
+        name: "BlogDetail",
+        component: BlogDetail,
       },
       {
         path: "/iletisim",
@@ -70,6 +82,11 @@ const routes = [
         component: Login,
       },
       {
+        path: "/uye-ol",
+        name: "Register",
+        component: Register
+      },
+      {
         path: "/sss",
         name: "FAQ",
         component: FAQ,
@@ -79,6 +96,27 @@ const routes = [
         name: "FAQWithCategory",
         component: FAQ,
       },
+      {
+        path: "/uye",
+        component: MemberLayout,
+        meta: {
+          requireAuth: true,
+          isAccessAdminPanel: false,
+        },
+        children: [{
+            path: "hesabim",
+            component: Profile,
+          },
+          {
+            path: "sifre-degistir",
+            component: ChangePassword
+          },
+          {
+            path: "yorumlarim",
+            component: MemberComments
+          }
+        ]
+      },
     ],
   },
   {
@@ -86,20 +124,18 @@ const routes = [
     component: AdminLayout,
     meta: {
       requireAuth: true,
-      isAdmin: true,
+      isAccessAdminPanel: true,
     },
-    children: [
-      {
+    children: [{
         path: "",
         component: Dashboard,
       },
       {
         path: "icerikler",
         component: RouterView,
-        children: [
-          {
-            path: "bloglar",
-            component: Blog,
+        children: [{
+            path: "blog",
+            component: AdminBlog,
           },
           {
             path: "sayfalar",
@@ -138,8 +174,7 @@ const routes = [
       {
         path: "tanimlar",
         component: RouterView,
-        children: [
-          {
+        children: [{
             path: "kullanicilar",
             component: Users,
           },
@@ -166,20 +201,17 @@ const routes = [
           {
             path: "menuler",
             component: RouterView,
-            children: [
-              {
-                path: "admin-menu",
-                component: AdminMenu,
-              },
-            ],
+            children: [{
+              path: "admin-menu",
+              component: AdminMenu,
+            }, ],
           },
         ],
       },
       {
         path: "yorumlar",
         component: RouterView,
-        children: [
-          {
+        children: [{
             path: "onay-bekleyenler",
             component: WaitingApproveComment,
           },
@@ -196,8 +228,7 @@ const routes = [
       {
         path: "araclar",
         component: RouterView,
-        children: [
-          {
+        children: [{
             path: "yapilacaklar",
             component: Todos,
           },
@@ -217,20 +248,26 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const currentUser = JSON.parse(localStorage.getItem("user"));
-  if (currentUser) {
-    const result = currentUser.menuAccessRights.filter((x) => x == to.fullPath);
-    if (result.length > 0) {
-      next();
-    } else {
+  if (!to.meta.requireAuth && !to.meta.isAccessAdminPanel) {
+    next();
+  }
+  if (to.meta.requireAuth) {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    if (!currentUser) {
       store.dispatch("auth/logout");
       next("/giris");
-    }
-  } else {
-    if (to.meta.requireAuth) {
-      next("/giris");
     } else {
-      next();
+      if (to.meta.isAccessAdminPanel) {
+        const result = currentUser.menuAccessRights.filter((x) => x == to.fullPath);
+        if (result.length > 0) {
+          next();
+        } else {
+          store.dispatch("auth/logout");
+          next("/giris");
+        }
+      } else {
+        next();
+      }
     }
   }
 });

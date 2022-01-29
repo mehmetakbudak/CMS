@@ -13,3 +13,17 @@
 .mr-20px {
     margin-right: 20px !important;
 }
+
+.footer-button {
+    margin: 0 -1.5rem;
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.p-menubar .p-menuitem-link {
+    padding: 0.5rem !important;
+}

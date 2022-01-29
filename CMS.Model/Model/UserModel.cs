@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CMS.Model.Model
 {
-    public class UserModel : BaseModel
+    public class UserModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Kullanıcı tipi seçiniz.")]
         public int UserType { get; set; }
 

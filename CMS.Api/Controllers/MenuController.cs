@@ -42,14 +42,6 @@ namespace CMS.Api
                 Priority = CacheItemPriority.Normal
             });
             return Ok(menus);
-        }
-
-        [HttpGet("Backend")]
-        [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult GetBackEndMenu()
-        {
-            var list = accessRightService.GetBackEndMenu();
-            return Ok(list);
-        }
+        }        
     }
 }

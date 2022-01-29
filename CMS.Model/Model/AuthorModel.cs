@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CMS.Model.Model
 {
-    public class AuthorModel : BaseModel
+    public class AuthorModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Yazar adı zorunludur.")]
         public string Name { get; set; }
 

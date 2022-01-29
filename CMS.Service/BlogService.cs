@@ -3,13 +3,14 @@ using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
-using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Net;
 
 namespace CMS.Service
 {
     public interface IBlogService
     {
+        IQueryable<Blog> GetAll();
         ServiceResult GetByUrl(string url);
     }
 
@@ -21,21 +22,24 @@ namespace CMS.Service
         {
             this.unitOfWork = unitOfWork;
         }
+
+        public IQueryable<Blog> GetAll()
+        {
+            var list = unitOfWork.Repository<Blog>().GetAll(x => !x.Deleted);
+            return list;
+        }
+
         public ServiceResult GetByUrl(string url)
         {
-
             var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
             if (string.IsNullOrEmpty(url))
             {
                 throw new NotFoundException("Url bulunamadı.");
             }
+
             var blog = unitOfWork.Repository<Blog>()
-            .Find(x => x.Url == url &&
-                !x.Deleted &&
-                x.Published &&
-                x.IsActive,
-                x => x.Include(y => y.BlogCategory));
+                .Find(x => x.Url == url && !x.Deleted && x.Published && x.IsActive);
 
             if (blog == null)
             {
@@ -49,9 +53,7 @@ namespace CMS.Service
                     NumberOfView = blog.NumberOfView,
                     Id = blog.Id,
                     InsertedDate = blog.InsertedDate,
-                    Title = blog.Title,
-                    CategoryName = blog.BlogCategory.Name,
-                    CategoryUrl = blog.BlogCategory.Url
+                    Title = blog.Title
                 };
             }
             return result;

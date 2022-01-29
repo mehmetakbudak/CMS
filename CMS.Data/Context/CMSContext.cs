@@ -45,6 +45,8 @@ namespace CMS.Data.Context
 
         public virtual DbSet<Blog> Blogs { get; set; }
 
+        public virtual DbSet<SelectedBlogCategory> SelectedBlogCategories { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

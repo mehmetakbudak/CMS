@@ -32,7 +32,7 @@ namespace CMS.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<CMSContext>(options => options.UseSqlite(Configuration.GetConnectionString("AppConnectionString")));          
+            services.AddDbContext<CMSContext>(options => options.UseSqlite(Configuration.GetConnectionString("AppConnectionString")));
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -109,7 +109,7 @@ namespace CMS.Api
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.ErrorHandler();
 
             app.UseRouting();

@@ -1,12 +1,10 @@
-﻿using CMS.Model.Entity;
-using System;
+﻿using System;
 
 namespace CMS.Model.Model
 {
-    public class BlogDetailModel : BaseModel
+    public class BlogDetailModel
     {
-        public string CategoryUrl { get; set; }
-        public string CategoryName { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public int NumberOfView { get; set; }

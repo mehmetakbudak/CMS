@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CMS.Model.Dto
 {
-    public class TodoModel : BaseModel
+    public class TodoModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Kategori seçiniz.")]
         public int TodoCategoryId { get; set; }
 

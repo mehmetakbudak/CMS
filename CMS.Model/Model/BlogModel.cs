@@ -5,8 +5,9 @@ using System.Text;
 
 namespace CMS.Model.Model
 {
-    public class BlogModel : BaseModel
+    public class BlogModel
     {
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public string Url { get; set; }

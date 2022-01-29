@@ -12,7 +12,7 @@ namespace CMS.Service
     public interface IMenuService
     {
         List<LookupModel> Lookup();
-        List<MenuModel> GetFrontEndMenu();
+        List<MenuBarModel> GetFrontEndMenu();
 
     }
 
@@ -25,9 +25,9 @@ namespace CMS.Service
             this.context = context;
         }
 
-        public List<MenuModel> GetFrontEndMenu()
+        public List<MenuBarModel> GetFrontEndMenu()
         {
-            var list = new List<MenuModel>();
+            var list = new List<MenuBarModel>();
             var menu = context.Menus
                 .Include(x => x.MenuItems)
                 .FirstOrDefault(x => x.Type == MenuType.FrontEnd &&
@@ -37,31 +37,31 @@ namespace CMS.Service
                 .Where(x => x.ParentId == null && x.IsActive && !x.Deleted)
                 .OrderBy(x => x.DisplayOrder).ToList();
 
-            list = menuItems.Select(x => new MenuModel
+            list = menuItems.Select(x => new MenuBarModel
             {
                 Id = x.Id,
-                Title = x.Title,
-                Url = x.Url,
+                Label = x.Title,
+                To = x.Url,
                 Items = GetSubMenuItems(x.Id, menu.MenuItems.ToList())
             }).ToList();
 
             return list;
         }
 
-        private List<MenuModel> GetSubMenuItems(int parentId, List<MenuItems> menuItems)
+        private List<MenuBarModel> GetSubMenuItems(int parentId, List<MenuItems> menuItems)
         {
-            List<MenuModel> list = null;
+            List<MenuBarModel> list = null;
             var items = menuItems.Where(x => x.ParentId != null &&
                         x.ParentId == parentId)
                         .OrderBy(x => x.DisplayOrder).ToList();
 
             if (items.Any())
             {
-                list = items.Select(x => new MenuModel
+                list = items.Select(x => new MenuBarModel
                 {
                     Id = x.Id,
-                    Title = x.Title,
-                    Url = x.Url,
+                    Label = x.Title,
+                    To = x.Url,
                     Items = x.ParentId.HasValue ? GetSubMenuItems(x.Id, menuItems) : null
                 }).ToList();
             }

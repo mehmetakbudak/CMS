@@ -12,7 +12,7 @@ namespace CMS.Service
     public interface IAccessRightService
     {
         AccessRightModel Get();
-        List<TreeMenuModel> GetBackEndMenu();
+        List<TreeMenuModel> GetUserMenu();
     }
     public class AccessRightService : IAccessRightService
     {
@@ -80,7 +80,7 @@ namespace CMS.Service
             return list;
         }
 
-        public List<TreeMenuModel> GetBackEndMenu()
+        public List<TreeMenuModel> GetUserMenu()
         {
             var list = new List<TreeMenuModel>();
 

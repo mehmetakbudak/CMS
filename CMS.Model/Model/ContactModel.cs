@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CMS.Model.Model
 {
-    public class ContactModel : BaseModel
+    public class ContactModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "Adı zorunludur.")]
         public string Name { get; set; }
 

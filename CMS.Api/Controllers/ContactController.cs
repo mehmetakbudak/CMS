@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CMS.Api
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ContactController : ControllerBase
     {
         private readonly IContactService contactService;
