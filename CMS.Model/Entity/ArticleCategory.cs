@@ -2,7 +2,7 @@
 
 namespace CMS.Model.Entity
 {
-    public class ArticleCategory: BaseModel
+    public class ArticleCategory: BaseEntityModel
     {      
         public string Name { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿using CMS.Model.Model;
 
-namespace CMS.Model.Helper
+namespace CMS.Service.Helper
 {
     public static class HttpHelper
     {

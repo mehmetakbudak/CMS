@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
-    public class User : BaseModel
+    public class User : BaseEntityModel
     {
+        public UserStatus Status { get; set; }
         public string Name { get; set; }
 
         public string Surname { get; set; }
@@ -15,7 +16,7 @@ namespace CMS.Model.Entity
 
         public string Password { get; set; }
 
-        public string HashCode { get; set; }        
+        public string HashCode { get; set; }
 
         public DateTime? PasswordExpireDate { get; set; }
 

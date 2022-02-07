@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CMS.Model.Entity
 {
-    public class Menu : BaseModel
+    public class Menu : BaseEntityModel
     {
         public string Name { get; set; }
 

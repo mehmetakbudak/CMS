@@ -1,7 +1,7 @@
 ﻿using CMS.Data.Context;
+using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
-using CMS.Model.Helper;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using CMS.Service.Helper;
@@ -23,23 +23,29 @@ namespace CMS.Service
         ServiceResult Post(UserModel model);
         ServiceResult Put(UserModel model);
         ServiceResult Delete(int id);
+        UserProfileModel GetProfile();
+        ServiceResult UpdateProfile(UserProfileModel model);
+        ServiceResult AddMember(AddMemberModel model);
+        ServiceResult ForgotPassword(ForgotPasswordModel model);
+        ServiceResult ChangePassword(ChangePasswordModel model);
+        object GetMemberComments();
     }
 
     public class UserService : IUserService
     {
-        private readonly CMSContext context;
-        private readonly IJwtHelper jwtHelper;
-        public UserService(CMSContext context,
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
+        private readonly IJwtHelper _jwtHelper;
+        public UserService(IUnitOfWork<CMSContext> unitOfWork,
             IJwtHelper jwtHelper)
         {
-            this.context = context;
-            this.jwtHelper = jwtHelper;
+            _unitOfWork = unitOfWork;
+            _jwtHelper = jwtHelper;
         }
 
         public IQueryable<UserModel> GetAll()
         {
-            return context.Users
-                .Where(x => !x.Deleted && x.UserType != UserType.Member)
+            return _unitOfWork.Repository<User>()
+                .GetAll(x => !x.Deleted && x.UserType != UserType.Member)
                 .OrderByDescending(x => x.Id)
                 .Select(x => new UserModel
                 {
@@ -55,7 +61,7 @@ namespace CMS.Service
 
         public User GetById(int id)
         {
-            return context.Users.FirstOrDefault(x => x.Id == id && !x.Deleted);
+            return _unitOfWork.Repository<User>().Find(x => x.Id == id && !x.Deleted);
         }
 
         public ServiceResult Authenticate(LoginModel model)
@@ -63,12 +69,11 @@ namespace CMS.Service
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
             var hassPassword = Security.MD5Crypt(model.Password);
-            var user = context.Users
+            var user = _unitOfWork.Repository<User>()
+                .GetAll(x => x.EmailAddress == model.EmailAddress && x.Password == hassPassword && !x.Deleted)
                 .Include(x => x.UserAccessRights)
                 .ThenInclude(x => x.AccessRight)
-                .FirstOrDefault(x =>
-            x.EmailAddress == model.EmailAddress &&
-            x.Password == hassPassword && !x.Deleted);
+                .FirstOrDefault();
 
             if (user == null)
             {
@@ -80,16 +85,17 @@ namespace CMS.Service
                 throw new BadRequestException("Hesabınız aktif değildir.");
             }
 
-            var tokenResult = jwtHelper.GenerateJwtToken(user);
+            var tokenResult = _jwtHelper.GenerateJwtToken(user);
 
             user.Token = tokenResult.Token;
             user.TokenExpireDate = tokenResult.ExpireDate;
-            context.SaveChanges();
+            _unitOfWork.Save();
             List<AccessRight> accessRights = new List<AccessRight>();
 
             if (user.UserType == UserType.SuperAdmin)
             {
-                accessRights = context.AccessRights.ToList();
+                accessRights = _unitOfWork.Repository<AccessRight>()
+                    .GetAll(x => !x.Deleted).ToList();
             }
             else
             {
@@ -114,16 +120,17 @@ namespace CMS.Service
 
         public User GetTokenInfo(int userId, string token)
         {
-            var user = context.Users
+            var user = _unitOfWork.Repository<User>()
+                .GetAll(x => !x.Deleted && x.IsActive && x.Id == userId && x.Token == token && x.TokenExpireDate >= DateTime.Now)
                 .Include(x => x.UserAccessRights)
-                .FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == userId && x.Token == token && x.TokenExpireDate >= DateTime.Now);
+                .FirstOrDefault();
             return user;
         }
 
         public List<LookupModel> Lookup()
         {
-            return context.Users
-                .Where(x => !x.Deleted && x.IsActive && x.UserType != UserType.Member)
+            return _unitOfWork.Repository<User>()
+                .GetAll(x => !x.Deleted && x.IsActive && x.UserType != UserType.Member)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
@@ -133,11 +140,10 @@ namespace CMS.Service
 
         public ServiceResult Post(UserModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var checkEmail = context.Users
-                .Any(x => x.EmailAddress == model.EmailAddress &&
-                !x.Deleted);
+            var checkEmail = _unitOfWork.Repository<User>()
+                .GetAll(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted).Any();
 
             if (!checkEmail)
             {
@@ -149,66 +155,180 @@ namespace CMS.Service
                     Name = model.Name,
                     Surname = model.Surname,
                     UserType = (UserType)model.UserType,
-                    InsertedDate = DateTime.Now
+                    InsertedDate = DateTime.Now,
+                    HashCode = Guid.NewGuid().ToString(),
+                    Status = UserStatus.NotSetPassword
                 };
-                context.Users.Add(user);
-                context.SaveChanges();
+                _unitOfWork.Repository<User>().Add(user);
+                _unitOfWork.Save();
+                // kullanıcıya email gönderiliyor
             }
             else
             {
                 throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
             }
-            return serviceResult;
+            return result;
         }
 
         public ServiceResult Put(UserModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var isExistUser = context.Users
-                       .Any(x => x.EmailAddress == model.EmailAddress &&
-                       !x.Deleted && x.Id != model.Id);
+            var isExistUser = _unitOfWork.Repository<User>()
+                .GetAll(x => x.EmailAddress == model.EmailAddress && !x.Deleted && x.Id != model.Id)
+                .Any();
 
-            if (!isExistUser)
-            {
-                var user = context.Users.FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
-                if (user != null)
-                {
-                    user.EmailAddress = model.EmailAddress;
-                    user.IsActive = model.IsActive;
-                    user.Name = model.Name;
-                    user.Surname = model.Surname;
-                    user.UserType = (UserType)model.UserType;
-                    context.SaveChanges();
-                }
-                else
-                {
-                    throw new NotFoundException("Kayıt bulunamadı.");
-                }
-            }
-            else
+            if (isExistUser)
             {
                 throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
             }
-            return serviceResult;
+
+            var user = GetById(model.Id);
+            if (user == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            user.EmailAddress = model.EmailAddress;
+            user.IsActive = model.IsActive;
+            user.Name = model.Name;
+            user.Surname = model.Surname;
+            user.UserType = (UserType)model.UserType;
+            _unitOfWork.Save();
+            return result;
         }
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var user = context.Users.FirstOrDefault(x => x.Id == id && !x.Deleted);
+            var user = GetById(id);
 
-            if (user != null)
-            {
-                user.Deleted = true;
-                context.SaveChanges();
-            }
-            else
+            if (user == null)
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
-            return serviceResult;
+            user.Deleted = true;
+            _unitOfWork.Save();
+            return result;
+        }
+
+        public UserProfileModel GetProfile()
+        {
+            UserProfileModel model = null;
+            var user = GetById(AuthTokenContent.Current.UserId);
+            if (user == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            model = new UserProfileModel()
+            {
+                EmailAddress = user.EmailAddress,
+                Id = user.Id,
+                Name = user.Name,
+                Surname = user.Surname
+            };
+
+            return model;
+        }
+
+        public ServiceResult UpdateProfile(UserProfileModel model)
+        {
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var user = GetById(AuthTokenContent.Current.UserId);
+            if (user == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            var isExistEmail = _unitOfWork.Repository<User>()
+                .GetAll(x => x.Id == model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted).Any();
+            if (isExistEmail)
+            {
+                throw new FoundException($"{model.EmailAddress} mail adresiyle daha önce üye mevcuttur. Lütfen tekrar deneyiniz.");
+            }
+            user.EmailAddress = model.EmailAddress;
+            user.Name = model.Name;
+            user.Surname = model.Surname;
+            user.UpdatedDate = DateTime.Now;
+            _unitOfWork.Save();
+
+            return result;
+        }
+
+        public ServiceResult AddMember(AddMemberModel model)
+        {
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var isExistEmail = _unitOfWork.Repository<User>()
+                .GetAll(x => x.EmailAddress == model.EmailAddress && !x.Deleted).Any();
+            if (isExistEmail)
+            {
+                throw new FoundException($"{model.EmailAddress} mail adresiyle daha önce üye mevcuttur. Lütfen tekrar deneyiniz.");
+            }
+            var user = new User()
+            {
+                Deleted = false,
+                EmailAddress = model.EmailAddress,
+                HashCode = Guid.NewGuid().ToString(),
+                Name = model.Name,
+                Surname = model.Surname,
+                InsertedDate = DateTime.Now,
+                IsActive = true,
+                Password = Security.MD5Crypt(model.Password),
+                PasswordExpireDate = DateTime.Now.AddMonths(3),
+                UserType = UserType.Member,
+                Status = UserStatus.EmailNotVerified
+            };
+            _unitOfWork.Repository<User>().Add(user);
+            _unitOfWork.Save();
+            //kullanıcıya email gönderiliyor
+            return result;
+        }
+
+        public ServiceResult ForgotPassword(ForgotPasswordModel model)
+        {
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var user = _unitOfWork.Repository<User>()
+                .Find(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
+            if (user == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            user.HashCode = Guid.NewGuid().ToString();
+            user.Status = UserStatus.NotSetPassword;
+            user.UpdatedDate = DateTime.Now;
+            _unitOfWork.Save();
+            // kullanıcıya mail gönderiliyor
+            return result;
+        }
+
+        public ServiceResult ChangePassword(ChangePasswordModel model)
+        {
+            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            if (model.NewPassword != model.ReNewPassword)
+            {
+                throw new BadRequestException("Şifre alanları uyuşmamaktadır.");
+            }
+            var user = GetById(AuthTokenContent.Current.UserId);
+            if (user == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            var oldPassword = Security.MD5Crypt(model.OldPassword);
+            if (user.Password != oldPassword)
+            {
+                throw new BadRequestException("Eski şifreniz hatalıdır.");
+            }
+            user.Password = Security.MD5Crypt(model.NewPassword);
+            user.PasswordExpireDate = DateTime.Now.AddMonths(3);
+            user.UpdatedDate = DateTime.Now;
+            user.HashCode = String.Empty;
+            _unitOfWork.Save();
+
+            return result;
+        }
+
+        public object GetMemberComments()
+        {
+            throw new NotImplementedException();
         }
     }
 }

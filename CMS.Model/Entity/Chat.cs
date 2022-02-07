@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CMS.Model.Entity
 {
-    public class Chat : BaseModel
+    public class Chat : BaseEntityModel
     {
         public Guid Code { get; set; }
 

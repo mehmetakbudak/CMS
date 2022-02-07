@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CMS.Model.Entity
 {
-    public class Article: BaseModel
+    public class Article: BaseEntityModel
     {      
         public int ArticleCategoryId { get; set; }
         

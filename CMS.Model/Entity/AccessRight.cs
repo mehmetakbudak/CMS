@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CMS.Model.Entity
 {
-    public class AccessRight : BaseModel
+    public class AccessRight : BaseEntityModel
     {
         public int? ParentId { get; set; }
 

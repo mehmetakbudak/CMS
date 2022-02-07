@@ -32,4 +32,51 @@ namespace CMS.Model.Model
 
         public bool IsActive { get; set; }
     }
+
+    public class UserProfileModel : BaseModel
+    {
+        public string Name { get; set; }
+
+        public string Surname { get; set; }
+
+        public string EmailAddress { get; set; }
+    }
+
+    public class AddMemberModel
+    {
+        [Required(ErrorMessage = "Adı zorunludur.")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Soyadı zorunludur.")]
+        public string Surname { get; set; }
+
+        [Required(ErrorMessage = "Email adres zorunludur.")]
+        [EmailAddress(ErrorMessage = "Email adresi formatı uygun değildir.")]
+        public string EmailAddress { get; set; }
+
+        [Required(ErrorMessage = "Şifre zorunludur.")]
+        public string Password { get; set; }
+
+        [Required(ErrorMessage = "Şifre yeniden zorunludur.")]
+        public string RePassword { get; set; }
+    }
+
+    public class ChangePasswordModel
+    {
+        [Required(ErrorMessage = "Eski şifre zorunludur.")]
+        public string OldPassword { get; set; }
+
+        [Required(ErrorMessage = "Mevcut şifre zorunludur.")]
+        public string NewPassword { get; set; }
+
+        [Required(ErrorMessage = "Yeni şifre yeniden zorunludur.")]
+        public string ReNewPassword { get; set; }
+    }
+
+    public class ForgotPasswordModel
+    {
+        [Required(ErrorMessage = "Email adres zorunludur.")]
+        [EmailAddress(ErrorMessage = "Email adresi formatı uygun değildir.")]
+        public string EmailAddress { get; set; }
+    }
 }

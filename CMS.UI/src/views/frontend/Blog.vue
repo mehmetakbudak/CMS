@@ -9,14 +9,18 @@
             </div>
             <div class="col-md-4">
               <div class="p-inputgroup pe-2">
-                <InputText placeholder="Ara" />
-                <Button icon="pi pi-search" class="p-button-default" />
+                <InputText placeholder="Ara" v-model="searchText" />
+                <Button
+                  icon="pi pi-search"
+                  class="p-button-default"
+                  @click="getAll()"
+                />
               </div>
             </div>
           </div>
           <div class="row">
             <DataView
-              :value="news"
+              :value="blogs"
               :layout="layout"
               :paginator="true"
               :rows="8"
@@ -43,7 +47,7 @@
                     </div>
                     <div class="card-footer bg-white">
                       <router-link
-                        to="/blog/detay"
+                        :to="slotProps.data.url"
                         class="btn btn-primary float-end"
                         >Detaylar</router-link
                       >
@@ -68,76 +72,29 @@
 </template>
 
 <script>
+import { Endpoints } from "../../services/Endpoints";
+import GlobalService from "../../services/GlobalService";
 export default {
   data() {
     return {
       layout: "grid",
-      news: [
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 1",
-          description: "Haber İçerik 1",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 2",
-          description: "Haber İçerik 2",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 3",
-          description: "Haber İçerik 3",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 4",
-          description: "Haber İçerik 4",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 5",
-          description: "Haber İçerik 5",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 6",
-          description: "Haber İçerik 6",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 7",
-          description: "Haber İçerik 7",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 8",
-          description: "Haber İçerik 8",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 9",
-          description: "Haber İçerik 9",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 10",
-          description: "Haber İçerik 10",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 11",
-          description: "Haber İçerik 11",
-        },
-        {
-          category: "Edebiyat",
-          title: "Haber Başlık 12",
-          description: "Haber İçerik 12",
-        },
-      ],
+      blogs: [],
+      searchText: null,
     };
   },
   created() {
-    
-  }
+    this.getAll();
+  },
+  methods: {
+    getAll() {
+      var url = `${Endpoints.Blog}/GetByText`;
+      if (this.searchText) {
+        url = `${url}?text=${this.searchText}`;
+      }
+      GlobalService.Get(url).then((res) => {
+        this.blogs = res.data;
+      });
+    },
+  },
 };
 </script>

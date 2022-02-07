@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace CMS.Model.Helper
+namespace CMS.Service.Helper
 {
     public static class EnumHelper
     {

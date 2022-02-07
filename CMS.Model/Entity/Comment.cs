@@ -3,7 +3,7 @@ using System;
 
 namespace CMS.Model.Entity
 {
-    public class Comment : BaseModel
+    public class Comment : BaseEntityModel
     {
         public SourceType SourceType { get; set; }
 

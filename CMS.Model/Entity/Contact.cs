@@ -2,7 +2,7 @@
 
 namespace CMS.Model.Entity
 {
-    public class Contact : BaseModel
+    public class Contact : BaseEntityModel
     {
         public int ContactCategoryId { get; set; }
 

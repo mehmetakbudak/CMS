@@ -7,7 +7,7 @@ namespace CMS.Data.Repository
     {
         //bakılacak
         TContext Context { get; }
-        IRepository<T> Repository<T>() where T : BaseModel;
+        IRepository<T> Repository<T>() where T : BaseEntityModel;
         void CreateTransaction();
         void Commit();
         void Rollback();

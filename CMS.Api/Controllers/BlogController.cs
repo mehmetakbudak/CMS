@@ -1,5 +1,4 @@
-﻿using CMS.Model.Helper;
-using CMS.Service;
+﻿using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -17,12 +16,10 @@ namespace CMS.Api
             this.blogService = blogService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet("GetByText")]
+        public IActionResult GetByText(string? text)
         {
-            var list = blogService.GetAll()
-                .Where(x => x.IsActive && x.Published)
-                .OrderBy(x => x.DisplayOrder).ToList();
+            var list = blogService.GetBlogList(text);
             return Ok(list);
         }
 

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace CMS.Data.Repository
 {
-    public interface IRepository<TEntity> where TEntity : BaseModel
+    public interface IRepository<TEntity> where TEntity : BaseEntityModel
     {
         void Add(TEntity entity);
 

@@ -1,4 +1,5 @@
-﻿using CMS.Service;
+﻿using CMS.Model.Model;
+using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,13 @@ namespace CMS.Api.Controllers.Admin
         {
             var list = blogService.GetAll().OrderByDescending(x => x.InsertedDate).ToList();
             return Ok(list);
+        }
+
+        [HttpPut]
+        public IActionResult Put([FromBody] BlogPutModel model)
+        {
+            blogService.Put(model);
+            return Ok();
         }
     }
 }

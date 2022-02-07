@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CMS.Model.Entity
 {
-    public class Author : BaseModel
+    public class Author : BaseEntityModel
     {
         public string Name { get; set; }
 

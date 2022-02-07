@@ -2,7 +2,7 @@
 
 namespace CMS.Model.Entity
 {
-    public class ChatMessage : BaseModel
+    public class ChatMessage : BaseEntityModel
     {
         public int ChatId { get; set; }
 

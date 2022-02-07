@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace CMS.Data.Repository
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseModel
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntityModel
     {
         private readonly DbContext _context;
         private readonly DbSet<TEntity> _dbSet;

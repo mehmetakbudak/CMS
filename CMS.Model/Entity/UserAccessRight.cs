@@ -1,6 +1,6 @@
 ﻿namespace CMS.Model.Entity
 {
-    public class UserAccessRight : BaseModel
+    public class UserAccessRight : BaseEntityModel
     {
         public int UserId { get; set; }
         

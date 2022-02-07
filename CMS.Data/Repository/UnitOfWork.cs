@@ -61,7 +61,7 @@ namespace CMS.Data.Repository
             GC.SuppressFinalize(this);
         }
 
-        public IRepository<T> Repository<T>() where T : BaseModel
+        public IRepository<T> Repository<T>() where T : BaseEntityModel
         {
             return new Repository<T>(_context);
         }

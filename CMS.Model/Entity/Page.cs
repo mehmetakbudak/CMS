@@ -1,6 +1,6 @@
 ﻿namespace CMS.Model.Entity
 {
-    public class Page : BaseModel
+    public class Page : BaseEntityModel
     {
         public int? MenuId { get; set; }
 

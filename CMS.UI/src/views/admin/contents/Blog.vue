@@ -95,6 +95,16 @@
               />
             </div>
             <div class="mb-3">
+              <label class="form-label">Kısa Açıklama</label>
+              <Textarea
+                type="text"
+                rows="3"
+                v-model="blog.description"
+                placeholder="Kısa Açıklama"
+                class="w-100"
+              ></Textarea>
+            </div>
+            <div class="mb-3">
               <label class="form-label">İçerik</label>
               <Editor v-model="blog.content" editorStyle="height: 320px" />
             </div>
@@ -108,12 +118,16 @@
               />
             </div>
             <div class="mb-3">
-              <label class="form-label">Sıra</label>
-              <InputNumber
-                v-model="blog.displayOrder"
-                placeholder="Sıra"
-                class="w-100"
-              />
+              <div class="row">
+                <div class="col-md-2">
+                  <label class="form-label">Sıra</label>
+                  <InputNumber
+                    v-model="blog.displayOrder"
+                    placeholder="Sıra"
+                    class="w-100"
+                  />
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Yayında</label>
@@ -146,9 +160,11 @@
 import GlobalService from "../../../services/GlobalService";
 import dateFormat from "../../../infrastructure/DateFormat";
 import { Endpoints } from "../../../services/Endpoints";
+import AlertService from "../../../services/AlertService";
 
 export default {
   name: "name",
+  mixins: [AlertService],
   data() {
     return {
       title: "",
@@ -160,6 +176,7 @@ export default {
         id: 0,
         url: "",
         title: "",
+        description: "",
         content: "",
         published: true,
         isActive: true,
@@ -237,9 +254,31 @@ export default {
       this.showGrid = true;
       this.title = "Bloglar";
     },
+    save() {
+      if (this.blog.id == 0) {
+        GlobalService.PostByAuth(Endpoints.Admin.Blog, this.blog)
+          .then((res) => {
+            this.getAll();
+            this.reset();
+            this.successMessage(this, res.data.message);
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      } else {
+        GlobalService.PutByAuth(Endpoints.Admin.Blog, this.blog)
+          .then((res) => {
+            this.getAll();
+            this.reset();
+            this.successMessage(this, res.data.message);
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      }
+    },
   },
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

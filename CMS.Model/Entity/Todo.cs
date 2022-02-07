@@ -2,7 +2,7 @@
 
 namespace CMS.Model.Entity
 {
-    public class Todo : BaseModel
+    public class Todo : BaseEntityModel
     {
         public int TodoCategoryId { get; set; }
 
