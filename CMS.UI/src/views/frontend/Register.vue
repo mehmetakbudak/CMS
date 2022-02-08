@@ -34,7 +34,7 @@
             <div class="mb-3">
               <label class="form-label">Şifre Yeniden</label>
               <InputText
-                type="rePassword"
+                type="password"
                 class="w-100"
                 v-model="data.rePassword"
               />
@@ -48,7 +48,7 @@
                 @click="register"
               ></Button>
             </div>
-            <div class="text-center pt-5">
+            <div class="text-center">
               Zaten üye misiniz?
               <router-link
                 class="text-decoration-none cursor-pointer"
