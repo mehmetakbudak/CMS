@@ -14,10 +14,11 @@ namespace CMS.Service
 
     public class ContactService : IContactService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
+
         public ContactService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public ServiceResult Post(ContactModel model)
@@ -33,8 +34,8 @@ namespace CMS.Service
                 Surname = model.Surname,
                 InsertedDate = DateTime.Now
             };
-            unitOfWork.Repository<Contact>().Add(contact);
-            unitOfWork.Save();
+            _unitOfWork.Repository<Contact>().Add(contact);
+            _unitOfWork.Save();
             result.Message = "Mesajınız başarıyla kaydedilmiştir.";
 
             return result;

@@ -38,6 +38,7 @@ namespace CMS.Api
 
             services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            //services.AddScoped(typeof(IWebsiteParameterService<>), typeof(WebsiteParameterService<>));
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtHelper, JwtHelper>();
@@ -56,6 +57,9 @@ namespace CMS.Api
             services.AddScoped<ITodoService, TodoService>();
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IAuthorService, AuthorService>();
+            services.AddScoped<IMailHelper, MailHelper>();
+            services.AddScoped<IWebsiteParameterService, WebsiteParameterService>();
+            services.AddScoped<IMailTemplateService, MailTemplateService>();
 
             services.ConfigureApplicationCookie(s =>
             {

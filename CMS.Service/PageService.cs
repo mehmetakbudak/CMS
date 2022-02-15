@@ -20,16 +20,16 @@ namespace CMS.Service
 
     public class PageService : IPageService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
         public PageService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public IQueryable<Page> GetAll()
         {
-            var list = unitOfWork.Repository<Page>()
-                .GetAll(x => !x.Deleted)
+            var list = _unitOfWork.Repository<Page>()
+                .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
                 .AsQueryable();
             return list;
@@ -37,7 +37,7 @@ namespace CMS.Service
 
         public Page GetById(int id)
         {
-            var page = unitOfWork.Repository<Page>().Find(x => !x.Deleted && x.Id == id);
+            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => !x.Deleted && x.Id == id);
             return page;
         }
 
@@ -50,7 +50,7 @@ namespace CMS.Service
                 throw new NotFoundException("Url bulunamadı.");
             }
 
-            var page = unitOfWork.Repository<Page>().Find(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
+            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
 
             if (page != null)
             {
@@ -70,8 +70,8 @@ namespace CMS.Service
             if (model.Id == 0)
             {
                 model.Deleted = false;
-                unitOfWork.Repository<Page>().Add(model);
-                unitOfWork.Save();
+                _unitOfWork.Repository<Page>().Add(model);
+                _unitOfWork.Save();
             }
             return serviceResult;
         }
@@ -80,8 +80,7 @@ namespace CMS.Service
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var page = unitOfWork.Repository<Page>()
-                                 .Find(x => x.Id == model.Id);
+            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == model.Id);
             if (page != null)
             {
                 page.Content = model.Content;
@@ -91,7 +90,7 @@ namespace CMS.Service
                 page.Published = model.Published;
                 page.Title = model.Title;
                 page.Url = model.Url;
-                unitOfWork.Save();
+                _unitOfWork.Save();
             }
             else
             {
@@ -104,13 +103,12 @@ namespace CMS.Service
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var page = unitOfWork.Repository<Page>()
-                   .Find(x => x.Id == id);
+            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == id);
 
             if (page != null)
             {
                 page.Deleted = true;
-                unitOfWork.Save();
+                _unitOfWork.Save();
             }
             else
             {

@@ -15,10 +15,11 @@ namespace CMS.Service
 
     public class ChatService : IChatService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
+
         public ChatService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public ServiceResult Post(ChatModel model)
@@ -31,12 +32,12 @@ namespace CMS.Service
                 Status = ChatStatus.NotStarted,
                 EmailAddress = model.EmailAddress,
                 InsertedDate = DateTime.Now,
-                Name= model.Name,
-                Surname=model.Surname,
+                Name = model.Name,
+                Surname = model.Surname,
                 Phone = model.Phone
             };
-            unitOfWork.Repository<Chat>().Add(chat);
-            unitOfWork.Save();
+            _unitOfWork.Repository<Chat>().Add(chat);
+            _unitOfWork.Save();
             result.Data = new
             {
                 Guid = chat.Code

@@ -1,4 +1,5 @@
 ﻿using CMS.Data.Context;
+using CMS.Data.Repository;
 using CMS.Model.Dto;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
@@ -16,21 +17,22 @@ namespace CMS.Service
     }
     public class AccessRightService : IAccessRightService
     {
-        private readonly IUserAccessRightService userAccessRightService;
-        private readonly CMSContext context;
+        private readonly IUserAccessRightService _userAccessRightService;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
         public AccessRightService(
             IUserAccessRightService userAccessRightService,
-            CMSContext context)
+            IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.userAccessRightService = userAccessRightService;
-            this.context = context;
+            _userAccessRightService = userAccessRightService;
+            _unitOfWork = unitOfWork;
         }
 
         public AccessRightModel Get()
         {
             var model = new AccessRightModel();
-            var accessRights = context.AccessRights.Where(x => !x.Deleted).ToList();
+            var accessRights = _unitOfWork.Repository<AccessRight>()
+                .Where(x => !x.Deleted).ToList();
 
             if (accessRights != null && accessRights.Any())
             {
@@ -84,19 +86,21 @@ namespace CMS.Service
         {
             var list = new List<TreeMenuModel>();
 
-            var user = context.Users.FirstOrDefault(x => x.Id == AuthTokenContent.Current.UserId);
+            var user = _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.Id == AuthTokenContent.Current.UserId);
             List<AccessRight> accessRights = new List<AccessRight>();
 
             if (user.UserType == UserType.SuperAdmin)
             {
-                accessRights = context.AccessRights
+                accessRights = _unitOfWork.Repository<AccessRight>()
                     .Where(x => x.Type == AccessRightType.Menu).ToList();
             }
             else
             {
-                var userAccessRights = context.UserAccessRights
+                var userAccessRights = _unitOfWork.Repository<UserAccessRight>()
+                    .Where(x => x.UserId == user.Id)
                     .Include(x => x.AccessRight)
-                    .Where(x => x.UserId == user.Id).ToList();
+                    .ToList();
 
                 if (userAccessRights != null && userAccessRights.Any())
                 {

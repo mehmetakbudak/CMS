@@ -3,15 +3,16 @@ using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class AccountController : ControllerBase
     {
         private IUserService _userService;
-        public UserController(IUserService userService)
+        public AccountController(IUserService userService)
         {
             _userService = userService;
         }
@@ -24,13 +25,13 @@ namespace CMS.Api.Controllers
         }
 
         [HttpPost("ForgotPassword")]
-        public IActionResult ForgotPassword([FromBody] ForgotPasswordModel model)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
         {
-            var result = _userService.ForgotPassword(model);
+            var result = await _userService.ForgotPassword(model);
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("GetProfile")]
+        [HttpGet("Profile")]
         [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult GetProfile()
         {
@@ -38,15 +39,15 @@ namespace CMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetMemberComments")]
+        [HttpGet("MemberComments")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult GetMemberComments()
+        public IActionResult MemberComments()
         {
-            var result = _userService.GetMemberComments();
+            var result = _userService.MemberComments();
             return Ok(result);
         }
 
-        [HttpPost("UpdateProfile")]
+        [HttpPut("Profile")]
         [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult UpdateProfile([FromBody] UserProfileModel model)
         {
@@ -55,7 +56,7 @@ namespace CMS.Api.Controllers
         }
 
         [HttpPost("AddMember")]
-        public IActionResult AddMember([FromBody]AddMemberModel model)
+        public IActionResult AddMember([FromBody] AddMemberModel model)
         {
             var result = _userService.AddMember(model);
             return StatusCode(result.StatusCode, result);
@@ -63,10 +64,10 @@ namespace CMS.Api.Controllers
 
         [HttpPut("ChangePassword")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult ChangePassword([FromBody]ChangePasswordModel model)
+        public IActionResult ChangePassword([FromBody] ChangePasswordModel model)
         {
             var result = _userService.ChangePassword(model);
             return StatusCode(result.StatusCode, result);
-        }       
+        }
     }
 }

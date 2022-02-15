@@ -20,6 +20,7 @@ namespace CMS.Service
     public class AuthorService : IAuthorService
     {
         private readonly IUnitOfWork<CMSContext> unitOfWork;
+
         public AuthorService(IUnitOfWork<CMSContext> unitOfWork)
         {
             this.unitOfWork = unitOfWork;
@@ -28,7 +29,7 @@ namespace CMS.Service
         public IQueryable<Author> GetAll()
         {
             var entity = unitOfWork.Repository<Author>()
-                .GetAll(x =>
+                .Where(x =>
                 !x.Deleted && x.IsActive);
             return entity;
         }
@@ -64,7 +65,8 @@ namespace CMS.Service
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
 
             var entity = unitOfWork.Repository<Author>()
-                .Find(x => x.Id == model.Id && !x.Deleted);
+                .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
+
             if (entity != null)
             {
                 entity.Name = model.Name;
@@ -86,7 +88,8 @@ namespace CMS.Service
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Delete };
 
             var entity = unitOfWork.Repository<Author>()
-                .Find(x => x.Id == id && !x.Deleted);
+                .FirstOrDefault(x => x.Id == id && !x.Deleted);
+
             if (entity != null)
             {
                 entity.Deleted = true;

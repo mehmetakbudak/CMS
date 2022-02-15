@@ -49,6 +49,8 @@ namespace CMS.Data.Context
 
         public virtual DbSet<WebsiteParameter> WebsiteParameters { get; set; }
 
+        public virtual DbSet<MailTemplate> MailTemplates { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -7,20 +7,23 @@ using System.Linq.Expressions;
 
 namespace CMS.Data.Repository
 {
-    public interface IRepository<TEntity> where TEntity : BaseEntityModel
+    public interface IRepository<T> where T : BaseEntityModel
     {
-        void Add(TEntity entity);
+        void Add(T entity);
 
-        void AddRange(List<TEntity> entity);
-        IQueryable<TEntity> GetAll();
+        void AddRange(List<T> entity);
 
-        IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate = null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null);
+        IQueryable<T> Where();
 
-        TEntity Find(Expression<Func<TEntity, bool>> predicate = null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null);
+        IQueryable<T> Where(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
 
-        void Update(TEntity entity);
+        T FirstOrDefault(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
 
-        void Delete(TEntity entity);
+        bool Any(Expression<Func<T, bool>> predicate = null);
+
+        void Update(T entity);
+
+        void Delete(T entity);
 
         void Delete(int id);
     }

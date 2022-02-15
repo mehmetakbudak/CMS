@@ -15,16 +15,17 @@ namespace CMS.Service
 
     public class ContactCategoryService : IContactCategoryService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
+
         public ContactCategoryService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public IQueryable<ContactCategory> GetAll()
         {
-            return unitOfWork.Repository<ContactCategory>()
-                           .GetAll(x => !x.Deleted);
+            return _unitOfWork.Repository<ContactCategory>()
+                .Where(x => !x.Deleted);
         }
 
         public List<LookupModel> Lookup()

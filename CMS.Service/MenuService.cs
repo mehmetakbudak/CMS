@@ -1,4 +1,5 @@
 ﻿using CMS.Data.Context;
+using CMS.Data.Repository;
 using CMS.Model.Dto;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
@@ -12,26 +13,26 @@ namespace CMS.Service
     public interface IMenuService
     {
         List<LookupModel> Lookup();
-        List<MenuBarModel> GetFrontEndMenu();
 
+        List<MenuBarModel> GetFrontEndMenu();
     }
 
     public class MenuService : IMenuService
     {
-        private readonly CMSContext context;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
-        public MenuService(CMSContext context)
+        public MenuService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public List<MenuBarModel> GetFrontEndMenu()
         {
             var list = new List<MenuBarModel>();
-            var menu = context.Menus
+            var menu = _unitOfWork.Repository<Menu>()
+                .Where(x => x.Type == MenuType.FrontEnd && !x.Deleted && x.IsActive)
                 .Include(x => x.MenuItems)
-                .FirstOrDefault(x => x.Type == MenuType.FrontEnd &&
-                !x.Deleted && x.IsActive);
+                .FirstOrDefault();
 
             var menuItems = menu.MenuItems
                 .Where(x => x.ParentId == null && x.IsActive && !x.Deleted)
@@ -70,7 +71,7 @@ namespace CMS.Service
 
         public List<LookupModel> Lookup()
         {
-            var list = context.Menus
+            var list = _unitOfWork.Repository<Menu>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .Select(x => new LookupModel
                 {

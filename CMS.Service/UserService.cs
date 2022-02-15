@@ -10,42 +10,62 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IUserService
     {
         IQueryable<UserModel> GetAll();
+
         User GetById(int id);
+
         ServiceResult Authenticate(LoginModel model);
+
         User GetTokenInfo(int userId, string token);
+
         List<LookupModel> Lookup();
+
         ServiceResult Post(UserModel model);
+
         ServiceResult Put(UserModel model);
+
         ServiceResult Delete(int id);
+
         UserProfileModel GetProfile();
+
         ServiceResult UpdateProfile(UserProfileModel model);
+
         ServiceResult AddMember(AddMemberModel model);
-        ServiceResult ForgotPassword(ForgotPasswordModel model);
+        Task<ServiceResult> ForgotPassword(ForgotPasswordModel model);
+
         ServiceResult ChangePassword(ChangePasswordModel model);
-        object GetMemberComments();
+
+        object MemberComments();
     }
 
     public class UserService : IUserService
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
         private readonly IJwtHelper _jwtHelper;
+        private readonly IMailHelper _mailHelper;
+        private readonly IMailTemplateService _mailTemplateService;
+
         public UserService(IUnitOfWork<CMSContext> unitOfWork,
-            IJwtHelper jwtHelper)
+            IJwtHelper jwtHelper,
+            IMailHelper mailHelper,
+            IMailTemplateService mailTemplateService)
         {
             _unitOfWork = unitOfWork;
             _jwtHelper = jwtHelper;
+            _mailHelper = mailHelper;
+            _mailTemplateService = mailTemplateService;
         }
 
         public IQueryable<UserModel> GetAll()
         {
             return _unitOfWork.Repository<User>()
-                .GetAll(x => !x.Deleted && x.UserType != UserType.Member)
+                .Where(x => !x.Deleted && x.UserType != UserType.Member)
                 .OrderByDescending(x => x.Id)
                 .Select(x => new UserModel
                 {
@@ -61,7 +81,7 @@ namespace CMS.Service
 
         public User GetById(int id)
         {
-            return _unitOfWork.Repository<User>().Find(x => x.Id == id && !x.Deleted);
+            return _unitOfWork.Repository<User>().FirstOrDefault(x => x.Id == id && !x.Deleted);
         }
 
         public ServiceResult Authenticate(LoginModel model)
@@ -70,7 +90,7 @@ namespace CMS.Service
 
             var hassPassword = Security.MD5Crypt(model.Password);
             var user = _unitOfWork.Repository<User>()
-                .GetAll(x => x.EmailAddress == model.EmailAddress && x.Password == hassPassword && !x.Deleted)
+                .Where(x => x.EmailAddress == model.EmailAddress && x.Password == hassPassword && !x.Deleted)
                 .Include(x => x.UserAccessRights)
                 .ThenInclude(x => x.AccessRight)
                 .FirstOrDefault();
@@ -95,25 +115,25 @@ namespace CMS.Service
             if (user.UserType == UserType.SuperAdmin)
             {
                 accessRights = _unitOfWork.Repository<AccessRight>()
-                    .GetAll(x => !x.Deleted).ToList();
+                    .Where(x => !x.Deleted).ToList();
             }
             else
             {
                 if (user.UserAccessRights != null && user.UserAccessRights.Any())
                 {
-                    accessRights = user.UserAccessRights.Select(x => x.AccessRight).ToList();
+                    accessRights = user.UserAccessRights
+                        .Select(x => x.AccessRight)
+                        .Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive).ToList();
                 }
             }
 
-            serviceResult.Data = new
+            serviceResult.Data = new TokenResponseModel()
             {
                 Token = tokenResult.Token,
                 FullName = $"{user.Name} {user.Surname}",
                 IsAccessAdminPanel = user.UserType != UserType.Member ? true : false,
-                OperationAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Operation)
-                .Select(x => x.Endpoint).ToList(),
-                MenuAccessRights = accessRights.Where(x => !string.IsNullOrEmpty(x.Endpoint) && !x.Deleted && x.IsActive && x.Type == AccessRightType.Menu)
-                .Select(x => x.Endpoint).ToList()
+                OperationAccessRights = accessRights.Where(x => x.Type == AccessRightType.Operation).Select(x => x.Endpoint).ToList(),
+                MenuAccessRights = accessRights.Where(x => x.Type == AccessRightType.Menu).Select(x => x.Endpoint).ToList()
             };
             return serviceResult;
         }
@@ -121,7 +141,7 @@ namespace CMS.Service
         public User GetTokenInfo(int userId, string token)
         {
             var user = _unitOfWork.Repository<User>()
-                .GetAll(x => !x.Deleted && x.IsActive && x.Id == userId && x.Token == token && x.TokenExpireDate >= DateTime.Now)
+                .Where(x => !x.Deleted && x.IsActive && x.Id == userId && x.Token == token && x.TokenExpireDate >= DateTime.Now)
                 .Include(x => x.UserAccessRights)
                 .FirstOrDefault();
             return user;
@@ -130,7 +150,7 @@ namespace CMS.Service
         public List<LookupModel> Lookup()
         {
             return _unitOfWork.Repository<User>()
-                .GetAll(x => !x.Deleted && x.IsActive && x.UserType != UserType.Member)
+                .Where(x => !x.Deleted && x.IsActive && x.UserType != UserType.Member)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
@@ -143,7 +163,7 @@ namespace CMS.Service
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
             var checkEmail = _unitOfWork.Repository<User>()
-                .GetAll(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted).Any();
+                .Any(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted);
 
             if (!checkEmail)
             {
@@ -175,8 +195,7 @@ namespace CMS.Service
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
             var isExistUser = _unitOfWork.Repository<User>()
-                .GetAll(x => x.EmailAddress == model.EmailAddress && !x.Deleted && x.Id != model.Id)
-                .Any();
+                .Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted && x.Id != model.Id);
 
             if (isExistUser)
             {
@@ -240,7 +259,7 @@ namespace CMS.Service
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
             var isExistEmail = _unitOfWork.Repository<User>()
-                .GetAll(x => x.Id == model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted).Any();
+                .Any(x => x.Id == model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted);
             if (isExistEmail)
             {
                 throw new FoundException($"{model.EmailAddress} mail adresiyle daha önce üye mevcuttur. Lütfen tekrar deneyiniz.");
@@ -257,8 +276,8 @@ namespace CMS.Service
         public ServiceResult AddMember(AddMemberModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            var isExistEmail = _unitOfWork.Repository<User>()
-                .GetAll(x => x.EmailAddress == model.EmailAddress && !x.Deleted).Any();
+            var isExistEmail = _unitOfWork.Repository<User>().Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
+
             if (isExistEmail)
             {
                 throw new FoundException($"{model.EmailAddress} mail adresiyle daha önce üye mevcuttur. Lütfen tekrar deneyiniz.");
@@ -283,11 +302,11 @@ namespace CMS.Service
             return result;
         }
 
-        public ServiceResult ForgotPassword(ForgotPasswordModel model)
+        public async Task<ServiceResult> ForgotPassword(ForgotPasswordModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
             var user = _unitOfWork.Repository<User>()
-                .Find(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
+                .FirstOrDefault(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
             if (user == null)
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
@@ -297,6 +316,21 @@ namespace CMS.Service
             user.UpdatedDate = DateTime.Now;
             _unitOfWork.Save();
             // kullanıcıya mail gönderiliyor
+
+            var forgotPasswordTemplateModel = new ForgotPasswordTemplateModel
+            {
+                FullName = $"{user.Name} {user.Surname}",
+                Url = ""
+            };
+
+            var mailTemplate = _mailTemplateService.GetTemplateByType(forgotPasswordTemplateModel, TemplateType.ForgotPasswordLink);
+
+            result = await _mailHelper.Send(new MailModel()
+            {
+                Body = mailTemplate.Body,
+                EmailAddress = model.EmailAddress,
+                Subject = mailTemplate.Subject
+            });
             return result;
         }
 
@@ -326,7 +360,7 @@ namespace CMS.Service
             return result;
         }
 
-        public object GetMemberComments()
+        public object MemberComments()
         {
             throw new NotImplementedException();
         }

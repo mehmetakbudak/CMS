@@ -28,7 +28,7 @@ namespace CMS.Service
         public IQueryable<BlogCategory> GetAll()
         {
             var entity = unitOfWork.Repository<BlogCategory>()
-                .GetAll(x => !x.Deleted && x.IsActive)
+                .Where(x => !x.Deleted && x.IsActive)
                 .AsQueryable();
             return entity;
         }
@@ -43,7 +43,7 @@ namespace CMS.Service
             }
 
             var categoryBlog = unitOfWork.Repository<SelectedBlogCategory>()
-                .GetAll(x => x.BlogCategory.Url == url && !x.BlogCategory.Deleted && x.BlogCategory.IsActive)
+                .Where(x => x.BlogCategory.Url == url && !x.BlogCategory.Deleted && x.BlogCategory.IsActive)
                 .FirstOrDefault();
 
             //if (categoryBlog != null)

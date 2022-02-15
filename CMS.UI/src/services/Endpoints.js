@@ -21,6 +21,15 @@ export const Endpoints = {
     BlogCategory: "BlogCategory",
     Author: "Author",
     Menu: "Menu",
+    Account: {
+        Login: "Account/Login",
+        ForgotPassword: "Account/ForgotPassword",
+        Profile: "Account/Profile",
+        AddMember: "Account/AddMember",
+        ChangePassword: "Account/ChangePassword",
+        MemberComments: "Account/MemberComments"
+
+    },
     Lookup: {
         Users: "Lookup/Users",
         TodoCategories: "Lookup/TodoCategories",

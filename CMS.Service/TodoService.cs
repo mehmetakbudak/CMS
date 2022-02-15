@@ -24,17 +24,17 @@ namespace CMS.Service
 
     public class TodoService : ITodoService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
         public TodoService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public List<TodoGetModel> GetAll(TodoFilterModel model)
         {
-            var data = unitOfWork.Repository<Todo>()
-                .GetAll(x => !x.Deleted)
+            var data = _unitOfWork.Repository<Todo>()
+                .Where(x => !x.Deleted)
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
                 .Include(x => x.AssignUser)
@@ -75,8 +75,8 @@ namespace CMS.Service
 
         public IQueryable<TodoGetModel> GetUserTodos(int userId)
         {
-            return unitOfWork.Repository<Todo>()
-                .GetAll(x => !x.Deleted && x.IsActive && x.AssignUserId == userId, x => x
+            return _unitOfWork.Repository<Todo>()
+                .Where(x => !x.Deleted && x.IsActive && x.AssignUserId == userId, x => x
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
                 .Include(x => x.AssignUser))
@@ -116,8 +116,8 @@ namespace CMS.Service
                     TodoStatusId = model.TodoStatusId,
                     AssignUserId = model.AssignUserId
                 };
-                unitOfWork.Repository<Todo>().Add(todo);
-                unitOfWork.Save();
+                _unitOfWork.Repository<Todo>().Add(todo);
+                _unitOfWork.Save();
             }
             return serviceResult;
         }
@@ -126,8 +126,8 @@ namespace CMS.Service
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
 
-            var todo = unitOfWork.Repository<Todo>()
-                   .Find(x => x.Id == model.Id);
+            var todo = _unitOfWork.Repository<Todo>()
+                   .FirstOrDefault(x => x.Id == model.Id);
 
             if (todo != null)
             {
@@ -138,7 +138,7 @@ namespace CMS.Service
                 todo.TodoStatusId = model.TodoStatusId;
                 todo.UpdatedDate = DateTime.Now;
                 todo.AssignUserId = model.AssignUserId;
-                unitOfWork.Save();
+                _unitOfWork.Save();
             }
             else
             {
@@ -151,13 +151,13 @@ namespace CMS.Service
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Delete };
 
-            var todo = unitOfWork.Repository<Todo>()
-                   .Find(x => x.Id == id);
+            var todo = _unitOfWork.Repository<Todo>()
+                   .FirstOrDefault(x => x.Id == id);
 
             if (todo != null)
             {
                 todo.Deleted = true;
-                unitOfWork.Save();
+                _unitOfWork.Save();
             }
             else
             {

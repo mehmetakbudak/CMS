@@ -8,6 +8,7 @@ namespace CMS.Model.Entity
     public class User : BaseEntityModel
     {
         public UserStatus Status { get; set; }
+
         public string Name { get; set; }
 
         public string Surname { get; set; }

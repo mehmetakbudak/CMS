@@ -1,4 +1,5 @@
 ﻿using CMS.Model.Entity;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CMS.Model.Model
@@ -78,5 +79,18 @@ namespace CMS.Model.Model
         [Required(ErrorMessage = "Email adres zorunludur.")]
         [EmailAddress(ErrorMessage = "Email adresi formatı uygun değildir.")]
         public string EmailAddress { get; set; }
+    }
+
+    public class TokenResponseModel
+    {
+        public string Token { get; set; }
+
+        public string FullName { get; set; }
+
+        public bool IsAccessAdminPanel { get; set; }
+
+        public List<string> OperationAccessRights { get; set; }
+
+        public List<string> MenuAccessRights { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CMS.Data.Context;
+using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
 using CMS.Model.Model;
@@ -14,29 +15,34 @@ namespace CMS.Service
     public interface IUserAccessRightService
     {
         UserAccessRightModel Get(int userId);
+
         List<UserAccessRight> GetByUserId(int userId);
+
         ServiceResult CreateOrUpdate(UserAccessRightModel model);
     }
+
     public class UserAccessRightService : IUserAccessRightService
     {
-        private readonly CMSContext context;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
-        public UserAccessRightService(CMSContext context)
+        public UserAccessRightService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public UserAccessRightModel Get(int userId)
         {
             var model = new UserAccessRightModel();
-            var user = context.Users.FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == userId && x.UserType != UserType.Member);
+            var user = _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == userId && x.UserType != UserType.Member);
 
             if (user != null)
             {
                 model.UserId = userId;
                 if (user.UserType == UserType.SuperAdmin)
                 {
-                    var accessRights = context.AccessRights.Where(x => !x.Deleted).ToList();
+                    var accessRights = _unitOfWork.Repository<AccessRight>()
+                        .Where(x => !x.Deleted).ToList();
 
                     if (accessRights != null && accessRights.Any())
                     {
@@ -51,7 +57,7 @@ namespace CMS.Service
                 }
                 else
                 {
-                    var accessRights = context.UserAccessRights
+                    var accessRights = _unitOfWork.Repository<UserAccessRight>()
                         .Where(x => x.UserId == userId)
                         .Select(x => x.AccessRight).ToList();
 
@@ -72,23 +78,28 @@ namespace CMS.Service
 
         public List<UserAccessRight> GetByUserId(int userId)
         {
-            return context.UserAccessRights
+            return _unitOfWork.Repository<UserAccessRight>()
+                .Where(x => x.UserId == userId)
                 .Include(o => o.AccessRight)
-                .Where(x => x.UserId == userId).ToList();
+                .ToList();
         }
 
         public ServiceResult CreateOrUpdate(UserAccessRightModel model)
         {
             var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var user = context.Users.FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == model.UserId && x.UserType != UserType.Member);
+            var user = _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == model.UserId && x.UserType != UserType.Member);
+
             if (user != null)
             {
                 if (user.UserType != UserType.SuperAdmin)
                 {
-                    var userAccessRights = context.UserAccessRights
+                    var userAccessRights = _unitOfWork.Repository<UserAccessRight>()
+                        .Where(x => x.UserId == model.UserId)
                         .Include(x => x.AccessRight)
-                        .Where(x => x.UserId == model.UserId).ToList();
+                        .ToList();
+
                     if (userAccessRights != null && userAccessRights.Any())
                     {
                         var addList = new List<int>();
@@ -158,11 +169,12 @@ namespace CMS.Service
 
                         if (addList.Any())
                         {
-                            context.UserAccessRights.AddRange(addList.Select(x => new UserAccessRight
-                            {
-                                AccessRightId = x,
-                                UserId = model.UserId
-                            }).ToList());
+                            _unitOfWork.Repository<UserAccessRight>()
+                                .AddRange(addList.Select(x => new UserAccessRight
+                                {
+                                    AccessRightId = x,
+                                    UserId = model.UserId
+                                }).ToList());
                         }
                         if (deleteList.Any())
                         {
@@ -171,11 +183,11 @@ namespace CMS.Service
                                 var userAccessRight = userAccessRights.FirstOrDefault(x => x.AccessRightId == a.Id);
                                 if (userAccessRight != null)
                                 {
-                                    context.UserAccessRights.Remove(userAccessRight);
+                                    _unitOfWork.Repository<UserAccessRight>().Delete(userAccessRight);
                                 }
                             }
                         }
-                        context.SaveChanges();
+                        _unitOfWork.Save();
                     }
                 }
             }

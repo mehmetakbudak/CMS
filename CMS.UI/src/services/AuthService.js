@@ -1,10 +1,11 @@
 import axios from 'axios';
+import { Endpoints } from './Endpoints';
 
 const API_URL = process.env.VUE_APP_BASEURL;
 
 class AuthService {
     login(user) {
-        return axios.post(API_URL + 'login', {
+        return axios.post(API_URL + Endpoints.Account.Login, {
             emailAddress: user.emailAddress,
             password: user.password
         }).then(response => {

@@ -20,25 +20,25 @@ namespace CMS.Service
 
     public class TodoCategoryService : ITodoCategoryService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
         public TodoCategoryService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public IQueryable<TodoCategory> GetAll()
         {
-            return unitOfWork.Repository<TodoCategory>()
-                .GetAll(x => !x.Deleted)
+            return _unitOfWork.Repository<TodoCategory>()
+                .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
                 .AsQueryable();
         }
 
         public List<LookupModel> Lookup()
         {
-            return unitOfWork.Repository<TodoCategory>()
-                .GetAll(x => !x.Deleted && x.IsActive)
+            return _unitOfWork.Repository<TodoCategory>()
+                .Where(x => !x.Deleted && x.IsActive)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
@@ -58,8 +58,8 @@ namespace CMS.Service
                     IsActive = model.IsActive,
                     Name = model.Name
                 };
-                unitOfWork.Repository<TodoCategory>().Add(todoCategory);
-                unitOfWork.Save();
+                _unitOfWork.Repository<TodoCategory>().Add(todoCategory);
+                _unitOfWork.Save();
             }
             return serviceResult;
         }
@@ -68,14 +68,14 @@ namespace CMS.Service
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var todoCategory = unitOfWork.Repository<TodoCategory>()
-                    .Find(x => x.Id == model.Id);
+            var todoCategory = _unitOfWork.Repository<TodoCategory>()
+                    .FirstOrDefault(x => x.Id == model.Id);
 
             if (todoCategory != null)
             {
                 todoCategory.Name = model.Name;
                 todoCategory.IsActive = model.IsActive;
-                unitOfWork.Save();
+                _unitOfWork.Save();
             }
             else
             {
@@ -89,13 +89,13 @@ namespace CMS.Service
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            var todoCategory = unitOfWork.Repository<TodoCategory>()
-                   .Find(x => x.Id == id);
+            var todoCategory = _unitOfWork.Repository<TodoCategory>()
+                   .FirstOrDefault(x => x.Id == id);
 
             if (todoCategory != null)
             {
                 todoCategory.Deleted = true;
-                unitOfWork.Save();
+                _unitOfWork.Save();
             }
             else
             {

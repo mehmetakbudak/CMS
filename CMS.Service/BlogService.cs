@@ -21,23 +21,23 @@ namespace CMS.Service
 
     public class BlogService : IBlogService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
         public BlogService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public IQueryable<Blog> GetAll()
         {
-            var list = unitOfWork.Repository<Blog>().GetAll(x => !x.Deleted);
+            var list = _unitOfWork.Repository<Blog>().Where(x => !x.Deleted);
             return list;
         }
 
         public IQueryable<BlogGetModel> GetBlogList(string text = null)
         {
-            var data = unitOfWork.Repository<Blog>()
-                .GetAll(x => !x.Deleted && x.Published && x.IsActive);
+            var data = _unitOfWork.Repository<Blog>()
+                .Where(x => !x.Deleted && x.Published && x.IsActive);
 
             if (!string.IsNullOrEmpty(text))
             {
@@ -66,8 +66,8 @@ namespace CMS.Service
                 throw new NotFoundException("Url bulunamadı.");
             }
 
-            var blog = unitOfWork.Repository<Blog>()
-                .Find(x => x.Url == url && !x.Deleted && x.Published && x.IsActive);
+            var blog = _unitOfWork.Repository<Blog>()
+                .FirstOrDefault(x => x.Url == url && !x.Deleted && x.Published && x.IsActive);
 
             if (blog == null)
             {
@@ -91,7 +91,7 @@ namespace CMS.Service
         {
             ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
 
-            var blog = unitOfWork.Repository<Blog>().Find(x => x.Id == model.Id && !x.Deleted);
+            var blog = _unitOfWork.Repository<Blog>().FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
 
             if (blog == null)
             {
@@ -108,7 +108,7 @@ namespace CMS.Service
             blog.DisplayOrder = model.DisplayOrder;
             blog.Url = model.Url;
 
-            unitOfWork.Save();
+            _unitOfWork.Save();
 
             return result;
         }
