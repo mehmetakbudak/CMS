@@ -2,6 +2,7 @@
 using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Admin
 {
@@ -25,9 +26,9 @@ namespace CMS.Api.Admin
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] UserModel model)
+        public async Task<IActionResult> Post([FromBody] UserModel model)
         {
-            var result = userService.Post(model);
+            var result = await userService.Post(model);
             return StatusCode((int)result.StatusCode, result);
         }
 

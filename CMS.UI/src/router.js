@@ -15,6 +15,8 @@ import Contact from "./views/frontend/Contact.vue";
 import Login from "./views/frontend/Login.vue";
 import Register from "./views/frontend/Register.vue";
 import FAQ from "./views/frontend/FAQ.vue";
+import EmailVerify from './views/frontend/EmailVerify.vue';
+import ResetPassword from './views/frontend/ResetPassword.vue';
 
 // admin routes
 import AdminLayout from "./views/admin/AdminLayout.vue";
@@ -62,14 +64,14 @@ const routes = [{
         component: Page,
       },
       {
+        path: "/blog/:categoryUrl/:id",
+        name: "BlogDetail",
+        component: BlogDetail,
+      },
+      {
         path: "/blog/:categoryUrl",
         name: "Blog",
         component: Blog,
-      },
-      {
-        path: "/blog/:categoryUrl/:url",
-        name: "BlogDetail",
-        component: BlogDetail,
       },
       {
         path: "/iletisim",
@@ -95,6 +97,16 @@ const routes = [{
         path: "/sss/:categoryUrl",
         name: "FAQWithCategory",
         component: FAQ,
+      },
+      {
+        path: "/email-dogrulama/:code",
+        name: "EmailVerify",
+        component: EmailVerify
+      },
+      {
+        path: "/sifre-belirle/:code",
+        name: "ResetPassword",
+        component: ResetPassword,
       },
       {
         path: "/uye",

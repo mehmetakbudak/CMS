@@ -18,9 +18,9 @@ namespace CMS.Api.Controllers
         }
 
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginModel login)
+        public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
-            var result = _userService.Authenticate(login);
+            var result = await _userService.Authenticate(login);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -28,6 +28,20 @@ namespace CMS.Api.Controllers
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
         {
             var result = await _userService.ForgotPassword(model);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("ResetPassword/{code}")]
+        public IActionResult ResetPassword(string code)
+        {
+            var result = _userService.GetUserByCode(code);
+            return Ok(result);
+        }
+
+        [HttpPut("ResetPassword")]
+        public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
+        {
+            var result = _userService.ResetPassword(model);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -43,8 +57,7 @@ namespace CMS.Api.Controllers
         [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult MemberComments()
         {
-            var result = _userService.MemberComments();
-            return Ok(result);
+            return Ok();
         }
 
         [HttpPut("Profile")]
@@ -56,9 +69,9 @@ namespace CMS.Api.Controllers
         }
 
         [HttpPost("AddMember")]
-        public IActionResult AddMember([FromBody] AddMemberModel model)
+        public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
         {
-            var result = _userService.AddMember(model);
+            var result = await _userService.AddMember(model);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -67,6 +80,13 @@ namespace CMS.Api.Controllers
         public IActionResult ChangePassword([FromBody] ChangePasswordModel model)
         {
             var result = _userService.ChangePassword(model);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("EmailVerified/{code}")]
+        public IActionResult EmailVerified(string code)
+        {
+            var result = _userService.EmailVerified(code);
             return StatusCode(result.StatusCode, result);
         }
     }

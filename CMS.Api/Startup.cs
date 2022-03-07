@@ -3,6 +3,7 @@ using CMS.Data.Repository;
 using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Helper;
+using CMS.Service.Infrastructure;
 using CMS.Service.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -88,7 +89,8 @@ namespace CMS.Api
                     {
                         var errors = context.ModelState.Values
                         .SelectMany(x => x.Errors
-                        .Select(p => p.ErrorMessage)).ToList();
+                        .Select(p => p.ErrorMessage))
+                        .ToList();
 
                         return new BadRequestObjectResult(
                             new BaseResult

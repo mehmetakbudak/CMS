@@ -1,9 +1,10 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Model.Consts;
 using CMS.Model.Entity;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -12,68 +13,76 @@ namespace CMS.Service
     public interface IBlogCategoryService
     {
         IQueryable<BlogCategory> GetAll();
-
-        ServiceResult GetBlogByCategoryUrl(string url, int page);
+        List<LookupModel> Lookup();
+        ServiceResult Post(BlogCategoryDtoModel model);
+        ServiceResult Put(BlogCategoryDtoModel model);
     }
 
     public class BlogCategoryService : IBlogCategoryService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
         public BlogCategoryService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public IQueryable<BlogCategory> GetAll()
         {
-            var entity = unitOfWork.Repository<BlogCategory>()
+            var entity = _unitOfWork.Repository<BlogCategory>()
                 .Where(x => !x.Deleted && x.IsActive)
+                .OrderByDescending(x => x.Id)
                 .AsQueryable();
             return entity;
         }
 
-        public ServiceResult GetBlogByCategoryUrl(string url, int page)
+        public List<LookupModel> Lookup()
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-
-            if (string.IsNullOrEmpty(url))
+            return GetAll().Select(x => new LookupModel()
             {
-                throw new NotFoundException("Url bulunamadı.");
+                Id = x.Id,
+                Name = x.Name
+            }).ToList();
+        }
+
+        public ServiceResult Post(BlogCategoryDtoModel model)
+        {
+            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Post };
+            var isExist = _unitOfWork.Repository<BlogCategory>().Any(x => !x.Deleted && x.Url == model.Url);
+            if (isExist)
+            {
+                throw new FoundException("Url ile daha önce kayıt mevcuttur.");
             }
+            _unitOfWork.Repository<BlogCategory>().Add(new BlogCategory()
+            {
+                Deleted = false,
+                IsActive = model.IsActive,
+                IsShowHome = model.IsShowHome,
+                Name = model.Name,
+                Url = model.Url
+            });
+            _unitOfWork.Save();
+            return result;
+        }
 
-            var categoryBlog = unitOfWork.Repository<SelectedBlogCategory>()
-                .Where(x => x.BlogCategory.Url == url && !x.BlogCategory.Deleted && x.BlogCategory.IsActive)
-                .FirstOrDefault();
-
-            //if (categoryBlog != null)
-            //{
-            //    var skip = (page - 1) * 10;
-            //    var blogs = categoryBlog.Blogs
-            //        .Where(x => x.IsActive && !x.Deleted && x.Published)
-            //        .OrderBy(x => x.DisplayOrder)
-            //        .ToList();
-
-            //    result.Data = new BlogCategoryModel
-            //    {
-            //        Id = categoryBlog.Id,
-            //        Name = categoryBlog.Name,
-            //        Url = categoryBlog.Url,
-            //        TotalCount = blogs.Count,
-            //        Blogs = blogs.Skip(skip).Take(10)
-            //        .Select(x => new BlogModel
-            //        {
-            //            Content = x.Content,
-            //            Id = x.Id,
-            //            Title = x.Title,
-            //            Url = x.Url
-            //        }).ToList()
-            //    };
-            //}
-            //else
-            //{
-            //    throw new NotFoundException($"{url} ile blog kategorisi bulunamadı.");
-            //}
+        public ServiceResult Put(BlogCategoryDtoModel model)
+        {
+            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
+            var blogCategory = _unitOfWork.Repository<BlogCategory>().FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
+            if (blogCategory == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+            var isExist = _unitOfWork.Repository<BlogCategory>().Any(x => !x.Deleted && x.Url == model.Url && x.Id != model.Id);
+            if (isExist)
+            {
+                throw new FoundException("Url ile daha önce kayıt mevcuttur.");
+            }
+            blogCategory.Name = model.Name;
+            blogCategory.Url = model.Url;
+            blogCategory.IsActive = model.IsActive;
+            blogCategory.IsShowHome = model.IsShowHome;
+            _unitOfWork.Save();
             return result;
         }
     }

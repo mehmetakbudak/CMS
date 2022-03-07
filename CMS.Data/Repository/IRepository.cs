@@ -25,6 +25,8 @@ namespace CMS.Data.Repository
 
         void Delete(T entity);
 
+        void DeleteRange(List<T> entity);
+
         void Delete(int id);
     }
 }

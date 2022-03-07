@@ -1,7 +1,8 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
-namespace CMS.Service.Helper
+namespace CMS.Service.Infrastructure
 {
     public static class Security
     {
@@ -16,6 +17,19 @@ namespace CMS.Service.Helper
                 sb.Append(ba.ToString("x2").ToLower());
             }
             return sb.ToString();
+        }
+
+        public static string RandomBase64(int bitCount = 64)
+        {
+            var provider = new RNGCryptoServiceProvider();
+
+            var buffer = new byte[bitCount];
+
+            provider.GetBytes(buffer);
+
+            var randomKey = Convert.ToBase64String(buffer);
+
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(randomKey));
         }
     }
 }

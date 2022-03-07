@@ -58,7 +58,6 @@ export const auth = {
             state.user = user;
         },
         loginFailure(state) {
-            console.log("logout");
             state.status.loggedIn = false;
             state.user = null;
         },

@@ -45,10 +45,10 @@
           </Column>
           <Column field="name" header="Kategori Adı"></Column>
           <Column field="url" header="Url"></Column>
-          <Column field="isShowHomePage" header="Anasayfada Gösterilsin">
+          <Column field="isShowHome" header="Anasayfada Gösterilsin">
             <template #body="slotProps">
               <div>
-                {{ slotProps.data.isShowHomePage ? "Evet" : "Hayır" }}
+                {{ slotProps.data.isShowHome ? "Evet" : "Hayır" }}
               </div>
             </template>
           </Column>
@@ -110,11 +110,13 @@
 </template>
 
 <script>
+import AlertService from "../../../services/AlertService";
 import { Endpoints } from "../../../services/Endpoints";
 import GlobalService from "../../../services/GlobalService";
 
 export default {
   name: "name",
+  mixins: [AlertService],
   data() {
     return {
       blogCategories: [],
@@ -123,8 +125,12 @@ export default {
       selectedBlogCategory: {},
       title: "",
       blogCategory: {
+        deleted: false,
         id: 0,
-        title: "",
+        isActive: true,
+        isShowHome: true,
+        name: "",
+        url: "",
       },
       gridMenuItems: [
         {
@@ -178,10 +184,44 @@ export default {
       this.showForm = true;
       this.showGrid = false;
       this.title = "Yeni Blog Kategorisi Ekle";
+      this.blogCategory = {
+        deleted: false,
+        id: 0,
+        isActive: true,
+        isShowHome: true,
+        name: "",
+        url: "",
+      };
     },
     toggleGridMenu(event, data) {
       this.selectedBlogCategory = data;
       this.$refs.menu.toggle(event);
+    },
+    save() {
+      if (this.blogCategory.id == 0) {
+        GlobalService.PostByAuth(
+          Endpoints.Admin.BlogCategory,
+          this.blogCategory
+        )
+          .then((res) => {
+            this.getAll();
+            this.reset();
+            this.successMessage(this, res.data.message);
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      } else {
+        GlobalService.PutByAuth(Endpoints.Admin.BlogCategory, this.blogCategory)
+          .then((res) => {
+            this.getAll();
+            this.reset();
+            this.successMessage(this, res.data.message);
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      }
     },
     reset() {
       this.showForm = false;

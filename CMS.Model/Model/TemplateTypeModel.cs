@@ -10,7 +10,7 @@ namespace CMS.Model.Model
         public string Body { get; set; }
     }
 
-    public class ForgotPasswordTemplateModel
+    public class TemplateModel
     {
         public string FullName { get; set; }
         public string Url { get; set; }

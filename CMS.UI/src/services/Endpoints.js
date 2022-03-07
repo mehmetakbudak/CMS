@@ -15,6 +15,7 @@ export const Endpoints = {
         Lookup: {
             Users: "AdminLookup/Users",
             TodoCategories: "AdminLookup/TodoCategories",
+            BlogCategories: "AdminLookup/BlogCategories"
         }
     },
     Blog: "Blog",
@@ -27,8 +28,9 @@ export const Endpoints = {
         Profile: "Account/Profile",
         AddMember: "Account/AddMember",
         ChangePassword: "Account/ChangePassword",
-        MemberComments: "Account/MemberComments"
-
+        MemberComments: "Account/MemberComments",
+        EmailVerified: "Account/EmailVerified",
+        ResetPassword: "Account/ResetPassword"
     },
     Lookup: {
         Users: "Lookup/Users",

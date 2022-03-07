@@ -4,7 +4,7 @@ using System.Net;
 namespace CMS.Model.Model
 {
     public class BaseResult
-    {
+    {        
         public string Message { get; set; }
         public int StatusCode { get; set; }
     }

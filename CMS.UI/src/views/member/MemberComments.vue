@@ -1,7 +1,9 @@
 <template>
   <div class="card">
+    <div class="card-header bg-white py-3">
+      <h5>Yorumlarım</h5>
+    </div>
     <div class="card-body">
-      <h4>Yorumlarım</h4>
     </div>
   </div>
 </template>

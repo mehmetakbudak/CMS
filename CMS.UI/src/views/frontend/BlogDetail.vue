@@ -2,49 +2,56 @@
   <div class="card">
     <div class="card-body">
       <div class="row">
-        <div class="col-md-8">
-          <nav style="--bs-breadcrumb-divider: '>'" class="small" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item">
-                <router-link class="text-secondary text-decoration-none" to="/"
-                  ><i class="pi pi-home"></i> Anasayfa</router-link
+        <div class="col-md-9">
+          <div class="d-flex flex-row bd-highlight mb-3">
+            <div class="p-1 bd-highlight">
+              <router-link
+                class="text-secondary text-decoration-none small"
+                to="/"
+                ><i class="pi pi-home"></i> Anasayfa</router-link
+              >
+            </div>
+            <div class="p-1 bd-highlight">
+              <i class="pi pi-angle-right text-secondary"></i>
+            </div>
+            <div class="p-1 bd-highlight">
+              <div class="dropdown">
+                <div
+                  class="btn btn-outline-secondary btn-sm dropdown-toggle small"
+                  type="button"
+                  id="blogCategoryList"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
-              </li>
-              <li class="breadcrumb-item">
-                <router-link
-                  class="text-secondary text-decoration-none"
-                  to="/blog"
-                >
-                  Blog</router-link
-                >
-              </li>
-              <li class="breadcrumb-item active" aria-current="page">
-                Blog Detay
-              </li>
-            </ol>
-          </nav>
-          <h5 class="py-3">Tiyatro Kooperatifi, 2. Olağan Genel Kurulu’nu gerçekleştirdi</h5>
+                  Kategoriler
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="blogCategoryList">
+                  <li v-for="item in blog.blogCategories" :key="item.id">
+                    <router-link
+                      class="dropdown-item text-secondary text-decoration-none"
+                      :to="`/blog/${item.url}`"
+                    >
+                      {{ item.name }}</router-link
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="p-1 bd-highlight">
+              <i class="pi pi-angle-right text-secondary"></i>
+            </div>
+            <div class="p-1 bd-highlight text-secondary small">
+              {{ blog.title }}
+            </div>
+          </div>
+          <h5 class="py-3">
+            {{ blog.title }}
+          </h5>
           <img
             class="img-fluid w-100 my-3"
             src="https://www.murekkephaber.com/images/haberler/2021/04/tiyatro-kooperatifi-2-olagan-genel-kurulu-nu-gerceklestirdi.jpg"
           />
-          <div class="my-4">
-            Mayıs 2018’de 13 özel tiyatronun girişimiyle çalışmalarına başlayan
-            ve bugün 64 özel tiyatronun dahil olduğu büyük ve güçlü bir yapı
-            olarak yola devam eden Tiyatro Kooperatifi, 6 Nisan 2021 Salı günü
-            2. Olağan Genel Kurulu’nu gerçekleştirdi. Pandemi koşulları
-            gözetilerek DasDas’ın açık avlusunda gerçekleştirilen toplantıda,
-            Kasım 2019’dan beri gönüllü olarak görev yapan Yönetim Kurulu
-            Başkanı Iraz Yöntem, Başkan Yardımcısı Yeşim Özsoy, Yönetim Kurulu
-            Üyeleri Ersin Umut Güler, Mert Fırat ve Muharrem Uğurlu Yönetim
-            Kurulu’na yeniden seçilerek bir yıl için daha aynı sorumluluğu
-            üstlendi. Tiyatro Kooperatifi, pandemi sürecinde büyük yara alan ve
-            kapanma tehlikesiyle karşı karşıya olan özel tiyatrolar için acil
-            çözüm çağrısını sürdürüyor. Sektörün ayakta kalmasının ancak somut
-            ve sürdürülebilir çözümlerle mümkün olduğunu vurgulayan kooperatif,
-            telafisi belki de on yıllar alacak kayıpların yaşanmaması için
-            ilgilileri sorumlu davranmaya davet ediyor.
-          </div>
+          <div class="my-4" v-html="blog.content"></div>
           <div class="d-flex flex-column flex-sm-row bd-highlight mt-4 pb-3">
             <div class="p-pr-1 p-pb-1">
               <router-link
@@ -198,49 +205,19 @@
             </Galleria>
           </div>
         </div>
-        <div class="col-md-4">
-          <h5>Çok Okunan Haberler</h5>
-          <div>
-            <router-link class="text-decoration-none" to="./haberler/detay">
-              <img
-                class="img-fluid my-3 w-100"
-                src="https://www.murekkephaber.com/images/haberler/2021/04/semaver-ve-kumpanya-online-izlenebilecek_t.jpg"
-              />
-              <div class="text-dark fw-bold mt-2">
-                Semaver ve Kumpanya online izlenebilecek
-              </div>
-            </router-link>
-          </div>
-          <div class="mt-4 mb-4">
-            <router-link class="text-decoration-none" to="./haberler/detay">
+        <div class="col-md-3">
+          <h5>Çok Okunanlar</h5>
+          <div class="my-4" v-for="item in mostReadList" :key="item.id">
+            <router-link
+              class="text-decoration-none"
+              :to="`/blog/${item.url}/${item.id}`"
+            >
               <img
                 class="img-fluid w-100"
-                src="https://www.murekkephaber.com/images/haberler/2021/04/14-egitimde-edebiyat-semineri-10-nisan-da_t.jpg"
+                src="http://via.placeholder.com/268x180"
               />
               <div class="text-dark fw-bold mt-2">
-                14. Eğitimde Edebiyat Semineri, 10 Nisanda
-              </div>
-            </router-link>
-          </div>
-          <div class="mt-4 mb-4">
-            <router-link class="text-decoration-none" to="./haberler/detay">
-              <img
-                class="img-fluid w-100"
-                src="https://www.murekkephaber.com/images/haberler/2021/04/black-widow-un-yeni-fragmani-yayinlandi_t.jpg"
-              />
-              <div class="text-dark fw-bold mt-2">
-                Black Window yeni fragmanı yayınlandı
-              </div>
-            </router-link>
-          </div>
-          <div class="mt-4 mb-4">
-            <router-link class="text-decoration-none" to="./haberler/detay">
-              <img
-                class="img-fluid w-100"
-                src="https://www.murekkephaber.com/images/haberler/2021/04/dunyanin-en-pahali-tablosu-nft-olarak-satista_t.jpg"
-              />
-              <div class="text-dark fw-bold mt-2">
-                Dünyanın en pahalı tablosu NFT olarak satışta
+                {{ item.title }}
               </div>
             </router-link>
           </div>
@@ -251,9 +228,14 @@
 </template>
 
 <script>
+import { Endpoints } from "../../services/Endpoints";
+import GlobalService from "../../services/GlobalService";
+
 export default {
   data() {
     return {
+      blog: {},
+      mostReadList: [],
       comment: {
         nameSurname: "",
         emailAddress: "",
@@ -391,7 +373,32 @@ export default {
       ],
     };
   },
+  created() {
+    this.getBlogDetail();
+    this.seen();
+    this.mostRead();
+  },
   methods: {
+    getBlogDetail() {
+      GlobalService.Get(`${Endpoints.Blog}/${this.$route.params.id}`)
+        .then((res) => {
+          this.blog = res.data;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    seen() {
+      GlobalService.Put(
+        `${Endpoints.Blog}/Seen/${this.$route.params.id}`,
+        null
+      ).then(() => {});
+    },
+    mostRead() {
+      GlobalService.Get(`${Endpoints.Blog}/MostRead`).then((res) => {
+        this.mostReadList = res.data;
+      });
+    },
     commentSave() {
       console.log(this.comment);
     },

@@ -7,6 +7,10 @@
             <h4>Giriş Yap</h4>
           </div>
           <div class="card-body">
+            <div class="my-3" v-if="visibleError">
+              <div class="alert alert-danger">{{ message }}</div>
+            </div>
+
             <div class="mb-3">
               <label class="form-label">Email Adresi</label>
               <InputText
@@ -97,7 +101,11 @@
 </template>
 
 <script>
+import AlertService from "../../services/AlertService";
+import { Endpoints } from "../../services/Endpoints";
+import GlobalService from "../../services/GlobalService";
 export default {
+  mixins: [AlertService],
   computed: {
     loggedIn() {
       return this.$store.state.auth.status.loggedIn;
@@ -112,7 +120,8 @@ export default {
     return {
       visibleLogin: true,
       visibleForgotPassword: false,
-      exceptions: [],
+      visibleError: false,
+      message: "",
       loginFormData: {
         emailAddress: "",
         password: "",
@@ -124,23 +133,26 @@ export default {
   },
   methods: {
     login() {
-      this.exceptions = [];
       this.$store.dispatch("auth/login", this.loginFormData).then(
         () => {
           location.href = "/";
         },
         (error) => {
-          this.loading = false;
-          this.message =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
+          this.visibleError = true;
+          this.message = error.response.data.message;
         }
       );
     },
-    forgotPassword() {},
+    forgotPassword() {
+      GlobalService.Post(
+        Endpoints.Account.ForgotPassword,
+        this.forgotPasswordFormData
+      ).then((res) => {
+        this.forgotPasswordFormData = {};
+        this.successMessage(this, res.data.message);
+        this.showLogin();
+      });
+    },
     showForgot() {
       this.visibleLogin = false;
       this.visibleForgotPassword = true;

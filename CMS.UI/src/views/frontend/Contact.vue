@@ -1,7 +1,9 @@
 <template>
   <div class="card">
+     <div class="card-header bg-white">
+      <h4 class="my-3">İletişim</h4>
+    </div>
     <div class="card-body">
-      <h4>İletişim</h4>
     </div>
   </div>
 </template>

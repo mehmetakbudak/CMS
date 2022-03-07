@@ -1,13 +1,78 @@
 <template>
   <div class="card">
+    <div class="card-header bg-white py-3">
+      <h5>Şifre Değiştir</h5>
+    </div>
     <div class="card-body">
-      <h4>Şifre Değiştir</h4>
+      <div class="row p-3">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Mevcut Şifre</label>
+            <InputText
+              class="w-100"
+              type="password"
+              v-model="data.oldPassword"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Yeni Şifre</label>
+            <InputText
+              class="w-100"
+              type="password"
+              v-model="data.newPassword"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Yeni Şifre Tekrar</label>
+            <InputText
+              class="w-100"
+              type="password"
+              v-model="data.reNewPassword"
+            />
+          </div>
+          <div class="mb-3">
+            <Button type="submit" label="Kaydet" @click="save"></Button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {};
+import AlertService from "../../services/AlertService";
+import { Endpoints } from "../../services/Endpoints";
+import GlobalService from "../../services/GlobalService";
+export default {
+  mixins: [AlertService],
+  data() {
+    return {
+      message: "",
+      visibleError: false,
+      data: {
+        oldPassword: "",
+        newPassword: "",
+        reNewPassword: "",
+      },
+    };
+  },
+  methods: {
+    save() {
+      GlobalService.PutByAuth(Endpoints.Account.ChangePassword, this.data)
+        .then(() => {
+          this.successMessage(this, "Şifre başarıyla güncellendi.");
+          this.data = {
+            oldPassword: "",
+            newPassword: "",
+            reNewPassword: "",
+          };
+        })
+        .catch((error) => {
+          this.errorMessage(this, error.response.data.message);
+        });
+    },
+  },
+};
 </script>
 
 <style>

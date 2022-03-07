@@ -2,8 +2,8 @@
 {
     public enum TemplateType
     {
-        EmailVerificationLink,
-        ForgotPasswordLink,
+        EmailVerificationLink=1,
+        SetPasswordLink,
 
     }
 }

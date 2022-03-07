@@ -123,5 +123,10 @@ namespace CMS.Data.Repository
             }
             _isDisposed = true;
         }
+
+        public void DeleteRange(List<T> entity)
+        {
+            _dbSet.RemoveRange(entity);
+        }
     }
 }

@@ -70,7 +70,7 @@ namespace CMS.Model.Model
         [Required(ErrorMessage = "Mevcut şifre zorunludur.")]
         public string NewPassword { get; set; }
 
-        [Required(ErrorMessage = "Yeni şifre yeniden zorunludur.")]
+        [Required(ErrorMessage = "Yeni şifre tekrar zorunludur.")]
         public string ReNewPassword { get; set; }
     }
 
@@ -79,6 +79,23 @@ namespace CMS.Model.Model
         [Required(ErrorMessage = "Email adres zorunludur.")]
         [EmailAddress(ErrorMessage = "Email adresi formatı uygun değildir.")]
         public string EmailAddress { get; set; }
+    }
+
+    public class ResetPasswordModel
+    {
+        [Required(ErrorMessage = "Kod zorunludur.")]
+        public string Code { get; set; }
+
+        [Required(ErrorMessage = "Mevcut şifre zorunludur.")]
+        public string NewPassword { get; set; }
+
+        [Required(ErrorMessage = "Yeni şifre tekrar zorunludur.")]
+        public string ReNewPassword { get; set; }
+    }
+
+    public class ResetPasswordInfoModel
+    {
+        public string FullName { get; set; }
     }
 
     public class TokenResponseModel

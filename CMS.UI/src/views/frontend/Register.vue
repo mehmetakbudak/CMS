@@ -64,7 +64,12 @@
 </template>
 
 <script>
+import AlertService from "../../services/AlertService";
+import { Endpoints } from "../../services/Endpoints";
+import GlobalService from "../../services/GlobalService";
+
 export default {
+  mixins: [AlertService],
   data() {
     return {
       data: {
@@ -87,7 +92,22 @@ export default {
     }
   },
   methods: {
-    register() {},
+    register() {
+      GlobalService.Post(Endpoints.Account.AddMember, this.data)
+        .then((res) => {
+          this.data = {
+            name: "",
+            surname: "",
+            emailAddress: "",
+            password: "",
+            rePassword: "",
+          };
+          this.successMessage(this, res.data.message);
+        })
+        .catch((e) => {
+          this.errorMessage(this, e.response.data.message);
+        });
+    },
   },
 };
 </script>

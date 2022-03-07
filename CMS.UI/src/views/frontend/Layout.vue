@@ -2,7 +2,7 @@
   <div class="container">
     <Header />
     <div class="my-3">
-      <router-view></router-view>
+      <router-view :key="$route.fullPath"></router-view>
     </div>
   </div>
 </template>

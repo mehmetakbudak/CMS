@@ -105,40 +105,64 @@
               ></Textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label">İçerik</label>
-              <Editor v-model="blog.content" editorStyle="height: 320px" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Url</label>
-              <InputText
-                type="text"
-                v-model="blog.url"
-                placeholder="Url"
+              <label class="form-label">Blog Kategoriler</label>
+              <MultiSelect
                 class="w-100"
+                v-model="blog.blogCategories"
+                :options="blogCategories"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Kategori seçiniz."
+                display="chip"
               />
             </div>
             <div class="mb-3">
-              <div class="row">
-                <div class="col-md-2">
-                  <label class="form-label">Sıra</label>
-                  <InputNumber
-                    v-model="blog.displayOrder"
-                    placeholder="Sıra"
+              <label class="form-label">İçerik</label>
+              <Editor v-model="blog.content" editorStyle="height: 500px" />
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Url</label>
+                  <InputText
+                    type="text"
+                    v-model="blog.url"
+                    placeholder="Url"
                     class="w-100"
                   />
                 </div>
               </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Yayında</label>
-              <div>
-                <InputSwitch v-model="blog.published" />
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <div class="row">
+                    <div class="col-md-2">
+                      <label class="form-label">Sıra</label>
+                      <InputNumber
+                        v-model="blog.displayOrder"
+                        placeholder="Sıra"                        
+                        inputStyle="width: 100px !important;"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Aktif</label>
-              <div>
-                <InputSwitch v-model="blog.isActive" />
+            <div class="row">
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label class="form-label">Yayında</label>
+                  <div>
+                    <InputSwitch v-model="blog.published" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="mb-3">
+                  <label class="form-label">Aktif</label>
+                  <div>
+                    <InputSwitch v-model="blog.isActive" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -172,6 +196,7 @@ export default {
       showForm: false,
       selectedBlog: {},
       blogs: [],
+      blogCategories: [],
       blog: {
         id: 0,
         url: "",
@@ -180,6 +205,7 @@ export default {
         content: "",
         published: true,
         isActive: true,
+        blogCategories: [],
       },
       gridMenuItems: [
         {
@@ -188,7 +214,12 @@ export default {
             this.title = "Blog Düzenle";
             this.showForm = true;
             this.showGrid = false;
-            this.blog = this.selectedBlog;
+            this.getBlogCategories();
+            GlobalService.GetByAuth(
+              `${Endpoints.Admin.Blog}/${this.selectedBlog.id}`
+            ).then((res) => {
+              this.blog = res.data;
+            });
           },
         },
         {
@@ -229,17 +260,27 @@ export default {
         this.blogs = res.data;
       });
     },
+    getBlogCategories() {
+      GlobalService.GetByAuth(Endpoints.Admin.Lookup.BlogCategories).then(
+        (res) => {
+          this.blogCategories = res.data;
+        }
+      );
+    },
     add() {
       this.showForm = true;
       this.showGrid = false;
       this.title = "Yeni Blog Ekle";
+      this.getBlogCategories();
       this.blog = {
         id: 0,
         url: "",
         title: "",
+        description: "",
         content: "",
         published: true,
         isActive: true,
+        blogCategories: [],
       };
     },
     toggleGridMenu(event, data) {

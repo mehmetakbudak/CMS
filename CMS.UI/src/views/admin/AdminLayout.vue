@@ -78,7 +78,7 @@
           </div>
           <div class="col-md-9">
             <div class="mb-3">
-              <router-view></router-view>
+              <router-view :key="$route.fullPath"></router-view>
             </div>
           </div>
         </div>

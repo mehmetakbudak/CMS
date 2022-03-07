@@ -11,15 +11,19 @@ namespace CMS.Service.Helper
     {
         Task<ServiceResult> Send(MailModel model);
 
+        Task<ServiceResult> SendWithTemplate(MailWithTemplateModel model);
     }
 
     public class MailHelper : IMailHelper
     {
         private readonly IWebsiteParameterService _websiteParameterService;
+        private readonly IMailTemplateService _mailTemplateService;
 
-        public MailHelper(IWebsiteParameterService websiteParameterService)
+        public MailHelper(IWebsiteParameterService websiteParameterService,
+            IMailTemplateService mailTemplateService)
         {
             _websiteParameterService = websiteParameterService;
+            _mailTemplateService = mailTemplateService;
         }
 
         public async Task<ServiceResult> Send(MailModel model)
@@ -28,6 +32,53 @@ namespace CMS.Service.Helper
             try
             {
                 var emailSetting = _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
+
+                Int32.TryParse(emailSetting.Port, out int port);
+
+                using (var client = new SmtpClient(emailSetting.Host, port))
+                {
+                    client.UseDefaultCredentials = true;
+                    client.EnableSsl = true;
+                    client.Credentials = new NetworkCredential(emailSetting.EmailAddress, emailSetting.Password);
+
+                    MailMessage message = new MailMessage();
+
+                    message.From = new MailAddress(emailSetting.EmailAddress);
+                    message.To.Add(model.EmailAddress);
+                    message.Body = model.Body;
+                    message.Subject = model.Subject;
+                    message.IsBodyHtml = true;
+                    await Task.Run(() => client.Send(message));
+                }
+            }
+            catch
+            {
+                result.StatusCode = (int)HttpStatusCode.InternalServerError;
+                result.Message = "Mail gönderilirken hata oluştu.";
+            }
+            return result;
+        }
+
+        public async Task<ServiceResult> SendWithTemplate(MailWithTemplateModel model)
+        {
+            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            try
+            {
+                var emailSetting = _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
+                var data = model.Data;                
+                var mailTemplate = _mailTemplateService.GetTemplateByType(data, model.TemplateType);
+
+                if (mailTemplate != null)
+                {
+                    if (string.IsNullOrEmpty(model.Subject))
+                    {
+                        model.Subject = mailTemplate.Subject;
+                    }
+                    if(string.IsNullOrEmpty(model.Body))
+                    {
+                        model.Body = mailTemplate.Body;
+                    }
+                }
 
                 Int32.TryParse(emailSetting.Port, out int port);
 

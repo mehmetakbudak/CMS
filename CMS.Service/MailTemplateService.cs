@@ -29,7 +29,7 @@ namespace CMS.Service
 
             if (mailTemplate != null)
             {
-                var properties = typeof(T).GetProperties();
+                var properties = data.GetType().GetProperties();
 
                 var body = mailTemplate.Body;
 

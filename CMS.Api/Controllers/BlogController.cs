@@ -9,25 +9,47 @@ namespace CMS.Api
     [Route("api/[controller]")]
     public class BlogController : ControllerBase
     {
-        private readonly IBlogService blogService;
+        private readonly IBlogService _blogService;
 
         public BlogController(IBlogService blogService)
         {
-            this.blogService = blogService;
+            _blogService = blogService;
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            var model = _blogService.GetDetailById(id);
+            return Ok(model);
         }
 
         [HttpGet("GetByText")]
-        public IActionResult GetByText(string? text)
+        public IActionResult GetByText(string categoryUrl, string? text)
         {
-            var list = blogService.GetBlogList(text);
+            var list = _blogService.GetBlogList(categoryUrl, text);
             return Ok(list);
         }
 
-        [HttpGet("GetBlogByUrl")]
-        public IActionResult GetBlogByUrl(string url)
+
+        [HttpPut("Seen/{id}")]
+        public IActionResult Seen(int id)
         {
-            var result = blogService.GetByUrl(url);
+            var result = _blogService.Seen(id);
             return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("MostRead")]
+        public IActionResult MostRead()
+        {
+            var list = _blogService.MostRead();
+            return Ok(list);
+        }
+
+        [HttpGet("MostReadByBlogCategoryId/{blogCategoryId}")]
+        public IActionResult MostReadByBlogCategoryId(int blogCategoryId)
+        {
+            var list = _blogService.MostRead(blogCategoryId);
+            return Ok(list);
         }
     }
 }

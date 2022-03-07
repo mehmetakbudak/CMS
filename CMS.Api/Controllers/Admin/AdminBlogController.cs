@@ -22,15 +22,23 @@ namespace CMS.Api.Controllers.Admin
         [HttpGet]
         public IActionResult Get()
         {
-            var list = blogService.GetAll().OrderByDescending(x => x.InsertedDate).ToList();
+            var list = blogService.GetAll()
+                .OrderByDescending(x => x.InsertedDate).ToList();
             return Ok(list);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            var model = blogService.GetById(id);
+            return Ok(model);
         }
 
         [HttpPut]
         public IActionResult Put([FromBody] BlogPutModel model)
         {
-            blogService.Put(model);
-            return Ok();
+            var result = blogService.Put(model);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }
