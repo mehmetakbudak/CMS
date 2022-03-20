@@ -104,6 +104,7 @@ import TreeSelect from 'primevue/treeselect';
 import TreeTable from 'primevue/treetable';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
 import Editor from 'primevue/editor';
+import PageLoading from "./components/PageLoading";
 
 const app = createApp(App);
 
@@ -202,5 +203,6 @@ app.component('TreeSelect', TreeSelect);
 app.component('TreeTable', TreeTable);
 app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('Editor', Editor);
+app.component('PageLoading', PageLoading);
 
 app.mount('#app')

@@ -17,22 +17,19 @@ namespace CMS.Model.Model
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Kullanıcı soyadı zorunludur.")]
-        public string Surname { get; set; }
-
-        public string FullName
-        {
-            get
-            {
-                return $"{Name} {Surname}";
-            }
-        }
+        public string Surname { get; set; }      
 
         [Required(ErrorMessage = "Email adresi zorunludur.")]
         [EmailAddress(ErrorMessage = "Email formatı uygun değildir.")]
         public string EmailAddress { get; set; }
 
         public bool IsActive { get; set; }
+
+        public string Status { get; set; }
     }
+
+    public class UserCreateOrUpdateModel { }
+
 
     public class UserProfileModel : BaseModel
     {

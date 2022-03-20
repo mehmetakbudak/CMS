@@ -19,6 +19,8 @@ namespace CMS.Data.Context
 
         public virtual DbSet<AccessRight> AccessRights { get; set; }
 
+        public virtual DbSet<AccessRightEndpoint> AccessRightEndpoints { get; set; }
+
         public virtual DbSet<ContactCategory> ContactCategories { get; set; }
 
         public virtual DbSet<Contact> Contacts { get; set; }
@@ -37,7 +39,7 @@ namespace CMS.Data.Context
 
         public virtual DbSet<Menu> Menus { get; set; }
 
-        public virtual DbSet<MenuItems> MenuItems { get; set; }
+        public virtual DbSet<MenuItem> MenuItems { get; set; }
 
         public virtual DbSet<Page> Pages { get; set; }
 

@@ -3,7 +3,7 @@
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-6">
-          <h4>{{ title }}</h4>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button
@@ -27,7 +27,7 @@
           <Panel
             header="Filtrele"
             :toggleable="true"
-            :collapsed="true"
+            :collapsed="false"
             class="bg-white"
           >
             <template #icons>
@@ -133,6 +133,7 @@
         </div>
 
         <DataTable
+          :loading="loading"
           showGridlines
           :value="todos"
           :paginator="true"
@@ -188,7 +189,7 @@
       <div v-if="showForm">
         <TabView>
           <TabPanel header="Bilgiler" key="1">
-            <div class="row">
+            <div class="row pt-3">
               <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Kategori Adı</label>
@@ -202,8 +203,11 @@
                     placeholder="Kategori seçiniz."
                     :showClear="true"
                     @change="getTodoStatuses(todo.todoCategoryId)"
+                    :loading="loading"
                   />
                 </div>
+              </div>
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Başlık</label>
                   <InputText
@@ -213,6 +217,8 @@
                     class="w-100"
                   />
                 </div>
+              </div>
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Atanan Kullanıcı</label>
                   <Dropdown
@@ -225,6 +231,8 @@
                     placeholder="Kullanıcı seçiniz."
                   />
                 </div>
+              </div>
+              <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Durumu</label>
                   <Dropdown
@@ -235,17 +243,21 @@
                     optionValue="id"
                     :showClear="true"
                     placeholder="Durum seçiniz."
+                    :loading="loading"
                   />
                 </div>
+              </div>
+              <div class="col-md-12">
                 <div class="mb-3">
                   <label class="form-label">Açıklama</label>
-                  <Textarea
+                  <Editor
                     v-model="todo.description"
-                    placeholder="Açıklama"
-                    rows="5"
+                    editorStyle="height: 200px"
                     class="w-100"
                   />
                 </div>
+              </div>
+              <div class="col-md-12">
                 <div class="mb-3">
                   <label class="form-label">Aktif</label>
                   <div>
@@ -296,6 +308,7 @@ export default {
   mixins: [alertService],
   data() {
     return {
+      loading: false,
       todos: [],
       todoCategories: [],
       todoStatuses: [],
@@ -384,11 +397,13 @@ export default {
   },
   methods: {
     getAll() {
+      this.loading = true;
       GlobalService.PostByAuth(
         `${Endpoints.Admin.Todo}/GetWithFilter`,
         this.filter
       ).then((res) => {
         this.todos = res.data;
+        this.loading = false;
       });
     },
     filterTodos() {
@@ -404,16 +419,20 @@ export default {
       });
     },
     getTodoCategories() {
+      this.loading = true;
       GlobalService.GetByAuth(Endpoints.Admin.TodoCategory).then((res) => {
         this.todoCategories = res.data;
+        this.loading = false;
       });
     },
     getTodoStatuses(categoryId) {
       if (categoryId != 0) {
+        this.loading = true;
         GlobalService.GetByAuth(
-          `${Endpoints.Admin.TodoStatus}/GetByTodoCategoryId/${categoryId}}`
+          `${Endpoints.Admin.TodoStatus}/GetByTodoCategoryId/${categoryId}`
         ).then((res) => {
           this.todoStatuses = res.data;
+          this.loading = false;
         });
       }
     },

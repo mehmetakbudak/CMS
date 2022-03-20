@@ -1,17 +1,15 @@
 ﻿using CMS.Model.Enum;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
+    [Table("access_rights")]
     public class AccessRight : BaseEntityModel
     {
         public int? ParentId { get; set; }
 
         public string Name { get; set; }
-
-        public string Endpoint { get; set; }
-
-        public string Method { get; set; }
 
         public bool IsShowMenu { get; set; }
 
@@ -23,6 +21,8 @@ namespace CMS.Model.Entity
 
         public bool Deleted { get; set; }
 
-        public ICollection<UserAccessRight> UserAccessRights { get; set; }
+        public virtual ICollection<UserAccessRight> UserAccessRights { get; set; }
+
+        public virtual ICollection<AccessRightEndpoint> AccessRightEndpoints { get; set; }
     }
 }

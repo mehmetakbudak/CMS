@@ -3,7 +3,7 @@
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-6">
-          <h4>{{ title }}</h4>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button
@@ -24,6 +24,7 @@
     <div class="card-body">
       <div v-if="showGrid">
         <DataTable
+          :loading="loading"
           showGridlines
           :value="blogs"
           :paginator="true"
@@ -80,6 +81,7 @@
               </div>
             </template>
           </Column>
+          <template #empty> Kayıt bulunamadı. </template>
         </DataTable>
       </div>
       <div v-if="showForm">
@@ -139,7 +141,7 @@
                       <label class="form-label">Sıra</label>
                       <InputNumber
                         v-model="blog.displayOrder"
-                        placeholder="Sıra"                        
+                        placeholder="Sıra"
                         inputStyle="width: 100px !important;"
                       />
                     </div>
@@ -192,6 +194,7 @@ export default {
   data() {
     return {
       title: "",
+      loading: true,
       showGrid: true,
       showForm: false,
       selectedBlog: {},
@@ -256,8 +259,10 @@ export default {
   },
   methods: {
     getAll() {
+      this.loading = true;
       GlobalService.GetByAuth(Endpoints.Admin.Blog).then((res) => {
         this.blogs = res.data;
+        this.loading = false;
       });
     },
     getBlogCategories() {

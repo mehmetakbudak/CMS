@@ -23,14 +23,14 @@ import AdminLayout from "./views/admin/AdminLayout.vue";
 import Dashboard from "./views/admin/Dashboard.vue";
 import Users from "./views/admin/definitions/Users.vue";
 import UserAuthorization from "./views/admin/definitions/UserAuthorization.vue";
-import AdminMenu from "./views/admin/definitions/menus/AdminMenu.vue";
+import AccessRight from "./views/admin/definitions/AccessRight.vue";
+import FrontendMenu from "./views/admin/definitions/FrontendMenu.vue";
 import BlogCategory from "./views/admin/definitions/BlogCategory.vue";
 import TodoCategory from "./views/admin/definitions/TodoCategory.vue";
 import TodoStatus from "./views/admin/definitions/TodoStatus.vue";
 import Author from "./views/admin/definitions/Author.vue";
-import WaitingApproveComment from "./views/admin/comments/WaitingApproveComment.vue";
-import ApprovedComment from "./views/admin/comments/ApprovedComment.vue";
-import RejectedComment from "./views/admin/comments/RejectedComment.vue";
+import Comment from "./views/admin/contents/comment/Comment.vue";
+import CommentDetail from "./views/admin/contents/comment/CommentDetail.vue";
 import Announcement from "./views/admin/contents/Announcement.vue";
 import Article from "./views/admin/contents/Article.vue";
 import AdminBlog from "./views/admin/contents/Blog.vue";
@@ -41,11 +41,11 @@ import VideoGallery from "./views/admin/contents/VideoGallery.vue";
 import MyTodos from "./views/admin/tools/MyTodos.vue";
 import Todos from "./views/admin/tools/Todos.vue";
 
-// member routes
-import MemberLayout from "./views/member/MemberLayout.vue";
-import Profile from "./views/member/Profile.vue";
-import ChangePassword from "./views/member/ChangePassword.vue";
-import MemberComments from "./views/member/MemberComments.vue";
+// user routes
+import UserLayout from "./views/user/UserLayout.vue";
+import Profile from "./views/user/Profile.vue";
+import ChangePassword from "./views/user/ChangePassword.vue";
+import UserComments from "./views/user/UserComments.vue";
 
 const routes = [{
     path: "/",
@@ -109,8 +109,8 @@ const routes = [{
         component: ResetPassword,
       },
       {
-        path: "/uye",
-        component: MemberLayout,
+        path: "/kullanici",
+        component: UserLayout,
         meta: {
           requireAuth: true,
           isAccessAdminPanel: false,
@@ -125,7 +125,7 @@ const routes = [{
           },
           {
             path: "yorumlarim",
-            component: MemberComments
+            component: UserComments
           }
         ]
       },
@@ -181,6 +181,16 @@ const routes = [{
             path: "video-galeri",
             component: VideoGallery,
           },
+          {
+            path: "yorumlar",
+            name: "Comment",
+            component: Comment
+          },
+          {
+            path: "yorumlar/:id",
+            name: "CommentDetail",
+            component: CommentDetail
+          },
         ],
       },
       {
@@ -211,30 +221,13 @@ const routes = [{
             component: Author,
           },
           {
-            path: "menuler",
-            component: RouterView,
-            children: [{
-              path: "admin-menu",
-              component: AdminMenu,
-            }, ],
-          },
-        ],
-      },
-      {
-        path: "yorumlar",
-        component: RouterView,
-        children: [{
-            path: "onay-bekleyenler",
-            component: WaitingApproveComment,
+            path: "erisim-haklari",
+            component: AccessRight
           },
           {
-            path: "onaylananlar",
-            component: ApprovedComment,
-          },
-          {
-            path: "reddedilenler",
-            component: RejectedComment,
-          },
+            path: "on-arayuz-menu",
+            component: FrontendMenu
+          }
         ],
       },
       {
@@ -270,13 +263,13 @@ router.beforeEach((to, from, next) => {
       next("/giris");
     } else {
       if (to.meta.isAccessAdminPanel) {
-        const result = currentUser.menuAccessRights.filter((x) => x == to.fullPath);
-        if (result.length > 0) {
-          next();
-        } else {
-          store.dispatch("auth/logout");
-          next("/giris");
-        }
+        // const result = currentUser.menuAccessRights.filter((x) => x == to.fullPath);
+        // if (result.length > 0) {
+        next();
+        // } else {
+        //   store.dispatch("auth/logout");
+        //   next("/giris");
+        // }
       } else {
         next();
       }

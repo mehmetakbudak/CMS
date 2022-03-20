@@ -1,6 +1,9 @@
-﻿namespace CMS.Model.Entity
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CMS.Model.Entity
 {
-    public class MenuItems : BaseEntityModel
+    [Table("menu_items")]
+    public class MenuItem : BaseEntityModel
     {
         public int MenuId { get; set; }
 

@@ -1,23 +1,23 @@
 <template>
-  <Card>
-    <template #title>
-      <div class="row mb-2">
+  <div class="card">
+    <div class="card-header bg-white py-3">
+      <div class="row">
         <div class="col-6">
           <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button
-            label="Ekle"
             icon="pi pi-plus"
             class="p-button-primary p-button-sm float-end"
             @click="add()"
           />
         </div>
       </div>
-    </template>
-    <template #content>
+    </div>
+    <div class="card-body">
       <div class="border border-top-0" v-if="showGrid">
         <DataTable
+          :loading="loading"
           showGridlines
           :value="authors"
           :paginator="true"
@@ -94,8 +94,8 @@
           <Button class="ms-2" label="Kaydet" @click="save()" />
         </div>
       </div>
-    </template>
-  </Card>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -108,6 +108,7 @@ export default {
   mixins: [alertService],
   data() {
     return {
+      loading: false,
       authors: [],
       exceptions: [],
       showGrid: true,
@@ -137,7 +138,6 @@ export default {
               isActive: e.isActive,
               fileSrc: e.fileUrl,
             };
-            this.getAuthors();
           },
         },
         {
@@ -169,12 +169,14 @@ export default {
     };
   },
   created() {
-    this.getAuthors();
+    this.getAll();
   },
   methods: {
-    getAuthors() {
+    getAll() {
+      this.loading = true;
       GlobalService.GetByAuth(Endpoints.Admin.Author).then((res) => {
         this.authors = res.data;
+        this.loading = false;
       });
     },
     toggleGridMenu(event, data) {

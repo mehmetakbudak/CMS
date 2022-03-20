@@ -1,5 +1,4 @@
-﻿using CMS.Model.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CMS.Model.Dto
 {
@@ -14,7 +13,7 @@ namespace CMS.Model.Dto
         public List<MenuModel> Items { get; set; }
     }
 
-    public class MenuBarModel
+    public class MenubarModel
     {
         public int Id { get; set; }
 
@@ -22,6 +21,6 @@ namespace CMS.Model.Dto
 
         public string To { get; set; }
 
-        public List<MenuBarModel> Items { get; set; }
+        public List<MenubarModel> Items { get; set; }
     }
 }

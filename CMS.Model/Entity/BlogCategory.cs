@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
+    [Table("blog_categories")]
     public class BlogCategory : BaseEntityModel
     {
         public string Name { get; set; }

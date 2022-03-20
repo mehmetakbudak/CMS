@@ -1,11 +1,10 @@
-﻿namespace CMS.Model.Entity
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CMS.Model.Entity
 {
+    [Table("pages")]
     public class Page : BaseEntityModel
     {
-        public int? MenuId { get; set; }
-
-        public Menu Menu { get; set; }
-
         public string Url { get; set; }
 
         public string Name { get; set; }

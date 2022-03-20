@@ -1,7 +1,7 @@
 <template>
   <Card>
     <template #content>
-      <div class="col-md-4 offset-4 my-5">
+      <div class="col-md-4 offset-md-4 my-5">
         <div class="card" v-if="visibleLogin">
           <div class="card-header py-3">
             <h4>Giriş Yap</h4>

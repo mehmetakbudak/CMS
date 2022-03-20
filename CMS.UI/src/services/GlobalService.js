@@ -1,11 +1,10 @@
 import axios from 'axios';
 import authHeader from "./AuthHeader";
-import { API_URL } from "./Endpoints"; 
 
 export class GlobalService {
 
     AddApiUrl(endPoint) {
-        return API_URL + endPoint;
+        return process.env.VUE_APP_BASEURL + endPoint;
     }
 
     Get(url) {

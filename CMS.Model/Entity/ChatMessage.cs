@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
+    [Table("chat_messages")]
     public class ChatMessage : BaseEntityModel
     {
         public int ChatId { get; set; }

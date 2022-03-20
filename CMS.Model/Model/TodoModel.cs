@@ -14,7 +14,7 @@ namespace CMS.Model.Dto
         [Required(ErrorMessage = "Durum seçiniz.")]
         public int TodoStatusId { get; set; }
 
-        public int? AssignUserId { get; set; }
+        public int? UserId { get; set; }
 
         [Required(ErrorMessage = "Başlık zorunludur.")]
         public string Title { get; set; }

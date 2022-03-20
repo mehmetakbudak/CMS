@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CMS.Model.Model;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace CMS.Service.Helper
         {
             string description = string.Empty;
             Type type = e.GetType();
-            Array values = System.Enum.GetValues(type);
+            Array values = Enum.GetValues(type);
 
             foreach (int val in values)
             {
@@ -29,6 +31,27 @@ namespace CMS.Service.Helper
                 }
             }
             return description;
+        }
+
+        public static List<LookupModel> GetEnumLookup(Type type)
+        {
+            var list = new List<LookupModel>();
+            var names = Enum.GetNames(type);
+            foreach (var name in names)
+            {
+                var field = type.GetField(name);
+                var fds = field.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                foreach (DescriptionAttribute fd in fds)
+                {
+                    var model = new LookupModel()
+                    {
+                        Id = (int)field.GetRawConstantValue(),
+                        Name = fd.Description
+                    };
+                    list.Add(model);
+                }
+            }
+            return list;
         }
     }
 }

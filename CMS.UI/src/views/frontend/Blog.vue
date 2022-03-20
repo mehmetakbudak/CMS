@@ -2,11 +2,12 @@
   <div class="card mt-3">
     <div class="card-body">
       <div class="row">
-        <div class="col-md-9">
-          <div v-if="!visibleError">
+        <div class="col-md-9 mb-3">
+          <page-loading :loading="loading" />
+          <div v-if="!loading">
             <div class="row">
               <div class="col-md-9">
-                <h3 class="p-2">Blog - {{ blogCategory.name }}</h3>
+                <h3 class="p-2">{{ title }}</h3>
               </div>
               <div class="col-md-3">
                 <div class="p-inputgroup pe-2">
@@ -19,7 +20,7 @@
                 </div>
               </div>
             </div>
-            <div class="row">
+            <div class="row" v-if="!visibleError">
               <DataView
                 :value="blogCategory.blogs"
                 :layout="layout"
@@ -56,11 +57,14 @@
                     </div>
                   </div>
                 </template>
+                <template #empty
+                  ><p class="my-3 alert alert-info">Kayıt bulunamadı.</p>
+                </template>
               </DataView>
             </div>
-          </div>
-          <div v-if="visibleError">
-            <div class="alert alert-danger mt-3">{{ message }}</div>
+            <div v-if="visibleError">
+              <div class="alert alert-danger mt-3">{{ message }}</div>
+            </div>
           </div>
         </div>
         <div class="col-md-3">
@@ -84,20 +88,22 @@
               </template>
             </Listbox>
           </div>
-          <h5>Çok Okunanlar</h5>
-          <div class="my-4" v-for="item in mostReadList" :key="item.id">
-            <router-link
-              class="text-decoration-none"
-              :to="`/blog/${item.url}/${item.id}`"
-            >
-              <img
-                class="img-fluid w-100"
-                src="http://via.placeholder.com/268x180"
-              />
-              <div class="text-dark fw-bold mt-2">
-                {{ item.title }}
-              </div>
-            </router-link>
+          <div v-if="blogCategory?.blogs?.length > 0">
+            <h5>Çok Okunanlar</h5>
+            <div class="my-4" v-for="item in mostReadList" :key="item.id">
+              <router-link
+                class="text-decoration-none"
+                :to="`/blog/${item.url}/${item.id}`"
+              >
+                <img
+                  class="img-fluid w-100"
+                  src="http://via.placeholder.com/268x180"
+                />
+                <div class="text-dark fw-bold mt-2">
+                  {{ item.title }}
+                </div>
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
@@ -112,6 +118,8 @@ export default {
   data() {
     return {
       layout: "grid",
+      title: "",
+      loading: true,
       blogCategory: {},
       blogCategories: [],
       mostReadList: [],
@@ -134,6 +142,8 @@ export default {
         .then((res) => {
           this.blogCategory = res.data;
           this.mostRead();
+          this.title = "Blog - " + this.blogCategory.name;
+          this.loading = false;
         })
         .catch((e) => {
           this.visibleError = true;

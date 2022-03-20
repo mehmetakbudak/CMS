@@ -81,7 +81,7 @@ namespace CMS.Service
             return _unitOfWork.Repository<UserAccessRight>()
                 .Where(x => x.UserId == userId)
                 .Include(o => o.AccessRight)
-                .ToList();
+                .ThenInclude(x => x.AccessRightEndpoints).ToList();
         }
 
         public ServiceResult CreateOrUpdate(UserAccessRightModel model)

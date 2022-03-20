@@ -1,5 +1,6 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Model.Consts;
 using CMS.Model.Entity;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
@@ -47,61 +48,68 @@ namespace CMS.Service
 
             if (string.IsNullOrEmpty(url))
             {
-                throw new NotFoundException("Url bulunamadı.");
+                throw new NotFoundException(AlertMessages.NotFound);
             }
 
             var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
 
-            if (page != null)
-            {
-                result.Data = page;
-            }
-            else
+            if (page == null)
             {
                 throw new NotFoundException($"{url} ile sayfa bulunamadı.");
             }
+            result.Data = page;
             return result;
         }
 
         public ServiceResult Post(Page model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
-            if (model.Id == 0)
+            var isExist = _unitOfWork.Repository<Page>().Any(x => !x.Deleted && x.Url == model.Url);
+            if (isExist)
             {
-                model.Deleted = false;
-                _unitOfWork.Repository<Page>().Add(model);
-                _unitOfWork.Save();
+                throw new FoundException(AlertMessages.UrlAlreadyExist);
             }
+
+            model.Deleted = false;
+            _unitOfWork.Repository<Page>().Add(model);
+            _unitOfWork.Save();
+
             return serviceResult;
         }
 
         public ServiceResult Put(Page model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
             var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == model.Id);
-            if (page != null)
+            
+            if (page == null)
             {
-                page.Content = model.Content;
-                page.IsActive = model.IsActive;
-                page.MenuId = model.MenuId;
-                page.Name = model.Name;
-                page.Published = model.Published;
-                page.Title = model.Title;
-                page.Url = model.Url;
-                _unitOfWork.Save();
+                throw new NotFoundException(AlertMessages.NotFound);
             }
-            else
+
+            var isExist = _unitOfWork.Repository<Page>().Any(x => !x.Deleted && x.Id != model.Id && x.Url == model.Url);
+
+            if (isExist)
             {
-                throw new NotFoundException("Kayıt bulunamadı.");
+                throw new FoundException(AlertMessages.UrlAlreadyExist);
             }
+
+            page.Content = model.Content;
+            page.IsActive = model.IsActive;
+            page.Name = model.Name;
+            page.Published = model.Published;
+            page.Title = model.Title;
+            page.Url = model.Url;
+            _unitOfWork.Save();
+
             return serviceResult;
         }
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
             var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == id);
 

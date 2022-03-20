@@ -3,6 +3,7 @@ using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers
@@ -12,11 +13,20 @@ namespace CMS.Api.Controllers
     public class AccountController : ControllerBase
     {
         private IUserService _userService;
-        public AccountController(IUserService userService)
+        private readonly IMemoryCache _memoryCache;
+
+        public AccountController(IUserService userService,
+            IMemoryCache memoryCache)
         {
             _userService = userService;
+            _memoryCache = memoryCache;
         }
 
+        /// <summary>
+        /// Kullanıcı hesabı giriş işlemlerini yapar.
+        /// </summary>
+        /// <param name="login"></param>
+        /// <returns></returns>
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
@@ -24,6 +34,24 @@ namespace CMS.Api.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        /// <summary>
+        /// Kullanıcı hesabı çıkış işlemlerini yapar.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("Logout")]
+        [CMSAuthorize(CheckAccessRight = false)]
+        public IActionResult Logout()
+        {
+            string key = $"userMenu_{AuthTokenContent.Current.UserId}";
+            _memoryCache.Remove(key);
+            return Ok();
+        }
+
+        /// <summary>
+        /// Kullanıcının şifresini belirlemesi için yeni istek oluşturur.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
         {
@@ -31,6 +59,11 @@ namespace CMS.Api.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        /// <summary>
+        /// Şifresi belirlenmemiş kullanıcı hesabı için bilgileri döner.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         [HttpGet("ResetPassword/{code}")]
         public IActionResult ResetPassword(string code)
         {
@@ -38,6 +71,11 @@ namespace CMS.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Şifresi belirlenmemiş kullanıcı hesabının yeni şifresini günceller.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut("ResetPassword")]
         public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
         {
@@ -45,6 +83,10 @@ namespace CMS.Api.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        /// <summary>
+        /// Kullanıcının hesap bilgilerini döner.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Profile")]
         [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult GetProfile()
@@ -53,13 +95,11 @@ namespace CMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("MemberComments")]
-        [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult MemberComments()
-        {
-            return Ok();
-        }
-
+        /// <summary>
+        /// Kullanıcının hesap bilgilerini günceller.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut("Profile")]
         [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult UpdateProfile([FromBody] UserProfileModel model)
@@ -68,6 +108,11 @@ namespace CMS.Api.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        /// <summary>
+        /// Yeni üye kaydetmek için kullanılır.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost("AddMember")]
         public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
         {
@@ -75,6 +120,11 @@ namespace CMS.Api.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        /// <summary>
+        /// Şifre değişikliğini gerçekleştirir.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut("ChangePassword")]
         [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult ChangePassword([FromBody] ChangePasswordModel model)
@@ -83,6 +133,11 @@ namespace CMS.Api.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        /// <summary>
+        /// Email doğrulaması yapar.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         [HttpPut("EmailVerified/{code}")]
         public IActionResult EmailVerified(string code)
         {

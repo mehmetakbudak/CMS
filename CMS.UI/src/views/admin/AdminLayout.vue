@@ -13,6 +13,7 @@
             "
             icon="pi pi-th-large"
             @click="visibleLeft = true"
+            v-if="windowWidth < 768"
             :label="windowWidth > 768 ? 'Menü' : ''"
           />
           <Button
@@ -43,6 +44,7 @@
               v-if="menu.node.to != null"
               class="text-dark text-decoration-none"
               :to="menu.node?.to"
+              @click="selectTree"
             >
               {{ menu.node?.label }}
             </router-link>
@@ -78,7 +80,7 @@
           </div>
           <div class="col-md-9">
             <div class="mb-3">
-              <router-view :key="$route.fullPath"></router-view>
+              <router-view></router-view>
             </div>
           </div>
         </div>
@@ -130,6 +132,9 @@ export default {
           this.leftMenu = res.data;
         }
       );
+    },
+    selectTree() {
+      this.visibleLeft = false;
     },
   },
 };

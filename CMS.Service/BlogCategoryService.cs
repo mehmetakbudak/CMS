@@ -4,7 +4,6 @@ using CMS.Model.Consts;
 using CMS.Model.Entity;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -13,7 +12,6 @@ namespace CMS.Service
     public interface IBlogCategoryService
     {
         IQueryable<BlogCategory> GetAll();
-        List<LookupModel> Lookup();
         ServiceResult Post(BlogCategoryDtoModel model);
         ServiceResult Put(BlogCategoryDtoModel model);
     }
@@ -34,16 +32,7 @@ namespace CMS.Service
                 .OrderByDescending(x => x.Id)
                 .AsQueryable();
             return entity;
-        }
-
-        public List<LookupModel> Lookup()
-        {
-            return GetAll().Select(x => new LookupModel()
-            {
-                Id = x.Id,
-                Name = x.Name
-            }).ToList();
-        }
+        }       
 
         public ServiceResult Post(BlogCategoryDtoModel model)
         {

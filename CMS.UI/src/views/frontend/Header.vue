@@ -46,7 +46,7 @@ export default {
           },
           {
             label: "Hesabım",
-            to: "/uye/hesabim",
+            to: "/kullanici/hesabim",
           },
           {
             label: "Çıkış Yap",
@@ -60,7 +60,7 @@ export default {
         this.rightMenuItems = [
           {
             label: "Hesabım",
-            to: "/uye/hesabim",
+            to: "/kullanici/hesabim",
           },
           {
             label: "Çıkış Yap",

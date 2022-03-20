@@ -1,9 +1,9 @@
 <template>
-  <Card>
-    <template #title>
-      <div class="row mb-2">
+  <div class="card">
+    <div class="card-header bg-white py-3">
+      <div class="row">
         <div class="col-6">
-          <h4>{{ title }}</h4>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button
@@ -20,10 +20,11 @@
           />
         </div>
       </div>
-    </template>
-    <template #content>
-      <div class="border border-top-0" v-if="showGrid">
+    </div>
+    <div class="card-body">
+      <div v-if="showGrid">
         <DataTable
+          :loading="loading"
           showGridlines
           :value="todoCategories"
           :paginator="true"
@@ -82,18 +83,21 @@
           />
         </div>
       </div>
-    </template>
-  </Card>
+    </div>
+  </div>
 </template>
 
 <script>
+import AlertService from "../../../services/AlertService";
 import { Endpoints } from "../../../services/Endpoints";
 import GlobalService from "../../../services/GlobalService";
 
 export default {
   name: "name",
+  mixins: [AlertService],
   data() {
     return {
+      loading: false,
       showGrid: true,
       showForm: false,
       todoCategories: [],
@@ -103,6 +107,7 @@ export default {
       todoCategory: {
         id: 0,
         title: "",
+        isActive: true,
       },
       gridMenuItems: [
         {
@@ -143,13 +148,15 @@ export default {
     };
   },
   created() {
-    this.getTodoCategories();
+    this.getAll();
     this.reset();
   },
   methods: {
-    getTodoCategories() {
+    getAll() {
+      this.loading = true;
       GlobalService.GetByAuth(Endpoints.Admin.TodoCategory).then((res) => {
         this.todoCategories = res.data;
+        this.loading = false;
       });
     },
     toggleGridMenu(event, data) {
@@ -160,12 +167,45 @@ export default {
       this.showGrid = false;
       this.showForm = true;
       this.title = "Yeni Yapılacak Kategorisi Ekle";
-      this.todoCategory = {};
+      this.todoCategory = {
+        id: 0,
+        title: "",
+        isActive: true,
+      };
     },
     reset() {
       this.showForm = false;
       this.showGrid = true;
       this.title = "Yapılacak Kategorileri";
+    },
+    save() {
+      if (this.todoCategory.id == 0) {
+        GlobalService.PostByAuth(
+          Endpoints.Admin.TodoCategory,
+          this.todoCategory
+        )
+          .then((res) => {
+            this.successMessage(this, res.data.message);
+            this.reset();
+            this.getAll();
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      } else {
+        GlobalService.PutByAuth(
+          Endpoints.Admin.TodoCategory,
+          this.todoCategory
+        )
+          .then((res) => {
+            this.successMessage(this, res.data.message);
+            this.reset();
+            this.getAll();
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      }
     },
   },
 };

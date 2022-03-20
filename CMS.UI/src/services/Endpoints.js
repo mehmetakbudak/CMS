@@ -1,5 +1,3 @@
-export const API_URL = process.env.VUE_APP_BASEURL;
-
 export const Endpoints = {
     Admin: {
         Blog: "AdminBlog",
@@ -12,18 +10,24 @@ export const Endpoints = {
         TodoCategory: "AdminTodoCategory",
         Author: "AdminAuthor",
         Menu: "AdminMenu",
+        Comment: "AdminComment",
+        Contact: "AdminContact",
         Lookup: {
             Users: "AdminLookup/Users",
             TodoCategories: "AdminLookup/TodoCategories",
-            BlogCategories: "AdminLookup/BlogCategories"
+            BlogCategories: "AdminLookup/BlogCategories",
+            MethodTypes: "AdminLookup/MethodTypes"
         }
     },
     Blog: "Blog",
     BlogCategory: "BlogCategory",
     Author: "Author",
     Menu: "Menu",
+    Contact: "Contact",
+    Comment: "Comment",
     Account: {
         Login: "Account/Login",
+        Logout: "Account/Logout",
         ForgotPassword: "Account/ForgotPassword",
         Profile: "Account/Profile",
         AddMember: "Account/AddMember",
@@ -33,7 +37,6 @@ export const Endpoints = {
         ResetPassword: "Account/ResetPassword"
     },
     Lookup: {
-        Users: "Lookup/Users",
-        TodoCategories: "Lookup/TodoCategories",
+        ContactCategories: "Lookup/ContactCategories"
     }
 }

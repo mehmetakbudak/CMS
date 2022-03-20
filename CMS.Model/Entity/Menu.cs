@@ -1,8 +1,10 @@
 ﻿using CMS.Model.Enum;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
+    [Table("menus")]
     public class Menu : BaseEntityModel
     {
         public string Name { get; set; }
@@ -15,6 +17,6 @@ namespace CMS.Model.Entity
 
         public bool Deleted { get; set; }
 
-        public virtual ICollection<MenuItems> MenuItems { get; set; }
+        public virtual ICollection<MenuItem> MenuItems { get; set; }
     }
 }

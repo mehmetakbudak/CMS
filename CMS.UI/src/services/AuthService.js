@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { Endpoints } from './Endpoints';
-
-const API_URL = process.env.VUE_APP_BASEURL;
+import {
+    Endpoints
+} from './Endpoints';
+import GlobalService from "./GlobalService";
 
 class AuthService {
     login(user) {
-        return axios.post(API_URL + Endpoints.Account.Login, {
+        return GlobalService.Post(Endpoints.Account.Login, {
             emailAddress: user.emailAddress,
             password: user.password
         }).then(response => {
@@ -18,14 +18,6 @@ class AuthService {
 
     logout() {
         localStorage.removeItem('user');
-    }
-
-    register(user) {
-        return axios.post(API_URL + 'signup', {
-            nameSurname: user.nameSurname,
-            emailAddress: user.emailAddress,
-            password: user.password
-        });
     }
 }
 

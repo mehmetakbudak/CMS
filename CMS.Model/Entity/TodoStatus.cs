@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
+    [Table("todo_statuses")]
     public class TodoStatus : BaseEntityModel
     {
         public int TodoCategoryId { get; set; }

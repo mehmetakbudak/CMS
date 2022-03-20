@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
+    [Table("users")]
     public class User : BaseEntityModel
     {
         public UserStatus Status { get; set; }
@@ -12,6 +13,15 @@ namespace CMS.Model.Entity
         public string Name { get; set; }
 
         public string Surname { get; set; }
+
+        [NotMapped]
+        public string FullName
+        {
+            get
+            {
+                return $"{Name} {Surname}";
+            }
+        }
 
         public string EmailAddress { get; set; }
 

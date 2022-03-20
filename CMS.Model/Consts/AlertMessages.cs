@@ -7,6 +7,7 @@
         public const string Delete = "Silme işlemi başarıyla gerçekleşti.";
         public const string NotFound = "Kayıt bulunamadı";
         public const string UserNotFound = "Kullanıcı bulunamadı";
+        public const string UrlAlreadyExist = "Url ile daha önce kayıt mevcuttur.";
         public const string SuccessResetPassword = "Şifreniz başarıyla güncellendi. Tekrar giriş yapabilirsiniz.";
     }
 }

@@ -3,7 +3,7 @@
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-6">
-          <h4>{{ title }}</h4>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button

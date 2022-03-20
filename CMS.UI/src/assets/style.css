@@ -27,3 +27,11 @@
 .p-menubar .p-menuitem-link {
     padding: 0.5rem !important;
 }
+.p-button.p-button-icon-only{
+    width: 2rem !important;
+    padding: 0.25rem!important
+}
+
+.p-button.p-button-icon-only.p-button-rounded {
+    height: 2rem !important;
+}

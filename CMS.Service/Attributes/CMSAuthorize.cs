@@ -18,8 +18,8 @@ namespace CMS.Service.Attributes
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-
             ServiceResult result = new ServiceResult();
+            
             var userAccessRightService = (IUserAccessRightService)context.HttpContext.RequestServices.GetService(typeof(IUserAccessRightService));
 
             var jwtHelper = (IJwtHelper)context.HttpContext.RequestServices.GetService(typeof(IJwtHelper));
@@ -49,14 +49,16 @@ namespace CMS.Service.Attributes
                 if (CheckAccessRight && user.UserType != UserType.SuperAdmin)
                 {
                     var userAccessRights = userAccessRightService.GetByUserId(userId);
+
                     if (userAccessRights != null && userAccessRights.Any())
                     {
                         var accessRights = userAccessRights.Select(x => x.AccessRight).ToList();
 
                         var endpoint = context.HttpContext.Request.Path.Value.Replace("/api", "");
+
                         var method = context.HttpContext.Request.Method;
 
-                        var check = accessRights.Any(x => x.Endpoint.ToLower() == endpoint.ToLower() && x.Method == method && x.Type == AccessRightType.Operation);
+                        var check = accessRights.Any(x => x.AccessRightEndpoints.Any(a => a.Endpoint.ToLower() == endpoint.ToLower() && a.Method == method) && x.Type == AccessRightType.Operation);
 
                         if (!check)
                         {

@@ -7,9 +7,7 @@ namespace CMS.Model.Enum
         [Description("Süper Admin")]
         SuperAdmin = 1,
         [Description("Admin")]
-        Admin,
-        [Description("Kullanıcı")]
-        User,
+        Admin,       
         [Description("Üye")]
         Member
     }

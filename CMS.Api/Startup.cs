@@ -14,10 +14,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 
 namespace CMS.Api
 {
@@ -33,13 +36,12 @@ namespace CMS.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<CMSContext>(options => options.UseSqlite(Configuration.GetConnectionString("AppConnectionString")));
+            services.AddDbContext<CMSContext>(options => options.UseMySql(Configuration.GetConnectionString("AppConnectionString"), options => options.EnableRetryOnFailure()));
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            //services.AddScoped(typeof(IWebsiteParameterService<>), typeof(WebsiteParameterService<>));
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtHelper, JwtHelper>();
@@ -61,6 +63,8 @@ namespace CMS.Api
             services.AddScoped<IMailHelper, MailHelper>();
             services.AddScoped<IWebsiteParameterService, WebsiteParameterService>();
             services.AddScoped<IMailTemplateService, MailTemplateService>();
+            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<ILookupService, LookupService>();    
 
             services.ConfigureApplicationCookie(s =>
             {
@@ -106,7 +110,42 @@ namespace CMS.Api
 
             services.AddMemoryCache();
 
-            services.AddSwaggerGen();
+            #region Swagger
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "CMS API"
+                });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme."
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                     {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
+            #endregion
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -119,6 +158,9 @@ namespace CMS.Api
             app.ErrorHandler();
 
             app.UseRouting();
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             app.UseAuthorization();
 

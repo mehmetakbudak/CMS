@@ -1,9 +1,9 @@
 <template>
-  <Card>
-    <template #title>
-      <div class="row mb-2">
+  <div class="card">
+    <div class="card-header bg-white py-3">
+      <div class="row">
         <div class="col-6">
-          <h4>{{ title }}</h4>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button
@@ -20,10 +20,11 @@
           />
         </div>
       </div>
-    </template>
-    <template #content>
-      <div class="border border-top-0" v-if="showGrid">
+    </div>
+    <div class="card-body">
+      <div v-if="showGrid">
         <DataTable
+          :loading="loading"
           showGridlines
           :value="todoStatuses"
           :paginator="true"
@@ -77,6 +78,7 @@
                 optionLabel="name"
                 optionValue="id"
                 placeholder="Yapılacak Kategori seçiniz."
+                :loading="loading"
               />
             </div>
             <div class="mb-3">
@@ -104,18 +106,20 @@
           />
         </div>
       </div>
-    </template>
-  </Card>
+    </div>
+  </div>
 </template>
 
 <script>
+import AlertService from '../../../services/AlertService';
 import { Endpoints } from "../../../services/Endpoints";
 import GlobalService from "../../../services/GlobalService";
 
 export default {
-  name: "name",
+  mixins: [AlertService],
   data() {
     return {
+      loading: true,
       todoStatuses: [],
       todoCategories: [],
       showGrid: true,
@@ -127,6 +131,7 @@ export default {
         todoCategoryId: 0,
         title: "",
         displayOrder: 0,
+        isActive: true
       },
       gridMenuItems: [
         {
@@ -168,25 +173,38 @@ export default {
     };
   },
   created() {
-    this.getTodoStatuses();
+    this.getAll();
     this.reset();
   },
   methods: {
-    getTodoStatuses() {
+    getAll() {
+      this.loading = true;
       GlobalService.GetByAuth(Endpoints.Admin.TodoStatus).then((res) => {
         this.todoStatuses = res.data;
+        this.loading = false;
       });
     },
     getTodoCategories() {
-      GlobalService.GetByAuth(Endpoints.Lookup.TodoCategories).then((res) => {
-        this.todoCategories = res.data;
-      });
+      this.loading = true;
+      GlobalService.GetByAuth(Endpoints.Admin.Lookup.TodoCategories).then(
+        (res) => {
+          this.todoCategories = res.data;
+          this.loading = false;
+        }
+      );
     },
     add() {
       this.showGrid = false;
       this.showForm = true;
       this.title = "Yeni Yapılacak Durumu Ekle";
-      this.todoStatus = {};
+      this.getTodoCategories();
+      this.todoStatus = {
+        id: 0,
+        todoCategoryId: 0,
+        title: "",
+        displayOrder: 0,
+        isActive: true
+      };
     },
     toggleGridMenu(event, data) {
       this.selectedTodoStatus = data;
@@ -197,6 +215,35 @@ export default {
       this.showGrid = true;
       this.title = "Yapılacak Durumları";
     },
+    save(){
+      if (this.todoStatus.id == 0) {
+        GlobalService.PostByAuth(
+          Endpoints.Admin.TodoStatus,
+          this.todoStatus
+        )
+          .then((res) => {
+            this.successMessage(this, res.data.message);
+            this.reset();
+            this.getAll();
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      } else {
+        GlobalService.PutByAuth(
+          Endpoints.Admin.TodoStatus,
+          this.todoStatus
+        )
+          .then((res) => {
+            this.successMessage(this, res.data.message);
+            this.reset();
+            this.getAll();
+          })
+          .catch((e) => {
+            this.errorMessage(this, e.response.data.message);
+          });
+      }
+    }
   },
 };
 </script>

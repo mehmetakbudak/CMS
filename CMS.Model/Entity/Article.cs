@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
+    [Table("articles")]
     public class Article: BaseEntityModel
     {      
         public int ArticleCategoryId { get; set; }
@@ -24,7 +25,5 @@ namespace CMS.Model.Entity
         public bool IsActive { get; set; }
 
         public bool Deleted { get; set; }
-
-        public ICollection<Comment> Comment { get; set; }
     }
 }

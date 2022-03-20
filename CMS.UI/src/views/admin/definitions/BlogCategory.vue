@@ -3,7 +3,7 @@
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-6">
-          <h4>{{ title }}</h4>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button
@@ -24,6 +24,7 @@
     <div class="card-body">
       <div v-if="showGrid" class="py-3">
         <DataTable
+          :loading="loading"
           showGridlines
           :value="blogCategories"
           :paginator="true"
@@ -119,6 +120,7 @@ export default {
   mixins: [AlertService],
   data() {
     return {
+      loading: false,
       blogCategories: [],
       showGrid: true,
       showForm: false,
@@ -176,8 +178,10 @@ export default {
   },
   methods: {
     getAll() {
+      this.loading = true;
       GlobalService.GetByAuth(Endpoints.Admin.BlogCategory).then((res) => {
         this.blogCategories = res.data;
+        this.loading = false;
       });
     },
     add() {

@@ -9,68 +9,60 @@ namespace CMS.Api
     [Route("api/[controller]")]
     public class AdminLookupController : ControllerBase
     {
-        private readonly IContactCategoryService _contactCategoryService;
-        private readonly ITodoCategoryService _todoCategoryService;
-        private readonly ITodoStatusService _todoStatusService;
-        private readonly IUserService _userService;
-        private readonly IMenuService _menuService;
-        private readonly IBlogCategoryService _blogCategoryService;
+        private readonly ILookupService _lookupService;
 
         public AdminLookupController(
-            IContactCategoryService contactCategoryService,
-            ITodoCategoryService todoCategoryService,
-            ITodoStatusService todoStatusService,
-            IBlogCategoryService blogCategoryService,
-            IUserService userService,
-            IMenuService menuService)
+            ILookupService lookupService)
         {
-            _contactCategoryService = contactCategoryService;
-            _todoCategoryService = todoCategoryService;
-            _todoStatusService = todoStatusService;
-            _userService = userService;
-            _menuService = menuService;
-            _blogCategoryService = blogCategoryService; 
+            _lookupService = lookupService;
         }
 
         [HttpGet("ContactCategories")]
         public IActionResult GetContactCategories()
         {
-            var list = _contactCategoryService.Lookup();
+            var list = _lookupService.ContactCategories();
             return Ok(list);
         }       
 
         [HttpGet("TodoCategories")]
         public IActionResult GetTodoCategories()
         {
-            var list = _todoCategoryService.Lookup();
+            var list = _lookupService.TodoCategories();
             return Ok(list);
         }
 
         [HttpGet("TodoStatuses/{categoryId}")]
         public IActionResult GetTodoStatuses(int categoryId)
         {
-            var list = _todoStatusService.Lookup(categoryId);
+            var list = _lookupService.TodoStatuses(categoryId);
             return Ok(list);
         }
 
         [HttpGet("Users")]
         public IActionResult GetUsers()
         {
-            var list = _userService.Lookup();
+            var list = _lookupService.Users();
             return Ok(list);
         }
 
         [HttpGet("Menus")]
         public IActionResult GetMenus()
         {
-            var list = _menuService.Lookup();
+            var list = _lookupService.Menus();
             return Ok(list);
         }
 
         [HttpGet("BlogCategories")]
         public IActionResult GetBlogCategories()
         {
-            var list = _blogCategoryService.Lookup();
+            var list = _lookupService.BlogCategories();
+            return Ok(list);
+        }
+
+        [HttpGet("MethodTypes")]
+        public IActionResult GetMethodTypes()
+        {
+            var list = _lookupService.MethodTypes();
             return Ok(list);
         }
     }

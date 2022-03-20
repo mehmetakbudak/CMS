@@ -67,7 +67,7 @@ namespace CMS.Service
                 TodoStatusId = x.TodoStatusId,
                 TodoStatusName = x.TodoStatus.Name,
                 UpdatedDate = x.UpdatedDate,
-                AssignUserId = x.AssignUserId,
+                UserId = x.AssignUserId,
                 UserNameSurname = x.AssignUser.Name + " " + x.AssignUser.Surname
             }).OrderByDescending(x => x.Id).ToList();
             return list;
@@ -92,7 +92,7 @@ namespace CMS.Service
                     TodoStatusId = x.TodoStatusId,
                     TodoStatusName = x.TodoStatus.Name,
                     UpdatedDate = x.UpdatedDate,
-                    AssignUserId = x.AssignUserId,
+                    UserId = x.AssignUserId,
                     UserNameSurname = x.AssignUser.Name + " " + x.AssignUser.Surname
                 })
                 .OrderByDescending(x => x.Id)
@@ -114,7 +114,7 @@ namespace CMS.Service
                     TodoCategoryId = model.TodoCategoryId,
                     Title = model.Title,
                     TodoStatusId = model.TodoStatusId,
-                    AssignUserId = model.AssignUserId
+                    AssignUserId = model.UserId
                 };
                 _unitOfWork.Repository<Todo>().Add(todo);
                 _unitOfWork.Save();
@@ -137,7 +137,7 @@ namespace CMS.Service
                 todo.TodoCategoryId = model.TodoCategoryId;
                 todo.TodoStatusId = model.TodoStatusId;
                 todo.UpdatedDate = DateTime.Now;
-                todo.AssignUserId = model.AssignUserId;
+                todo.AssignUserId = model.UserId;
                 _unitOfWork.Save();
             }
             else

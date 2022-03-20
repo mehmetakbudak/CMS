@@ -1,4 +1,6 @@
-﻿namespace CMS.Model.Enum
+﻿using System.ComponentModel;
+
+namespace CMS.Model.Enum
 {
     public enum AccessRightType
     {
@@ -8,9 +10,13 @@
 
     public enum MethodType
     {
+        [Description("GET")]
         GET = 1,
+        [Description("POST")]
         POST,
+        [Description("PUT")]
         PUT,
+        [Description("DELETE")]
         DELETE
     }
 }

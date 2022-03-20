@@ -1,7 +1,10 @@
-﻿using CMS.Model.Model;
+﻿using CMS.Model.Enum;
+using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CMS.Api.Admin
@@ -11,7 +14,7 @@ namespace CMS.Api.Admin
     [Route("api/[controller]")]
     public class AdminUserController : ControllerBase
     {
-        private IUserService userService;
+        private readonly IUserService userService;
 
         public AdminUserController(IUserService userService)
         {
@@ -35,15 +38,15 @@ namespace CMS.Api.Admin
         [HttpPut]
         public IActionResult Put([FromBody] UserModel model)
         {
-            var result = userService.Put(model);
+            var result = userService.Put(model);           
             return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var result = userService.Delete(id);
+            var result = userService.Delete(id);           
             return StatusCode((int)result.StatusCode, result);
-        }       
+        }
     }
 }

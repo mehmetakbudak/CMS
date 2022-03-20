@@ -3,7 +3,7 @@
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-6">
-          <h4>{{ title }}</h4>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
           <Button
@@ -24,6 +24,7 @@
     <div class="card-body">
       <div v-if="showGrid">
         <DataTable
+          :loading="loading"
           showGridlines
           :value="users"
           :paginator="true"
@@ -47,6 +48,7 @@
           <Column field="surname" header="Soyadı"></Column>
           <Column field="emailAddress" header="Email Adresi"></Column>
           <Column field="userTypeName" header="Kullanıcı Tipi"></Column>
+          <Column field="status" header="Durumu"></Column>
           <Column field="isActive" header="Aktif">
             <template #body="slotProps">
               <div>
@@ -68,6 +70,8 @@
                 class="w-100"
               />
             </div>
+          </div>
+          <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label">Soyadı</label>
               <InputText
@@ -77,6 +81,8 @@
                 class="w-100"
               />
             </div>
+          </div>
+          <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label">Email Adresi</label>
               <InputText
@@ -86,6 +92,8 @@
                 class="w-100"
               />
             </div>
+          </div>
+          <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label">Tipi</label>
               <Dropdown
@@ -97,6 +105,8 @@
                 placeholder="Kullanıcı tipi seçiniz."
               />
             </div>
+          </div>
+          <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label">Aktif</label>
               <div>
@@ -121,37 +131,27 @@
 <script>
 import GlobalService from "../../../services/GlobalService";
 import { Endpoints } from "../../../services/Endpoints";
+import { Constants } from "../../../models/Constants";
+import AlertService from "../../../services/AlertService";
 
 export default {
+  mixins: [AlertService],
   data() {
     return {
+      loading: true,
       showGrid: true,
       showForm: false,
       title: "",
       users: [],
       exceptions: [],
       selectedUser: {},
-      userTypes: [
-        {
-          value: 1,
-          name: "Süper Admin",
-        },
-        {
-          value: 2,
-          name: "Admin",
-        },
-        {
-          value: 3,
-          name: "Kullanıcı",
-        },
-      ],
+      userTypes: Constants.UserTypes,
       user: {
         id: 0,
         name: "",
         surname: "",
         emailAddress: "",
         userType: 0,
-        userTypeName: "",
         isActive: true,
       },
       gridMenuItems: [
@@ -193,8 +193,10 @@ export default {
   },
   methods: {
     getUsers() {
+      this.loading = true;
       GlobalService.GetByAuth(Endpoints.Admin.User).then((res) => {
         this.users = res.data;
+        this.loading = false;
       });
     },
     toggleGridMenu(event, data) {
@@ -209,22 +211,24 @@ export default {
     },
     save() {
       if (this.user.id == 0) {
-        GlobalService.PostByAuth(Endpoints.Admin.User)
-          .then(() => {
+        GlobalService.PostByAuth(Endpoints.Admin.User, this.user)
+          .then((res) => {
             this.getUsers();
             this.reset();
+            this.successMessage(this, res.data.message);
           })
           .catch((e) => {
-            this.exceptions = e.response.data.exceptions;
+            this.errorMessage(this, e.response.data.message);
           });
       } else {
-        GlobalService.PutByAuth(Endpoints.Admin.User)
-          .then(() => {
+        GlobalService.PutByAuth(Endpoints.Admin.User, this.user)
+          .then((res) => {
             this.getUsers();
             this.reset();
+            this.successMessage(this, res.data.message);
           })
           .catch((e) => {
-            this.exceptions = e.response.data.exceptions;
+            this.errorMessage(this, e.response.data.message);
           });
       }
     },
@@ -235,7 +239,6 @@ export default {
         surname: "",
         emailAddress: "",
         userType: 0,
-        userTypeName: "",
         isActive: true,
       };
       this.showForm = false;

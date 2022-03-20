@@ -1,7 +1,7 @@
 <template>
   <Card>
     <template #content>
-      <div class="col-md-4 offset-4">
+      <div class="col-md-4 offset-md-4">
         <div class="card">
           <div class="card-header py-3">
             <h4>Üye Ol</h4>

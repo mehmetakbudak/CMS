@@ -36,7 +36,7 @@ namespace CMS.Api
             if (memoryCache.TryGetValue(key, out object menus))
                 return Ok(menus);
 
-            menus = menuService.GetFrontEndMenu();
+            menus = menuService.GetFrontendMenu();
             memoryCache.Set(key, menus, new MemoryCacheEntryOptions
             {
                 Priority = CacheItemPriority.Normal

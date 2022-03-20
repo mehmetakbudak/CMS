@@ -1,5 +1,8 @@
-﻿namespace CMS.Model.Entity
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CMS.Model.Entity
 {
+    [Table("user_access_rights")]
     public class UserAccessRight : BaseEntityModel
     {
         public int UserId { get; set; }
