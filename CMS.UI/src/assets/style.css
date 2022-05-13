@@ -27,11 +27,28 @@
 .p-menubar .p-menuitem-link {
     padding: 0.5rem !important;
 }
-.p-button.p-button-icon-only{
+
+.p-button.p-button-icon-only {
     width: 2rem !important;
-    padding: 0.25rem!important
+    padding: 0.25rem !important
 }
 
 .p-button.p-button-icon-only.p-button-rounded {
     height: 2rem !important;
+}
+
+.bg-body {
+    background-color: #edf1f5 !important;
+}
+
+.py-50 {
+    padding: 50px 0 !important;
+}
+
+.py-100 {
+    padding: 100px 0 !important;
+}
+
+.border-radius {
+    border-radius: 0.25rem !important;
 }

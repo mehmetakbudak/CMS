@@ -2,7 +2,6 @@
 
 namespace CMS.Model.Entity
 {
-    [Table("selected_blog_categories")]
     public class SelectedBlogCategory : BaseEntityModel
     {
         public int BlogId { get; set; }

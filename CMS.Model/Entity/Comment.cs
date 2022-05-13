@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
-    [Table("comments")]
     public class Comment : BaseEntityModel
     {
         public int? ParentId { get; set; }

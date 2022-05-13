@@ -22,6 +22,7 @@ namespace CMS.Service
     public class PageService : IPageService
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
+
         public PageService(IUnitOfWork<CMSContext> unitOfWork)
         {
             _unitOfWork = unitOfWork;

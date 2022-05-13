@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
-    [Table("blogs")]
     public class Blog : BaseEntityModel
     {
         public string Url { get; set; }

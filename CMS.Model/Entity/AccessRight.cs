@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
-    [Table("access_rights")]
     public class AccessRight : BaseEntityModel
     {
         public int? ParentId { get; set; }

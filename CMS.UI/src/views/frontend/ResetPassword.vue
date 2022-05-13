@@ -79,7 +79,7 @@ export default {
     save() {
       GlobalService.Put(`${Endpoints.Account.ResetPassword}`, this.data)
         .then((res) => {
-          this.successMessage(this, res.data.message);
+          this.successMessage( res.data.message);
           this.$router.push({ path: "/giris" });
         })
         .catch((e) => {

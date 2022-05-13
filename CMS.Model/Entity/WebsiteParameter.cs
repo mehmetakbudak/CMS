@@ -2,7 +2,6 @@
 
 namespace CMS.Model.Entity
 {
-    [Table("web_site_parameters")]
     public class WebsiteParameter : BaseEntityModel
     {
         public int? ParentId { get; set; }

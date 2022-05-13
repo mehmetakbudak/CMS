@@ -60,7 +60,7 @@ export default {
     save() {
       GlobalService.PutByAuth(Endpoints.Account.ChangePassword, this.data)
         .then(() => {
-          this.successMessage(this, "Şifre başarıyla güncellendi.");
+          this.successMessage( "Şifre başarıyla güncellendi.");
           this.data = {
             oldPassword: "",
             newPassword: "",
@@ -68,7 +68,7 @@ export default {
           };
         })
         .catch((error) => {
-          this.errorMessage(this, error.response.data.message);
+          this.errorMessage( error.response.data.message);
         });
     },
   },

@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
-    [Table("users")]
     public class User : BaseEntityModel
     {
         public UserStatus Status { get; set; }

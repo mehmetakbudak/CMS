@@ -19,16 +19,16 @@ namespace CMS.Service
 
     public class AuthorService : IAuthorService
     {
-        private readonly IUnitOfWork<CMSContext> unitOfWork;
+        private readonly IUnitOfWork<CMSContext> _unitOfWork;
 
         public AuthorService(IUnitOfWork<CMSContext> unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         public IQueryable<Author> GetAll()
         {
-            var entity = unitOfWork.Repository<Author>()
+            var entity = _unitOfWork.Repository<Author>()
                 .Where(x =>
                 !x.Deleted && x.IsActive);
             return entity;
@@ -54,8 +54,8 @@ namespace CMS.Service
                     Resume = model.Resume,
 
                 };
-                unitOfWork.Repository<Author>().Add(entity);
-                unitOfWork.Save();
+                _unitOfWork.Repository<Author>().Add(entity);
+                _unitOfWork.Save();
             }
             return serviceResult;
         }
@@ -64,7 +64,7 @@ namespace CMS.Service
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
 
-            var entity = unitOfWork.Repository<Author>()
+            var entity = _unitOfWork.Repository<Author>()
                 .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
 
             if (entity != null)
@@ -73,8 +73,8 @@ namespace CMS.Service
                 entity.Surname = model.Surname;
                 entity.Resume = model.Resume;
                 entity.IsActive = model.IsActive;
-                unitOfWork.Repository<Author>().Update(entity);
-                unitOfWork.Save();
+                _unitOfWork.Repository<Author>().Update(entity);
+                _unitOfWork.Save();
             }
             else
             {
@@ -85,16 +85,15 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Delete };
+            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Delete };
 
-            var entity = unitOfWork.Repository<Author>()
-                .FirstOrDefault(x => x.Id == id && !x.Deleted);
+            var entity = _unitOfWork.Repository<Author>().FirstOrDefault(x => x.Id == id && !x.Deleted);
 
             if (entity != null)
             {
                 entity.Deleted = true;
-                unitOfWork.Repository<Author>().Update(entity);
-                unitOfWork.Save();
+                _unitOfWork.Repository<Author>().Update(entity);
+                _unitOfWork.Save();
             }
             else
             {

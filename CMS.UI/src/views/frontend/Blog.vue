@@ -10,7 +10,7 @@
                 <h3 class="p-2">{{ title }}</h3>
               </div>
               <div class="col-md-3">
-                <div class="p-inputgroup pe-2">
+                <div class="p-inputgroup">
                   <InputText placeholder="Ara" v-model="searchText" />
                   <Button
                     icon="pi pi-search"

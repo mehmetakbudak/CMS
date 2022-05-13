@@ -349,7 +349,7 @@ export default {
           );
         })
         .catch((e) => {
-          this.errorMessage(this, e.response.data.message);
+          this.errorMessage( e.response.data.message);
         });
     },
     dateFormatValue(value) {

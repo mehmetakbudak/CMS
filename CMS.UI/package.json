@@ -12,6 +12,8 @@
         "axios": "^0.21.1",
         "bootstrap": "5.1.3",
         "core-js": "^3.6.5",
+        "devextreme": "21.2.7",
+        "devextreme-vue": "21.2.7",
         "primeflex": "2.0.0",
         "primeicons": "latest",
         "primevue": "3.12.0",

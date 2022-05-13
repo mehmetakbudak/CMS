@@ -35,17 +35,14 @@ namespace CMS.Service
 
     public class AccessRightService : IAccessRightService
     {
-        private readonly IUserAccessRightService _userAccessRightService;
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
         private readonly IMemoryCache _memoryCache;
 
 
         public AccessRightService(
-            IUserAccessRightService userAccessRightService,
             IUnitOfWork<CMSContext> unitOfWork,
             IMemoryCache memoryCache)
         {
-            _userAccessRightService = userAccessRightService;
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
         }

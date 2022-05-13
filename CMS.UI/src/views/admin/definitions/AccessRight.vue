@@ -294,10 +294,10 @@ export default {
                 )
                   .then((res) => {
                     this.getAll();
-                    this.successMessage(this, res.data.message);
+                    this.successMessage( res.data.message);
                   })
                   .catch((e) => {
-                    this.errorMessage(this, e.response.data.message);
+                    this.errorMessage( e.response.data.message);
                   });
               },
             });
@@ -346,10 +346,10 @@ export default {
                 )
                   .then((res) => {
                     this.getAll();
-                    this.successMessage(this, res.data.message);
+                    this.successMessage( res.data.message);
                   })
                   .catch((e) => {
-                    this.errorMessage(this, e.response.data.message);
+                    this.errorMessage( e.response.data.message);
                   });
               },
             });
@@ -430,11 +430,11 @@ export default {
           .then((res) => {
             this.getAll();
             this.activeIndex = 0;
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
             this.displayMenuModal = false;
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       } else {
         GlobalService.PutByAuth(
@@ -444,11 +444,11 @@ export default {
           .then((res) => {
             this.getAll();
             this.activeIndex = 0;
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
             this.displayMenuModal = false;
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       }
     },
@@ -467,11 +467,11 @@ export default {
           .then((res) => {
             this.getAll();
             this.activeIndex = 1;
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
             this.displayOperationModal = false;
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       } else {
         GlobalService.PutByAuth(
@@ -481,11 +481,11 @@ export default {
           .then((res) => {
             this.getAll();
             this.activeIndex = 1;
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
             this.displayOperationModal = false;
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       }
     },

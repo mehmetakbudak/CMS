@@ -2,7 +2,6 @@
 
 namespace CMS.Model.Entity
 {
-    [Table("access_right_endpoints")]
     public class AccessRightEndpoint : BaseEntityModel
     {
         public int AccessRightId { get; set; }

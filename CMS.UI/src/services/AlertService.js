@@ -1,26 +1,24 @@
+import notify from "devextreme/ui/notify";
+
 export default {
-    data() {
-        return {
-            hello: "Merhaba",
-            asd: this
-        }
-    },
     methods: {
-        successMessage(e, message) {
-            e.$toast.add({
-                severity: "success",
-                summary: "İşlem Başarılı",
-                detail: message,
-                life: 5000
-            });
+        successMessage(message) {
+            if (message) {
+                notify({
+                    message: message,
+                    width: 500,
+                    position: "top"
+                }, "success", 3000);
+            }
         },
-        errorMessage(e, message) {
-            e.$toast.add({
-                severity: "error",
-                summary: "İşlem Başarısız",
-                detail: message,
-                life: 5000
-            });
+        errorMessage(message) {
+            if (message) {
+                notify({
+                    message: message,
+                    width: 500,
+                    position: "top"
+                }, "error", 3000);
+            }
         }
     }
 }

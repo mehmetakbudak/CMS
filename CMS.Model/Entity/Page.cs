@@ -2,7 +2,6 @@
 
 namespace CMS.Model.Entity
 {
-    [Table("pages")]
     public class Page : BaseEntityModel
     {
         public string Url { get; set; }

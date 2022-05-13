@@ -160,10 +160,10 @@ export default {
                 )
                   .then((res) => {
                     this.getAll();
-                    this.successMessage(this, res.data.message);
+                    this.successMessage( res.data.message);
                   })
                   .catch((e) => {
-                    this.errorMessage(this, e.response.data.message);
+                    this.errorMessage( e.response.data.message);
                   });
               },
             });
@@ -222,12 +222,12 @@ export default {
           this.todoStatus
         )
           .then((res) => {
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
             this.reset();
             this.getAll();
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       } else {
         GlobalService.PutByAuth(
@@ -235,12 +235,12 @@ export default {
           this.todoStatus
         )
           .then((res) => {
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
             this.reset();
             this.getAll();
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       }
     }

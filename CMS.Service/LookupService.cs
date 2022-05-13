@@ -23,6 +23,7 @@ namespace CMS.Service
     public class LookupService : ILookupService
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
+
         public LookupService(IUnitOfWork<CMSContext> unitOfWork)
         {
             _unitOfWork = unitOfWork;

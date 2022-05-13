@@ -1,31 +1,36 @@
 <template>
   <div class="card">
     <div class="card-header bg-white py-3">
-      <h5>Hesabım</h5>
+      <h3>Hesabım</h3>
     </div>
     <div class="card-body">
       <div class="row p-3">
         <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Email Adresi</label>
-            <InputText
-              disabled
-              class="w-100"
-              type="email"
-              v-model="data.emailAddress"
-            />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Adı</label>
-            <InputText class="w-100" type="text" v-model="data.name" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Soyadı</label>
-            <InputText class="w-100" type="text" v-model="data.surname" />
-          </div>
-          <div class="mb-3">
-            <Button type="submit" label="Kaydet" @click="save"></Button>
-          </div>
+          <form @submit="save">
+            <div class="mb-3">
+              <label class="form-label">Email Adresi</label>
+              <DxTextBox
+                v-model:value="user.emailAddress"
+                mode="text"
+                :disabled="true"
+              ></DxTextBox>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Adı</label>
+              <DxTextBox v-model:value="user.name" mode="text"></DxTextBox>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Soyadı</label>
+              <DxTextBox v-model:value="user.surname" mode="text"></DxTextBox>
+            </div>
+            <div class="mb-3">
+              <DxButton
+                text="Kaydet"
+                type="default"
+                :use-submit-behavior="true"
+              />
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -33,14 +38,20 @@
 </template>
 
 <script>
+import { DxButton } from "devextreme-vue/button";
+import { DxTextBox } from "devextreme-vue/text-box";
 import AlertService from "../../services/AlertService";
 import { Endpoints } from "../../services/Endpoints";
 import GlobalService from "../../services/GlobalService";
 export default {
   mixins: [AlertService],
+  components: {
+    DxButton,
+    DxTextBox,
+  },
   data() {
     return {
-      data: {
+      user: {
         emailAddress: "",
         name: "",
         surname: "",
@@ -49,22 +60,20 @@ export default {
   },
   created() {
     GlobalService.GetByAuth(Endpoints.Account.Profile).then((res) => {
-      this.data = res.data;
+      this.user = res.data;
     });
   },
   methods: {
-    save() {
-      GlobalService.PutByAuth(Endpoints.Account.Profile, this.data)
+    save(e) {
+      e.preventDefault();
+      GlobalService.PutByAuth(Endpoints.Account.Profile, this.user)
         .then((res) => {
-          this.successMessage(this, res.data.message);
+          this.successMessage( res.data.message);
         })
         .catch((error) => {
-          this.errorMessage(this, error.response.data.message);
+          this.errorMessage( error.response.data.message);
         });
     },
   },
 };
 </script>
-
-<style>
-</style>

@@ -377,10 +377,10 @@ export default {
                 )
                   .then((res) => {
                     this.getAll();
-                    this.successMessage(this, res.data.message);
+                    this.successMessage( res.data.message);
                   })
                   .catch((e) => {
-                    this.errorMessage(this, e.response.data.message);
+                    this.errorMessage( e.response.data.message);
                   });
               },
             });
@@ -460,20 +460,20 @@ export default {
           .then((res) => {
             this.getAll();
             this.reset();
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       } else {
         GlobalService.PutByAuth(Endpoints.Admin.Todo, this.todo)
           .then((res) => {
             this.getAll();
             this.reset();
-            this.successMessage(this, res.data.message);
+            this.successMessage( res.data.message);
           })
           .catch((e) => {
-            this.errorMessage(this, e.response.data.message);
+            this.errorMessage( e.response.data.message);
           });
       }
     },

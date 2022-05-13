@@ -14,7 +14,6 @@ import BlogDetail from "./views/frontend/BlogDetail.vue";
 import Contact from "./views/frontend/Contact.vue";
 import Login from "./views/frontend/Login.vue";
 import Register from "./views/frontend/Register.vue";
-import FAQ from "./views/frontend/FAQ.vue";
 import EmailVerify from './views/frontend/EmailVerify.vue';
 import ResetPassword from './views/frontend/ResetPassword.vue';
 
@@ -87,17 +86,7 @@ const routes = [{
         path: "/uye-ol",
         name: "Register",
         component: Register
-      },
-      {
-        path: "/sss",
-        name: "FAQ",
-        component: FAQ,
-      },
-      {
-        path: "/sss/:categoryUrl",
-        name: "FAQWithCategory",
-        component: FAQ,
-      },
+      },    
       {
         path: "/email-dogrulama/:code",
         name: "EmailVerify",

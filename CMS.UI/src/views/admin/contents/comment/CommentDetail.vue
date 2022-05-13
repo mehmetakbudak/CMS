@@ -131,10 +131,10 @@ export default {
           })
             .then(() => {
               this.$router.push(`/admin/icerikler/yorumlar`);
-              this.successMessage(this, "Yorum başarıyla onaylandı.");
+              this.successMessage( "Yorum başarıyla onaylandı.");
             })
             .catch((e) => {
-              this.errorMessage(this, e.response.data.message);
+              this.errorMessage( e.response.data.message);
             });
         },
       });
@@ -153,10 +153,10 @@ export default {
           })
             .then(() => {
               this.$router.push(`/admin/icerikler/yorumlar`);
-              this.successMessage(this, "Yorum başarıyla reddedildi.");
+              this.successMessage( "Yorum başarıyla reddedildi.");
             })
             .catch((e) => {
-              this.errorMessage(this, e.response.data.message);
+              this.errorMessage( e.response.data.message);
             });
         },
       });
@@ -172,10 +172,10 @@ export default {
           GlobalService.DeleteByAuth(Endpoints.Admin.Comment, this.id)
             .then((res) => {
               this.$router.push(`/admin/icerikler/yorumlar`);
-              this.successMessage(this, res.data.message);
+              this.successMessage( res.data.message);
             })
             .catch((e) => {
-              this.errorMessage(this, e.response.data.message);
+              this.errorMessage( e.response.data.message);
             });
         },
       });

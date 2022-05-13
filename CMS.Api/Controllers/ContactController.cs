@@ -8,16 +8,16 @@ namespace CMS.Api
     [Route("api/[controller]")]
     public class ContactController : ControllerBase
     {
-        private readonly IContactService contactService;
+        private readonly IContactService _contactService;
         public ContactController(IContactService contactService)
         {
-            this.contactService = contactService;
+            _contactService = contactService;
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] ContactModel model)
         {
-            var result = contactService.Post(model);
+            var result = _contactService.Post(model);
             return StatusCode((int)result.StatusCode, result);
         }
     }

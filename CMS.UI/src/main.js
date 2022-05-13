@@ -2,6 +2,7 @@ import 'primeflex/primeflex.css';
 import 'primevue/resources/themes/bootstrap4-light-blue/theme.css';
 import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
+import 'devextreme/dist/css/dx.light.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
 import "./assets/style.css";

@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
-    [Table("chats")]
     public class Chat : BaseEntityModel
     {
         public Guid Code { get; set; }

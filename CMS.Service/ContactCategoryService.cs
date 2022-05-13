@@ -21,8 +21,7 @@ namespace CMS.Service
 
         public IQueryable<ContactCategory> GetAll()
         {
-            return _unitOfWork.Repository<ContactCategory>()
-                .Where(x => !x.Deleted);
-        }        
+            return _unitOfWork.Repository<ContactCategory>().Where(x => !x.Deleted);
+        }
     }
 }

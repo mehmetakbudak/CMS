@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
-    [Table("articles")]
     public class Article: BaseEntityModel
     {      
         public int ArticleCategoryId { get; set; }

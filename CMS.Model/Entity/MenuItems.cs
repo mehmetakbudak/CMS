@@ -2,7 +2,6 @@
 
 namespace CMS.Model.Entity
 {
-    [Table("menu_items")]
     public class MenuItem : BaseEntityModel
     {
         public int MenuId { get; set; }
