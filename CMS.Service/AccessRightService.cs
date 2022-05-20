@@ -62,9 +62,8 @@ namespace CMS.Service
                 {
                     model.OperationAccessRights = operationAccessRights.Select(x => new TreeModel
                     {
-                        Key = x.Id,
-                        Label = x.Name,
-                        Children = GetSubAccessRights(x.Id, accessRights)
+                        Title = x.Name,
+                        Items = GetSubAccessRights(x.Id, accessRights)
                     }).ToList();
                 }
 
@@ -75,9 +74,8 @@ namespace CMS.Service
                 {
                     model.MenuAccessRights = menuAccessRights.Select(x => new TreeModel
                     {
-                        Key = x.Id,
-                        Label = x.Name,
-                        Children = GetSubAccessRights(x.Id, accessRights)
+                        Title = x.Name,
+                        Items = GetSubAccessRights(x.Id, accessRights)
                     }).ToList();
                 }
             }
@@ -124,9 +122,8 @@ namespace CMS.Service
             {
                 list = items.Select(x => new TreeModel
                 {
-                    Key = x.Id,
-                    Label = x.Name,
-                    Children = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
+                    Title = x.Name,
+                    Items = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
                 }).ToList();
             }
             return list;
@@ -174,8 +171,8 @@ namespace CMS.Service
                         .OrderBy(x => x.DisplayOrder)
                         .Select(x => new TreeMenuModel()
                         {
-                            Key = x.Id,
-                            Label = x.Name,
+                            Id = x.Id,
+                            Title = x.Name,
                             To = x.AccessRightEndpoints.Select(x => x.Endpoint).FirstOrDefault()
                         }).ToList();
 
@@ -183,10 +180,10 @@ namespace CMS.Service
 
             foreach (var menuItem in menuItems)
             {
-                var items = GetAdminMenu(accessRights, menuItem.Key, menuItems);
+                var items = GetAdminMenu(accessRights, menuItem.Id, menuItem.Items);
                 if (items != null && items.Count > 0)
                 {
-                    menuItem.Children = items;
+                    menuItem.Items = items;
                 }
             }
             return list;

@@ -77,9 +77,8 @@ namespace CMS.Service
                 .Include(x => x.Menu)
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x => new TreeDataModel
-                {
-                    Key = x.Id,
-                    Label = x.Title,
+                {                     
+                    Title = x.Title,
                     To = x.Url,
                     DisplayOrder = x.DisplayOrder,
                     ParentId = x.ParentId,
@@ -90,10 +89,10 @@ namespace CMS.Service
 
             foreach (var menuItem in list)
             {
-                var items = GetFrontendTreeMenu(menuItem.Key, list);
+                var items = GetFrontendTreeMenu(menuItem.Id, list);
                 if (items != null && items.Count > 0)
                 {
-                    menuItem.Children = items;
+                    menuItem.Items = items;
                 }
             }
             return menuItems;
@@ -112,7 +111,7 @@ namespace CMS.Service
                 IsActive = model.IsActive,
                 MenuId = menu.Id,
                 ParentId = model.ParentId,
-                Title = model.Label,
+                Title = model.Title,
                 Url = model.To
             };
             _unitOfWork.Repository<MenuItem>().Add(menuItem);
@@ -127,7 +126,7 @@ namespace CMS.Service
             var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
 
             var menuItem = _unitOfWork.Repository<MenuItem>()
-                .Where(x => !x.Deleted && x.Id == model.Key && x.Menu.Type == MenuType.FrontEnd)
+                .Where(x => !x.Deleted && x.Id == model.Id && x.Menu.Type == MenuType.FrontEnd)
                 .Include(x => x.Menu)
                 .FirstOrDefault();
 
@@ -135,7 +134,7 @@ namespace CMS.Service
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
-            menuItem.Title = model.Label;
+            menuItem.Title = model.Title;
             menuItem.DisplayOrder = model.DisplayOrder;
             menuItem.Url = model.To;
             menuItem.IsActive = model.IsActive;

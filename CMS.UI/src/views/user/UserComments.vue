@@ -3,9 +3,10 @@
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-md-6">
-          <h5>Yorumlarım</h5>
+          <h3>Yorumlarım</h3>
         </div>
         <div class="col-md-6">
+          
           <Dropdown
             class="float-end"
             v-model="type"

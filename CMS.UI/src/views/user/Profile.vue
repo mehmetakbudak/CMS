@@ -13,15 +13,24 @@
                 v-model:value="user.emailAddress"
                 mode="text"
                 :disabled="true"
-              ></DxTextBox>
+              >
+              </DxTextBox>
             </div>
             <div class="mb-3">
               <label class="form-label">Adı</label>
-              <DxTextBox v-model:value="user.name" mode="text"></DxTextBox>
+              <DxTextBox v-model:value="user.name" mode="text">
+                <DxValidator>
+                  <DxRequiredRule message="Adı gereklidir." />
+                </DxValidator>
+              </DxTextBox>
             </div>
             <div class="mb-3">
               <label class="form-label">Soyadı</label>
-              <DxTextBox v-model:value="user.surname" mode="text"></DxTextBox>
+              <DxTextBox v-model:value="user.surname" mode="text">
+                <DxValidator>
+                  <DxRequiredRule message="Soyadı gereklidir." />
+                </DxValidator>
+              </DxTextBox>
             </div>
             <div class="mb-3">
               <DxButton
@@ -40,14 +49,19 @@
 <script>
 import { DxButton } from "devextreme-vue/button";
 import { DxTextBox } from "devextreme-vue/text-box";
+import { DxValidator, DxRequiredRule } from "devextreme-vue/validator";
+
 import AlertService from "../../services/AlertService";
 import { Endpoints } from "../../services/Endpoints";
 import GlobalService from "../../services/GlobalService";
+
 export default {
   mixins: [AlertService],
   components: {
     DxButton,
     DxTextBox,
+    DxValidator,
+    DxRequiredRule,
   },
   data() {
     return {
@@ -68,10 +82,10 @@ export default {
       e.preventDefault();
       GlobalService.PutByAuth(Endpoints.Account.Profile, this.user)
         .then((res) => {
-          this.successMessage( res.data.message);
+          this.successMessage(res.data.message);
         })
         .catch((error) => {
-          this.errorMessage( error.response.data.message);
+          this.errorMessage(error.response.data.message);
         });
     },
   },
