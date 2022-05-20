@@ -1,9 +1,9 @@
 # CMS
 
-Vue.js ile kodlanmaya devam edilen içerik yönetim sistemidir. 
-- Asp.Net Core - Web Api 
-- Vue 3 - Prime Vue 
-- MySql 
+Vue 3.0 ile kodlanmaya devam edilen içerik yönetim sistemidir. 
+- Asp.Net Core 6.0
+- Vue 3 
+- MsSql 
 
 İçerikler
 
