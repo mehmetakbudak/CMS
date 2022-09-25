@@ -7,10 +7,10 @@ using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using CMS.Service.Helper;
 using CMS.Service.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -53,16 +53,19 @@ namespace CMS.Service
     public class UserService : IUserService
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
+        private readonly IHttpContextAccessor _httpContext;
         private readonly IJwtHelper _jwtHelper;
         private readonly IMailHelper _mailHelper;
         private readonly IMemoryCache _memoryCache;
 
         public UserService(IUnitOfWork<CMSContext> unitOfWork,
+            IHttpContextAccessor httpContext,
             IJwtHelper jwtHelper,
             IMailHelper mailHelper,
             IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
+            _httpContext = httpContext;
             _jwtHelper = jwtHelper;
             _mailHelper = mailHelper;
             _memoryCache = memoryCache;
@@ -93,15 +96,16 @@ namespace CMS.Service
 
         public async Task<ServiceResult> Authenticate(LoginModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var hassPassword = Security.MD5Crypt(model.Password);
-            var user = _unitOfWork.Repository<User>()
+
+            var user = await _unitOfWork.Repository<User>()
                 .Where(x => x.EmailAddress == model.EmailAddress && x.Password == hassPassword && !x.Deleted)
                 .Include(x => x.UserAccessRights)
                 .ThenInclude(x => x.AccessRight)
                 .ThenInclude(x => x.AccessRightEndpoints)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (user == null)
             {
@@ -124,48 +128,15 @@ namespace CMS.Service
                 throw new ForbiddenException("Şifre geçerlilik süresi dolmuş. Mail adresinize şifre belirleme linki gönderildi.");
             }
 
-            var tokenResult = _jwtHelper.GenerateJwtToken(user);
+            result.Data = user;
 
-            user.Token = tokenResult.Token;
-            user.TokenExpireDate = tokenResult.ExpireDate;
-            _unitOfWork.Save();
-            List<AccessRight> accessRights = new List<AccessRight>();
-
-            if (user.UserType == UserType.SuperAdmin)
-            {
-                accessRights = _unitOfWork.Repository<AccessRight>()
-                    .Where(x => !x.Deleted)
-                    .Include(x => x.AccessRightEndpoints).ToList();
-            }
-            else
-            {
-                if (user.UserAccessRights != null && user.UserAccessRights.Any())
-                {
-                    accessRights = user.UserAccessRights
-                        .Select(x => x.AccessRight)
-                        .Where(x => !x.Deleted && x.IsActive).ToList();
-                }
-            }
-
-            result.Data = new TokenResponseModel()
-            {
-                Token = tokenResult.Token,
-                FullName = user.FullName,
-                IsAccessAdminPanel = user.UserType != UserType.Member ? true : false,
-                OperationAccessRights = accessRights.Where(x => x.Type == AccessRightType.Operation)
-                                                    .SelectMany(x => x.AccessRightEndpoints)
-                                                    .Select(x => x.Endpoint).ToList(),
-                MenuAccessRights = accessRights.Where(x => x.Type == AccessRightType.Menu)
-                                                    .SelectMany(x => x.AccessRightEndpoints)
-                                                    .Select(x => x.Endpoint).ToList()
-            };
             return result;
         }
 
         public User GetTokenInfo(int userId, string token)
         {
             var user = _unitOfWork.Repository<User>()
-                .Where(x => !x.Deleted && x.IsActive && x.Id == userId && x.Token == token && x.TokenExpireDate >= DateTime.Now)
+                .Where(x => !x.Deleted && x.IsActive && x.Id == userId)
                 .Include(x => x.UserAccessRights)
                 .FirstOrDefault();
             return user;
@@ -173,7 +144,7 @@ namespace CMS.Service
 
         public async Task<ServiceResult> Post(UserModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var checkEmail = _unitOfWork.Repository<User>()
                 .Any(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted);
@@ -206,7 +177,8 @@ namespace CMS.Service
 
         public ServiceResult Put(UserModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var loginUser = _httpContext.HttpContext.User.Parse();
 
             var isExistUser = _unitOfWork.Repository<User>()
                 .Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted && x.Id != model.Id);
@@ -220,7 +192,7 @@ namespace CMS.Service
 
             if (user == null)
             {
-                throw new NotFoundException("Kayıt bulunamadı.");
+                throw new NotFoundException(AlertMessages.NotFound);
             }
             user.EmailAddress = model.EmailAddress;
             user.IsActive = model.IsActive;
@@ -231,7 +203,7 @@ namespace CMS.Service
 
             if (user.UserType != UserType.Member)
             {
-                _memoryCache.Remove($"userMenu_{AuthTokenContent.Current.UserId}");
+                _memoryCache.Remove($"userMenu_{model.Id}");
             }
             result.Message = AlertMessages.Put;
             return result;
@@ -239,20 +211,20 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var user = GetById(id);
 
             if (user == null)
             {
-                throw new NotFoundException("Kayıt bulunamadı.");
+                throw new NotFoundException(AlertMessages.NotFound);
             }
             user.Deleted = true;
             _unitOfWork.Save();
 
             if (user.UserType != UserType.Member)
             {
-                _memoryCache.Remove($"userMenu_{AuthTokenContent.Current.UserId}");
+                _memoryCache.Remove($"userMenu_{id}");
             }
             result.Message = AlertMessages.Delete;
             return result;
@@ -261,31 +233,40 @@ namespace CMS.Service
         public UserProfileModel GetProfile()
         {
             UserProfileModel model = null;
-            var user = GetById(AuthTokenContent.Current.UserId);
+
+            var loginUser = _httpContext.HttpContext.User.Parse();
+
+            var user = GetById(loginUser.UserId);
+
             if (user == null)
             {
-                throw new NotFoundException("Kayıt bulunamadı.");
+                throw new NotFoundException(AlertMessages.NotFound);
             }
             model = new UserProfileModel()
             {
                 EmailAddress = user.EmailAddress,
-                Id = user.Id,
                 Name = user.Name,
-                Surname = user.Surname
+                Surname = user.Surname,
+                Phone = user.Phone
             };
             return model;
         }
 
         public ServiceResult UpdateProfile(UserProfileModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            var user = GetById(AuthTokenContent.Current.UserId);
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            var loginUser = _httpContext.HttpContext.User.Parse();
+
+            var user = GetById(loginUser.UserId);
+
             if (user == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
             user.Name = model.Name;
             user.Surname = model.Surname;
+            user.Phone = model.Phone;
             user.UpdatedDate = DateTime.Now;
             _unitOfWork.Save();
             result.Message = AlertMessages.Put;
@@ -294,13 +275,21 @@ namespace CMS.Service
 
         public async Task<ServiceResult> AddMember(AddMemberModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            var isExistEmail = _unitOfWork.Repository<User>().Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            if (model.Password != model.RePassword)
+            {
+                throw new BadRequestException("Şifre alanları uyuşmamaktadır.");
+            }
+
+            var isExistEmail = _unitOfWork.Repository<User>()
+                .Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
 
             if (isExistEmail)
             {
-                throw new FoundException($"{model.EmailAddress} mail adresiyle daha önce üye mevcuttur. Lütfen tekrar deneyiniz.");
+                throw new FoundException($"{model.EmailAddress} mail adresiyle üye mevcuttur.");
             }
+
             var user = new User()
             {
                 Deleted = false,
@@ -311,6 +300,7 @@ namespace CMS.Service
                 InsertedDate = DateTime.Now,
                 IsActive = true,
                 Password = Security.MD5Crypt(model.Password),
+                Phone = model.Phone,
                 PasswordExpireDate = DateTime.Now.AddMonths(3),
                 UserType = UserType.Member,
                 Status = UserStatus.EmailNotVerified
@@ -321,7 +311,7 @@ namespace CMS.Service
             var emailVerifyTemplateModel = new TemplateModel
             {
                 FullName = user.FullName,
-                Url = $"{Global.UIUrl}email-dogrulama/{user.HashCode}"
+                Url = $"{Global.WebUrl}email-verify/{user.HashCode}"
             };
 
             result = await _mailHelper.SendWithTemplate(new MailWithTemplateModel()
@@ -330,14 +320,17 @@ namespace CMS.Service
                 TemplateType = TemplateType.EmailVerificationLink,
                 Data = emailVerifyTemplateModel
             });
+
             result.Message = "Email adresinize onay maili gönderilmiştir.";
             _unitOfWork.Save();
+
             return result;
         }
 
         public async Task<ServiceResult> ForgotPassword(ForgotPasswordModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
             var user = _unitOfWork.Repository<User>()
                 .FirstOrDefault(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
 
@@ -357,15 +350,20 @@ namespace CMS.Service
 
         public ServiceResult ChangePassword(ChangePasswordModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
             if (model.NewPassword != model.ReNewPassword)
             {
                 throw new BadRequestException("Şifre alanları uyuşmamaktadır.");
             }
-            var user = GetById(AuthTokenContent.Current.UserId);
+
+            var loginUser = _httpContext.HttpContext.User.Parse();
+
+            var user = GetById(loginUser.UserId);
+
             if (user == null)
             {
-                throw new NotFoundException("Kayıt bulunamadı.");
+                throw new NotFoundException(AlertMessages.NotFound);
             }
             var oldPassword = Security.MD5Crypt(model.OldPassword);
             if (user.Password != oldPassword)
@@ -377,16 +375,20 @@ namespace CMS.Service
             user.UpdatedDate = DateTime.Now;
             user.HashCode = String.Empty;
             _unitOfWork.Save();
+            result.Message = AlertMessages.Put;
+
             return result;
         }
 
         public ServiceResult EmailVerified(string code)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            var user = _unitOfWork.Repository<User>().FirstOrDefault(x => x.HashCode == code && x.Status == UserStatus.EmailNotVerified);
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var user = _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.HashCode == code && x.Status == UserStatus.EmailNotVerified);
             if (user == null)
             {
-                throw new BadRequestException(AlertMessages.UserNotFound);
+                result.StatusCode = HttpStatusCode.NotFound;
+                return result;
             }
             user.HashCode = String.Empty;
             user.Status = UserStatus.Active;
@@ -396,8 +398,9 @@ namespace CMS.Service
 
         public ServiceResult ResetPassword(ResetPasswordModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-            var user = _unitOfWork.Repository<User>().FirstOrDefault(x => x.HashCode == model.Code && x.Status == UserStatus.NotSetPassword);
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var user = _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.HashCode == model.Code && x.Status == UserStatus.NotSetPassword);
             if (user == null)
             {
                 throw new BadRequestException(AlertMessages.UserNotFound);
@@ -421,7 +424,7 @@ namespace CMS.Service
             var forgotPasswordTemplateModel = new TemplateModel
             {
                 FullName = user.FullName,
-                Url = $"{Global.UIUrl}sifre-belirle/{user.HashCode}"
+                Url = $"{Global.WebUrl}set-password/{user.HashCode}"
             };
 
             var result = await _mailHelper.SendWithTemplate(new MailWithTemplateModel()
@@ -435,15 +438,19 @@ namespace CMS.Service
 
         public ResetPasswordInfoModel GetUserByCode(string code)
         {
-            var user = _unitOfWork.Repository<User>().FirstOrDefault(x => x.HashCode == code && x.Status == UserStatus.NotSetPassword);
-            if (user == null)
+            ResetPasswordInfoModel model = null;
+
+            var user = _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.HashCode == code && x.Status == UserStatus.NotSetPassword);
+
+            if (user != null)
             {
-                throw new BadRequestException(AlertMessages.UserNotFound);
+                model = new ResetPasswordInfoModel
+                {
+                    FullName = $"{user.Name} {user.Surname}",
+                    Code = code
+                };
             }
-            var model = new ResetPasswordInfoModel()
-            {
-                FullName = $"{user.Name} {user.Surname}"
-            };
             return model;
         }
     }

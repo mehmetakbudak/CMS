@@ -26,15 +26,13 @@ namespace CMS.Model.Entity
 
         public string Password { get; set; }
 
+        public string Phone { get; set; }
+
         public string HashCode { get; set; }
 
         public DateTime? PasswordExpireDate { get; set; }
 
         public UserType UserType { get; set; }
-
-        public string Token { get; set; }
-
-        public DateTime? TokenExpireDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
 

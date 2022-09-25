@@ -42,7 +42,7 @@ namespace CMS.Service
 
         public ServiceResult PostForClient(ChatMessageModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var chat = _unitOfWork.Repository<Chat>().FirstOrDefault(x => x.Code == model.Code);
             if (chat != null)
@@ -61,7 +61,7 @@ namespace CMS.Service
 
         public ServiceResult PostForUser(ChatMessageModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var chat = _unitOfWork.Repository<Chat>().FirstOrDefault(x => x.Code == model.Code);
             if (chat != null)

@@ -1,0 +1,43 @@
+﻿@model List<CMS.Model.Model.ServiceModel>;
+
+@{
+    ViewData["Title"] = "Hizmetler";
+}
+
+<main id="main">
+
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Hizmetler</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>Hizmetler</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="services section-bg">
+        <div class="container">
+            <div class="row">
+                @foreach (var service in Model)
+                {
+                    <div class="col-md-6 d-flex align-items-stretch p-3">
+                        <a href="/service/@service.Url">
+                            <div class="card bg-secondary">
+                                <img class="card-img-top" src="@service.ImageUrl" />
+                                <h3 class="p-3">
+                                    <span class="text-white">
+                                        @service.Name
+                                    </span>
+                                </h3>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+</main>

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CMS.Model.Model
 {
-    public class BlogModel
+    public class BlogDetailModel
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -15,7 +16,7 @@ namespace CMS.Model.Model
         public List<int> BlogCategories { get; set; }
     }
 
-    public class BlogGetModel
+    public class BlogModel
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -23,14 +24,24 @@ namespace CMS.Model.Model
         public string Description { get; set; }
         public string Url { get; set; }
         public string ImageUrl { get; set; }
-    }   
+        public string UserName { get; set; }
+        public DateTime InsertedDate { get; set; }
+        public int CommentCount { get; set; }
+    }
 
-    public class BlogPostModel : BlogModel
+    public class BlogDetailCategoryModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Url { get; set; }
+    }
+
+    public class BlogPostModel : BlogDetailModel
     {
 
     }
 
-    public class BlogPutModel : BlogModel
+    public class BlogPutModel : BlogDetailModel
     {
 
     }

@@ -1,0 +1,221 @@
+﻿@model CMS.Model.Model.ViewModel.HomeViewModel
+@{
+    ViewData["Title"] = "Anasayfa";
+    int count = 0;
+}
+
+@section Styles{
+    <style>
+        .scroll-list {
+            height: 400px;
+            width: 100%;
+        }
+
+        .scroll-list-img {
+            width: 100%;
+            height: 250px;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+
+
+        .testimonial-scroll-item {
+            word-wrap: break-word;
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+        }
+
+        .testimonial-scroll-img {
+            width: 90px;
+            border-radius: 50px;
+            border: 6px solid #fff;
+            float: left;
+            margin: 0 10px 0 0;
+        }
+
+        .testimonial-scroll-text {
+            font-style: italic;
+            padding: 0;
+            word-wrap: break-word;
+        }
+
+        @@media (max-width: 768px) {
+
+            .scroll-list {
+                height: 1200px;
+                width: 100%;
+            }
+
+            #testimonialList {
+                height: 600px;
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+    <section id="hero">
+        <div id="heroCarousel" data-bs-interval="5000" class="carousel slide carousel-fade"
+         data-bs-ride="carousel">
+            <div class="carousel-inner" role="listbox">
+            @foreach (var slider in Model.HomepageSliders)
+            {
+                string styleCarousel = count == 0 ? "carousel-item active" : "carousel-item";
+
+                <div class="@styleCarousel" style="background-image: url(@slider.ImageUrl);">
+                    <div class="carousel-container">
+                        <div class="carousel-content animate__animated animate__fadeInUp">
+                            <h2>@slider.Title</h2>
+                            <p>@slider.Description</p>
+                            <div class="text-center">
+                                <a href="@slider.Url" class="btn-get-started">Daha Fazla</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                count = count + 1;
+            }
+        </div>
+
+        <a class="carousel-control-prev" href="#heroCarousel" role="button" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon fa fa-arrow-left" aria-hidden="true"></span>
+        </a>
+
+        <a class="carousel-control-next" href="#heroCarousel" role="button" data-bs-slide="next">
+            <span class="carousel-control-next-icon fa fa-arrow-right" aria-hidden="true"></span>
+        </a>
+
+        <ol class="carousel-indicators" id="hero-carousel-indicators"></ol>
+
+    </div>
+</section>
+
+<main id="main">
+    <section class="section-bg">
+        <div class="container">
+
+            <div class="row mb-5">
+                <div class="col-md-12">
+                    <div class="card box-shadow">
+                        <div class="card-header bg-white my-2">
+                            <div class="row">
+                                <div class="col-10">
+                                    <h3>Hizmetler</h3>
+                                </div>
+                                <div class="col-2">
+                                    <a class="btn bg-green float-end btn-sm text-white"
+                                       href="/service">Tümü</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="home-carousel">
+                                @foreach (var service in Model.Services)
+                                {
+                                    <div class="mb-3 m-2">
+                                        <img class="scroll-list-img" src="@service.ImageUrl" />
+                                        <a class="text-dark" href="/service/@service.Url">
+                                            <h5 class="my-3">@service.Name</h5>
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-5">
+                <div class="col-md-12">
+                    <div class="card box-shadow">
+                        <div class="card-header bg-white my-2">
+                            <div class="row">
+                                <div class="col-10">
+                                    <h3>Blog</h3>
+                                </div>
+                                <div class="col-2">
+                                    <a class="btn bg-green float-end btn-sm text-white" href="/blog">Tümü</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="home-carousel">
+                                @foreach (var blog in Model.Blogs)
+                                {
+                                    <div class="m-2">
+                                        <img class="scroll-list-img" src="@blog.ImageUrl" />
+                                        <a class="text-dark" href="/blog/@blog.Url/@blog.Id">
+                                            <h5 class="my-3">@blog.Title</h5>
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-5">
+                <div class="col-md-12">
+                    <div class="card box-shadow">
+                        <div class="card-header bg-white my-2">
+                            <div class="row">
+                                <div class="col-10">
+                                    <h3>Referanslar</h3>
+                                </div>
+                                <div class="col-2">
+                                    <a class="btn bg-green float-end btn-sm text-white"
+                                       href="/testimonial">Tümü</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="border-0 w-100 testimonials">
+                                @foreach (var testimonial in Model.Testimonials)
+                                {
+                                    <div class="testimonial-scroll-item">
+                                        <img src="@testimonial.ImageUrl" class="testimonial-scroll-img">
+                                        <h5>@testimonial.Name @testimonial.Surname</h5>
+                                        <div class="fw-bold pb-3">
+                                            @testimonial.CorporateName - @testimonial.Title
+                                        </div>
+                                        <div class="testimonial-scroll-text">
+                                            @testimonial.Description
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-5">
+                <div class="col-md-12">
+                    <div class="card shadow clients">
+                        <div class="card-header bg-white my-2">
+                            <h3>Müşteriler</h3>
+                        </div>
+                        <div class="card-body py-5">
+                            <div class="client">
+                                @foreach (var client in Model.Clients)
+                                {
+                                    <div class="client-logo mx-1">
+                                        <img src="@client.ImageUrl" class="img-fluid" alt="">
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+@section Scripts {
+    <script src="/js/pages/frontend/home.js"></script>
+}

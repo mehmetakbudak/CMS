@@ -36,7 +36,7 @@ namespace CMS.Service
 
         public ServiceResult Post(AuthorModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Post };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Post };
 
             if (model.Id == 0)
             {
@@ -62,7 +62,7 @@ namespace CMS.Service
 
         public ServiceResult Put(AuthorModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
 
             var entity = _unitOfWork.Repository<Author>()
                 .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
@@ -85,7 +85,7 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Delete };
+            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
 
             var entity = _unitOfWork.Repository<Author>().FirstOrDefault(x => x.Id == id && !x.Deleted);
 

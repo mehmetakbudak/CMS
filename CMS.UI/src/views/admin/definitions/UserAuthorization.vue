@@ -153,8 +153,7 @@ export default {
       GlobalService.PutByAuth(
         `${Endpoints.Admin.UserAccessRight}/CreateOrUpdate`,
         data
-      ).then((res) => {
-        console.log(res);
+      ).then(() => {
       });
     },
   },

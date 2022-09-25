@@ -6,6 +6,7 @@ using CMS.Model.Enum;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using CMS.Service.Helper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
@@ -37,14 +38,16 @@ namespace CMS.Service
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
         private readonly IMemoryCache _memoryCache;
-
+        private readonly IHttpContextAccessor _httpContext;
 
         public AccessRightService(
             IUnitOfWork<CMSContext> unitOfWork,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IHttpContextAccessor httpContext)
         {
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
+            _httpContext = httpContext;
         }
 
         public AccessRightGetModel Get()
@@ -62,8 +65,8 @@ namespace CMS.Service
                 {
                     model.OperationAccessRights = operationAccessRights.Select(x => new TreeModel
                     {
-                        Title = x.Name,
-                        Items = GetSubAccessRights(x.Id, accessRights)
+                        Label = x.Name,
+                        Children = GetSubAccessRights(x.Id, accessRights)
                     }).ToList();
                 }
 
@@ -74,8 +77,8 @@ namespace CMS.Service
                 {
                     model.MenuAccessRights = menuAccessRights.Select(x => new TreeModel
                     {
-                        Title = x.Name,
-                        Items = GetSubAccessRights(x.Id, accessRights)
+                        Label = x.Name,
+                        Children = GetSubAccessRights(x.Id, accessRights)
                     }).ToList();
                 }
             }
@@ -122,8 +125,8 @@ namespace CMS.Service
             {
                 list = items.Select(x => new TreeModel
                 {
-                    Title = x.Name,
-                    Items = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
+                    Label = x.Name,
+                    Children = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
                 }).ToList();
             }
             return list;
@@ -134,9 +137,9 @@ namespace CMS.Service
             var list = new List<TreeMenuModel>();
             var accessRights = new List<AccessRight>();
 
-            var user = _unitOfWork.Repository<User>().FirstOrDefault(x => x.Id == AuthTokenContent.Current.UserId);
+            var loginUser = _httpContext.HttpContext.User.Parse();
 
-            if (user.UserType == UserType.SuperAdmin)
+            if (loginUser.UserType == (int)UserType.SuperAdmin)
             {
                 accessRights = _unitOfWork.Repository<AccessRight>()
                     .Where(x => x.Type == AccessRightType.Menu)
@@ -145,7 +148,7 @@ namespace CMS.Service
             else
             {
                 var userAccessRights = _unitOfWork.Repository<UserAccessRight>()
-                    .Where(x => x.UserId == user.Id)
+                    .Where(x => x.UserId == loginUser.UserId)
                     .Include(x => x.AccessRight)
                     .ThenInclude(x => x.AccessRightEndpoints).ToList();
 
@@ -171,8 +174,8 @@ namespace CMS.Service
                         .OrderBy(x => x.DisplayOrder)
                         .Select(x => new TreeMenuModel()
                         {
-                            Id = x.Id,
-                            Title = x.Name,
+                            Key = x.Id,
+                            Label = x.Name,
                             To = x.AccessRightEndpoints.Select(x => x.Endpoint).FirstOrDefault()
                         }).ToList();
 
@@ -180,10 +183,10 @@ namespace CMS.Service
 
             foreach (var menuItem in menuItems)
             {
-                var items = GetAdminMenu(accessRights, menuItem.Id, menuItem.Items);
+                var items = GetAdminMenu(accessRights, menuItem.Key, menuItem.Children);
                 if (items != null && items.Count > 0)
                 {
-                    menuItem.Items = items;
+                    menuItem.Children = items;
                 }
             }
             return list;
@@ -191,7 +194,7 @@ namespace CMS.Service
 
         public ServiceResult PostMenu(AccessRightModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var accessRight = new AccessRight()
             {
@@ -226,7 +229,7 @@ namespace CMS.Service
 
         public ServiceResult PutMenu(AccessRightModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var accessRight = _unitOfWork.Repository<AccessRight>()
                .Where(x => x.Id == model.Id && !x.Deleted && x.Type == AccessRightType.Menu)
@@ -278,7 +281,7 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var accessRight = _unitOfWork.Repository<AccessRight>()
                .Where(x => x.Id == id && !x.Deleted)
@@ -317,7 +320,7 @@ namespace CMS.Service
 
         public ServiceResult PostOperation(AccessRightModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var accessRight = new AccessRight()
             {
@@ -353,7 +356,7 @@ namespace CMS.Service
 
         public ServiceResult PutOperation(AccessRightModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var accessRight = _unitOfWork.Repository<AccessRight>()
                .Where(x => x.Id == model.Id && !x.Deleted && x.Type == AccessRightType.Operation)

@@ -1,44 +1,43 @@
 <template>
   <div class="card">
     <div class="card-header bg-white py-3">
-      <h3>Şifre Değiştir</h3>
+      <h5>Şifre Değiştir</h5>
     </div>
     <div class="card-body">
       <div class="row p-3">
         <div class="col-md-6">
-          <form @submit="save">
-            <div class="mb-3">
-              <label class="form-label">Mevcut Şifre</label>
-              <DxTextBox v-model:value="data.oldPassword" mode="password">
-                <DxValidator>
-                  <DxRequiredRule message="Şifre gereklidir." />
-                </DxValidator>
-              </DxTextBox>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Yeni Şifre</label>
-              <DxTextBox v-model:value="data.newPassword" mode="password">
-                <DxValidator>
-                  <DxRequiredRule message="Yeni şifre gereklidir." />
-                </DxValidator>
-              </DxTextBox>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Yeni Şifre Tekrar</label>
-              <DxTextBox v-model:value="data.reNewPassword" mode="password">
-                <DxValidator>
-                  <DxRequiredRule message="Yeni şifre tekrar gereklidir." />
-                </DxValidator>
-              </DxTextBox>
-            </div>
-            <div class="mb-3">
-              <DxButton
-                text="Kaydet"
-                type="default"
-                :use-submit-behavior="true"
-              />
-            </div>
-          </form>
+          <div class="mb-3">
+            <label class="form-label">Mevcut Şifre</label>
+            <InputText
+              class="w-100"
+              type="password"
+              v-model="data.oldPassword"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Yeni Şifre</label>
+            <InputText
+              class="w-100"
+              type="password"
+              v-model="data.newPassword"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Yeni Şifre Tekrar</label>
+            <InputText
+              class="w-100"
+              type="password"
+              v-model="data.reNewPassword"
+            />
+          </div>
+          <div class="mb-3">
+            <Button
+              class="bg-green"
+              type="submit"
+              label="Kaydet"
+              @click="save"
+            ></Button>
+          </div>
         </div>
       </div>
     </div>
@@ -49,17 +48,13 @@
 import AlertService from "../../services/AlertService";
 import { Endpoints } from "../../services/Endpoints";
 import GlobalService from "../../services/GlobalService";
-import { DxButton } from "devextreme-vue/button";
-import { DxTextBox } from "devextreme-vue/text-box";
-import { DxValidator, DxRequiredRule } from "devextreme-vue/validator";
+import { useBreadcrumbStore } from "../../store";
 
 export default {
   mixins: [AlertService],
-  components: {
-    DxButton,
-    DxTextBox,
-    DxValidator,
-    DxRequiredRule,
+  setup() {
+    const breadcrumbStore = useBreadcrumbStore();
+    return { breadcrumbStore };
   },
   data() {
     return {
@@ -72,12 +67,14 @@ export default {
       },
     };
   },
+  created() {
+    this.breadcrumbStore.title = "Şifre Değiştir";
+  },
   methods: {
-    save(e) {
-      e.preventDefault();
+    save() {
       GlobalService.PutByAuth(Endpoints.Account.ChangePassword, this.data)
         .then(() => {
-          this.successMessage("Şifre başarıyla güncellendi.");
+          this.successMessage(this, "Şifre başarıyla güncellendi.");
           this.data = {
             oldPassword: "",
             newPassword: "",
@@ -85,11 +82,12 @@ export default {
           };
         })
         .catch((error) => {
-          this.errorMessage(error.response.data.message);
+          this.errorMessage(this, error.response.data.message);
         });
     },
   },
 };
 </script>
 
-<style></style>
+<style>
+</style>

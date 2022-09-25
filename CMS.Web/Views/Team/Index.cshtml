@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Ekibimiz";
+}
+
+<main id="main">
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Ekibimiz</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>Ekibimiz</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="team" class="team section-bg">
+        <div class="container">
+
+            <div id="content">
+                @await Component.InvokeAsync("Loading")
+
+                <div class="row" id="teams"></div>
+
+                <script type="text/x-kendo-template" id="template">
+                    <div class="col-lg-3 col-md-6 d-flex align-items-stretch">
+                        <div class="member">
+                            <div class="member-img">
+                                <img src="#:imageUrl#" class="img-fluid" alt="">
+                                <div class="social">
+                                    <a target="_blank" href="#:twitterUrl != null ? twitterUrl : '' #">
+                                        <i class="fa-brands fa-twitter"></i>
+                                    </a>
+                                    <a target="_blank" href="#:facebookUrl != null ? facebookUrl : '' #">
+                                        <i class="fa-brands fa-facebook"></i>
+                                    </a>
+                                    <a target="_blank" href="#:instagramUrl != null ? instagramUrl : '' #">
+                                        <i class="fa-brands fa-instagram"></i>
+                                    </a>
+                                    <a target="_blank" href="#:linkedinUrl != null ? linkedinUrl : '' #">
+                                        <i class="fa-brands fa-linkedin"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="member-info">
+                                <h4>#:name# #:surname#</h4>
+                                <span>#:title#</span>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="/js/pages/frontend/team-list.js"></script>
+}

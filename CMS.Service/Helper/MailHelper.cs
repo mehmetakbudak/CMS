@@ -28,7 +28,7 @@ namespace CMS.Service.Helper
 
         public async Task<ServiceResult> Send(MailModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
                 var emailSetting = _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
@@ -53,7 +53,7 @@ namespace CMS.Service.Helper
             }
             catch
             {
-                result.StatusCode = (int)HttpStatusCode.InternalServerError;
+                result.StatusCode = HttpStatusCode.InternalServerError;
                 result.Message = "Mail gönderilirken hata oluştu.";
             }
             return result;
@@ -61,11 +61,11 @@ namespace CMS.Service.Helper
 
         public async Task<ServiceResult> SendWithTemplate(MailWithTemplateModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
                 var emailSetting = _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
-                var data = model.Data;                
+                var data = model.Data;
                 var mailTemplate = _mailTemplateService.GetTemplateByType(data, model.TemplateType);
 
                 if (mailTemplate != null)
@@ -74,7 +74,7 @@ namespace CMS.Service.Helper
                     {
                         model.Subject = mailTemplate.Subject;
                     }
-                    if(string.IsNullOrEmpty(model.Body))
+                    if (string.IsNullOrEmpty(model.Body))
                     {
                         model.Body = mailTemplate.Body;
                     }
@@ -83,9 +83,9 @@ namespace CMS.Service.Helper
                 Int32.TryParse(emailSetting.Port, out int port);
 
                 using (var client = new SmtpClient(emailSetting.Host, port))
-                {
-                    client.UseDefaultCredentials = true;
-                    client.EnableSsl = true;
+                { 
+                    client.UseDefaultCredentials = false;
+                    client.EnableSsl = false;
                     client.Credentials = new NetworkCredential(emailSetting.EmailAddress, emailSetting.Password);
 
                     MailMessage message = new MailMessage();
@@ -98,9 +98,9 @@ namespace CMS.Service.Helper
                     await Task.Run(() => client.Send(message));
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                result.StatusCode = (int)HttpStatusCode.InternalServerError;
+                result.StatusCode = HttpStatusCode.InternalServerError;
                 result.Message = "Mail gönderilirken hata oluştu.";
             }
             return result;

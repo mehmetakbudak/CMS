@@ -13,7 +13,7 @@ namespace CMS.Service
     {
         IQueryable<Page> GetAll();
         Page GetById(int id);
-        ServiceResult GetByUrl(string url);
+        Page GetByUrl(string url);
         ServiceResult Post(Page model);
         ServiceResult Put(Page model);
         ServiceResult Delete(int id);
@@ -43,28 +43,20 @@ namespace CMS.Service
             return page;
         }
 
-        public ServiceResult GetByUrl(string url)
+        public Page GetByUrl(string url)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
-
             if (string.IsNullOrEmpty(url))
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
 
-            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
-
-            if (page == null)
-            {
-                throw new NotFoundException($"{url} ile sayfa bulunamadı.");
-            }
-            result.Data = page;
-            return result;
+            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);            
+            return page;
         }
 
         public ServiceResult Post(Page model)
         {
-            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var isExist = _unitOfWork.Repository<Page>().Any(x => !x.Deleted && x.Url == model.Url);
             if (isExist)
@@ -81,7 +73,7 @@ namespace CMS.Service
 
         public ServiceResult Put(Page model)
         {
-            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == model.Id);
             
@@ -110,7 +102,7 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            var serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == id);
 

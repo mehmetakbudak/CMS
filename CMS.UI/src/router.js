@@ -3,19 +3,23 @@ import {
   createRouter,
   RouterView
 } from "vue-router";
-import store from "@/store";
 
 // frontend routes
 import Layout from "./views/frontend/Layout.vue";
 import Home from "./views/frontend/Home.vue";
 import Page from "./views/frontend/Page.vue";
 import Blog from "./views/frontend/Blog.vue";
+import BlogCategory from "./views/frontend/BlogCategory.vue";
 import BlogDetail from "./views/frontend/BlogDetail.vue";
 import Contact from "./views/frontend/Contact.vue";
 import Login from "./views/frontend/Login.vue";
 import Register from "./views/frontend/Register.vue";
 import EmailVerify from './views/frontend/EmailVerify.vue';
 import ResetPassword from './views/frontend/ResetPassword.vue';
+import Service from "./views/frontend/Service.vue";
+import Testimonial from "./views/frontend/Testimonial.vue";
+import Team from "./views/frontend/Team.vue";
+import Job from "./views/frontend/Job.vue";
 
 // admin routes
 import AdminLayout from "./views/admin/AdminLayout.vue";
@@ -24,7 +28,7 @@ import Users from "./views/admin/definitions/Users.vue";
 import UserAuthorization from "./views/admin/definitions/UserAuthorization.vue";
 import AccessRight from "./views/admin/definitions/AccessRight.vue";
 import FrontendMenu from "./views/admin/definitions/FrontendMenu.vue";
-import BlogCategory from "./views/admin/definitions/BlogCategory.vue";
+import AdminBlogCategory from "./views/admin/definitions/BlogCategory.vue";
 import TodoCategory from "./views/admin/definitions/TodoCategory.vue";
 import TodoStatus from "./views/admin/definitions/TodoStatus.vue";
 import Author from "./views/admin/definitions/Author.vue";
@@ -59,42 +63,54 @@ const routes = [{
       },
       {
         path: "/sayfalar/:url",
-        name: "Page",
         component: Page,
       },
       {
-        path: "/blog/:categoryUrl/:id",
-        name: "BlogDetail",
+        path: "/blog/:blogUrl/:id",
         component: BlogDetail,
       },
       {
         path: "/blog/:categoryUrl",
-        name: "Blog",
+        component: BlogCategory,
+      },
+      {
+        path: "/blog",
         component: Blog,
       },
       {
         path: "/iletisim",
-        name: "Contact",
         component: Contact,
       },
       {
+        path: "/hizmetler",
+        component: Service
+      },
+      {
+        path: "/referanslar",
+        component: Testimonial
+      },
+      {
+        path: "/ekibimiz",
+        component: Team
+      },
+      {
+        path: "kariyer-firsatlari",
+        component: Job,
+      },
+      {
         path: "/giris",
-        name: "Login",
         component: Login,
       },
       {
         path: "/uye-ol",
-        name: "Register",
         component: Register
-      },    
+      },
       {
         path: "/email-dogrulama/:code",
-        name: "EmailVerify",
         component: EmailVerify
       },
       {
         path: "/sifre-belirle/:code",
-        name: "ResetPassword",
         component: ResetPassword,
       },
       {
@@ -106,7 +122,7 @@ const routes = [{
         },
         children: [{
             path: "hesabim",
-            component: Profile,
+            component: Profile
           },
           {
             path: "sifre-degistir",
@@ -195,7 +211,7 @@ const routes = [{
           },
           {
             path: "blog-kategorileri",
-            component: BlogCategory,
+            component: AdminBlogCategory,
           },
           {
             path: "yapilacak-kategorileri",
@@ -236,9 +252,10 @@ const routes = [{
   },
 ];
 
-const router = createRouter({
+export const router = createRouter({
   history: createWebHistory(),
   routes,
+  base: "/"
 });
 
 router.beforeEach((to, from, next) => {
@@ -246,19 +263,14 @@ router.beforeEach((to, from, next) => {
     next();
   }
   if (to.meta.requireAuth) {
+
     const currentUser = JSON.parse(localStorage.getItem("user"));
     if (!currentUser) {
-      store.dispatch("auth/logout");
+      // authStore.logout();
       next("/giris");
     } else {
       if (to.meta.isAccessAdminPanel) {
-        // const result = currentUser.menuAccessRights.filter((x) => x == to.fullPath);
-        // if (result.length > 0) {
         next();
-        // } else {
-        //   store.dispatch("auth/logout");
-        //   next("/giris");
-        // }
       } else {
         next();
       }

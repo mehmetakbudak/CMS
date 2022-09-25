@@ -6,6 +6,7 @@ using CMS.Model.Enum;
 using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using CMS.Service.Helper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,21 +18,25 @@ namespace CMS.Service
     public interface ICommentService
     {
         List<CommentGetModel> GetSourceComments(SourceCommentModel model, int? parentId = null, List<CommentGetModel> children = null);
-        List<UserCommentModel> GetUserComments(int type);
+        List<UserCommentModel> GetUserComments(int? type = null);
         List<CommentModel> GetAllByStatus(int status);
         CommentDetailModel GetDetail(int id);
         ServiceResult Post(CommentPostModel model);
         ServiceResult Put(CommentPutModel model);
-        ServiceResult Delete(int id, int? userId = null);
+        ServiceResult Delete(int id);
     }
 
     public class CommentService : ICommentService
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
+        private readonly IHttpContextAccessor _httpContext;
 
-        public CommentService(IUnitOfWork<CMSContext> unitOfWork)
+        public CommentService(
+            IUnitOfWork<CMSContext> unitOfWork,
+            IHttpContextAccessor httpContext)
         {
             _unitOfWork = unitOfWork;
+            _httpContext = httpContext;
         }
 
         public List<CommentGetModel> GetSourceComments(SourceCommentModel model, int? parentId = null, List<CommentGetModel> children = null)
@@ -58,32 +63,44 @@ namespace CMS.Service
 
             foreach (var comment in list)
             {
-                comment.Children = GetSourceComments(model, comment.Id, list);
+                comment.Items = GetSourceComments(model, comment.Id, list);
             }
 
             return comments;
         }
 
-        public List<UserCommentModel> GetUserComments(int type)
+        public List<UserCommentModel> GetUserComments(int? type = null)
         {
-            var data = _unitOfWork.Repository<Comment>()
-               .Where(x => !x.Deleted && x.UserId == AuthTokenContent.Current.UserId);
+            var loginUser = _httpContext.HttpContext.User.Parse();
 
-            if (type != 0)
+            var data = _unitOfWork.Repository<Comment>()
+               .Where(x => !x.Deleted && x.UserId == loginUser.UserId);
+
+            if (type != null)
             {
                 data = data.Where(x => x.SourceType == (SourceType)type);
             }
+            var blogs = _unitOfWork.Repository<Blog>().Where(x => !x.Deleted && x.Published).ToList();
 
             var list = data.OrderByDescending(x => x.InsertedDate)
-               .Select(x => new UserCommentModel()
-               {
-                   Description = x.Description,
-                   Id = x.Id,
-                   InsertedDate = x.InsertedDate,
-                   UpdatedDate = x.UpdatedDate,
-                   Source = EnumHelper.GetDescription(x.SourceType),
-                   Status = EnumHelper.GetDescription(x.Status)
-               }).ToList();
+                .AsEnumerable()
+                .Select(x =>
+                {
+                    var blog = blogs.FirstOrDefault(b => b.Id == x.SourceId);
+                    var model = new UserCommentModel()
+                    {
+                        Description = x.Description,
+                        Id = x.Id,
+                        InsertedDate = x.InsertedDate,
+                        UpdatedDate = x.UpdatedDate,
+                        SourceId = x.SourceId,
+                        Url = x.SourceType == SourceType.Blog ? $"blog/{blog.Url}/{x.SourceId}" : null,
+                        Title = x.SourceType == SourceType.Blog ? blogs.Where(b => b.Id == x.SourceId).Select(b => b.Title).FirstOrDefault() : null,
+                        SourceTypeName = EnumHelper.GetDescription(x.SourceType),
+                        Status = EnumHelper.GetDescription(x.Status)
+                    };
+                    return model;
+                }).ToList();
 
             return list;
         }
@@ -112,7 +129,8 @@ namespace CMS.Service
 
         public CommentDetailModel GetDetail(int id)
         {
-            var comment = _unitOfWork.Repository<Comment>().FirstOrDefault(x => !x.Deleted && x.Id == id);
+            var comment = _unitOfWork.Repository<Comment>()
+                .FirstOrDefault(x => !x.Deleted && x.Id == id);
             if (comment == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
@@ -141,7 +159,8 @@ namespace CMS.Service
 
             if (comment.SourceType == SourceType.Blog)
             {
-                var blog = _unitOfWork.Repository<Blog>().FirstOrDefault(x => x.Id == comment.SourceId && !x.Deleted);
+                var blog = _unitOfWork.Repository<Blog>()
+                    .FirstOrDefault(x => x.Id == comment.SourceId && !x.Deleted);
                 if (blog != null)
                 {
                     model.SourceTitle = blog.Title;
@@ -154,7 +173,10 @@ namespace CMS.Service
 
         public ServiceResult Post(CommentPostModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            var loginUser = _httpContext.HttpContext.User.Parse();
+
             var entity = new Comment()
             {
                 Deleted = false,
@@ -163,18 +185,18 @@ namespace CMS.Service
                 ParentId = model.ParentId,
                 SourceType = model.SourceType,
                 Status = CommentStatus.WaitingforApproval,
-                UserId = AuthTokenContent.Current.UserId,
+                UserId = loginUser.UserId,
                 SourceId = model.SourceId
             };
             _unitOfWork.Repository<Comment>().Add(entity);
             _unitOfWork.Save();
-            result.Message = AlertMessages.Post;
+            result.Message = "Yorumunuz başarıyla kaydedildi. Onay sürecinden sonra yayınlanacaktır.";
             return result;
         }
 
         public ServiceResult Put(CommentPutModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var comment = _unitOfWork.Repository<Comment>().FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
             if (comment == null)
@@ -187,17 +209,14 @@ namespace CMS.Service
             return result;
         }
 
-        public ServiceResult Delete(int id, int? userId = null)
+        public ServiceResult Delete(int id)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var data = _unitOfWork.Repository<Comment>().Where(x => !x.Deleted && x.Id == id);
+            var loginUser = _httpContext.HttpContext.User.Parse();
 
-            if (userId.HasValue)
-            {
-                data = data.Where(x => x.UserId == AuthTokenContent.Current.UserId);
-            }
-            var comment = data.FirstOrDefault();
+            var comment = _unitOfWork.Repository<Comment>()
+                .FirstOrDefault(x => !x.Deleted && x.Id == id && x.UserId == loginUser.UserId);
 
             if (comment == null)
             {

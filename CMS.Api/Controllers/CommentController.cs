@@ -4,6 +4,7 @@ using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace CMS.Api.Controllers
 {
@@ -19,6 +20,7 @@ namespace CMS.Api.Controllers
         }
 
         [HttpPost("GetSourceComments")]
+        [ProducesResponseType(typeof(List<CommentGetModel>), 200)] //OK
         public IActionResult GetSourceComments([FromBody] SourceCommentModel model)
         {
             var result = _commentService.GetSourceComments(model);
@@ -27,6 +29,7 @@ namespace CMS.Api.Controllers
 
         [HttpGet("GetUserComments/{type}")]
         [CMSAuthorize(CheckAccessRight = false)]
+        [ProducesResponseType(typeof(List<UserCommentModel>), 200)] //OK
         public IActionResult GetUserComments(int type)
         {
             var result = _commentService.GetUserComments(type);

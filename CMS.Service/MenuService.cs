@@ -17,7 +17,7 @@ namespace CMS.Service
     public interface IMenuService
     {
 
-        List<MenubarModel> GetFrontendMenu(int? parentId = null, List<MenubarModel> children = null);
+        List<MenuModel> GetFrontendMenu(int? parentId = null, List<MenuModel> children = null);
 
         List<TreeDataModel> GetFrontendTreeMenu(int? parentId = null, List<TreeDataModel> children = null);
 
@@ -40,19 +40,19 @@ namespace CMS.Service
             _memoryCache = memoryCache;
         }       
 
-        public List<MenubarModel> GetFrontendMenu(int? parentId = null, List<MenubarModel> children = null)
+        public List<MenuModel> GetFrontendMenu(int? parentId = null, List<MenuModel> children = null)
         {
-            var menuItems = new List<MenubarModel>();
+            var menuItems = new List<MenuModel>();
 
             var list = _unitOfWork.Repository<MenuItem>()
                 .Where(x => x.Menu.Type == MenuType.FrontEnd && !x.Deleted && x.IsActive && x.ParentId == parentId)
                 .Include(x => x.Menu)
                 .OrderBy(x => x.DisplayOrder)
-                .Select(x => new MenubarModel
+                .Select(x => new MenuModel
                 {
                     Id = x.Id,
-                    Label = x.Title,
-                    To = x.Url
+                    Title = x.Title,
+                    Url = x.Url
                 }).ToList();
 
             menuItems.AddRange(list);
@@ -79,7 +79,7 @@ namespace CMS.Service
                 .Select(x => new TreeDataModel
                 {                     
                     Title = x.Title,
-                    To = x.Url,
+                    Url = x.Url,
                     DisplayOrder = x.DisplayOrder,
                     ParentId = x.ParentId,
                     IsActive = x.IsActive
@@ -92,7 +92,7 @@ namespace CMS.Service
                 var items = GetFrontendTreeMenu(menuItem.Id, list);
                 if (items != null && items.Count > 0)
                 {
-                    menuItem.Items = items;
+                    menuItem.Children = items;
                 }
             }
             return menuItems;
@@ -100,7 +100,7 @@ namespace CMS.Service
 
         public ServiceResult PostFrontendMenu(TreeDataModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var menu = _unitOfWork.Repository<Menu>().FirstOrDefault(x => x.Type == MenuType.FrontEnd);
 
@@ -112,7 +112,7 @@ namespace CMS.Service
                 MenuId = menu.Id,
                 ParentId = model.ParentId,
                 Title = model.Title,
-                Url = model.To
+                Url = model.Url
             };
             _unitOfWork.Repository<MenuItem>().Add(menuItem);
             _unitOfWork.Save();
@@ -123,7 +123,7 @@ namespace CMS.Service
 
         public ServiceResult PutFrontendMenu(TreeDataModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var menuItem = _unitOfWork.Repository<MenuItem>()
                 .Where(x => !x.Deleted && x.Id == model.Id && x.Menu.Type == MenuType.FrontEnd)
@@ -136,7 +136,7 @@ namespace CMS.Service
             }
             menuItem.Title = model.Title;
             menuItem.DisplayOrder = model.DisplayOrder;
-            menuItem.Url = model.To;
+            menuItem.Url = model.Url;
             menuItem.IsActive = model.IsActive;
             menuItem.ParentId = model.ParentId;
             _unitOfWork.Save();
@@ -147,7 +147,7 @@ namespace CMS.Service
 
         public ServiceResult DeleteFrontendMenu(int id)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var menuItem = _unitOfWork.Repository<MenuItem>()
                 .Where(x => !x.Deleted && x.Id == id && x.Menu.Type == MenuType.FrontEnd)

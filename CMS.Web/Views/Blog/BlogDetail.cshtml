@@ -1,0 +1,314 @@
+﻿@using CMS.Model.Enum
+@{
+    ViewData["Title"] = "Blog";
+    var sourceId = (int)SourceType.Blog;
+}
+<style>
+
+    #contentComment .k-treeview {
+        white-space: unset !important;
+    }
+
+    #commentList .k-treeview-leaf.k-selected {
+        border-color: unset !important;
+        color: unset !important;
+        background-color: unset !important;
+    }
+
+    #commentList .k-treeview-md .k-treeview-leaf {
+        width: 100% !important;
+    }
+
+    .k-treeview-md .k-treeview-leaf {
+        width: 100% !important;
+        transition: unset !important;
+    }
+
+    .k-treeview-leaf.k-hover, .k-treeview-leaf:hover, .k-treeview-leaf:focus {
+        background-color: unset !important;
+        box-shadow: unset !important;
+    }
+
+    .k-treeview-leaf .k-selected .k-in .k-focus {
+        box-shadow: unset !important;
+    }
+
+    .k-treeview *, .k-treeview ::after, .k-treeview ::before :active::after {
+        box-sizing: unset !important;
+    }
+</style>
+
+<main id="main">
+    <input id="blogId" type="hidden" value="@ViewBag.Id" />
+    <input id="sourceType" type="hidden" value="@sourceId" />
+
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Blog</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li data-bind="text:blog.title"></li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="blog" class="blog">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 entries">
+                    @await Component.InvokeAsync("Loading")
+                    <article id="blogDetail" class="entry entry-single shadow border">
+                        <div class="entry-img">
+                            <img data-bind="attr: { src:blog.imageUrl }" alt="" class="img-fluid">
+                        </div>
+                        <h2 class="entry-title">
+                            <a data-bind="text:blog.title"></a>
+                        </h2>
+
+                        <div class="entry-meta">
+                            <ul>
+                                <li class="d-flex align-items-center">
+                                    <i class="fa fa-user me-1"></i>
+                                    <span data-bind="text:blog.userName"></span>
+                                </li>
+                                <li class="d-flex align-items-center">
+                                    <i class="fa fa-clock me-1"></i>
+                                    <span><time data-bind="text: insertedDate"></time></span>
+                                </li>
+                                <li class="d-flex align-items-center">
+                                    <i class="fa fa-comments me-1"></i>
+                                    <a><span data-bind="text: blog.commentCount"></span> Yorum</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="entry-content">
+                            <p data-bind="html:blog.content"></p>
+                        </div>
+
+                        <div class="entry-footer">
+                            <i class="fa fa-folder"></i>
+                            <ul class="cats" data-template="blogCategory-template"
+                                data-bind="source: blog.blogCategories"></ul>
+                            <script id="blogCategory-template" type="text/x-kendo-template">
+                                <li><a class="pe-2" href="/blog/#:url#">#:name#</a></li>
+                            </script>
+                            <i class="fa fa-tags"></i>
+                            <ul class="tags">
+                                <li><a href="#">Creative</a></li>
+                                <li><a href="#">Tips</a></li>
+                                <li><a href="#">Marketing</a></li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <div class="accordion mb-3 shadow" id="accordionAddComment">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingAddComment">
+                                <button class="accordion-button bg-white text-dark" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapseAddComment"
+                                        aria-expanded="true"
+                                        aria-controls="collapseAddComment">
+                                    <h4><i class="fa-regular fa-comment-dots"></i> Yorum Ekle</h4>
+                                </button>
+                            </h2>
+                            <div id="collapseAddComment"
+                                 class="accordion-collapse collapse show"
+                                 aria-labelledby="headingAddComment"
+                                 data-bs-parent="#accordionAddComment">
+                                <div class="accordion-body">
+                                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                    {
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <form id="formAddComment">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Yorum</label>
+                                                        <textarea id="txtComment"
+                                                              class="form-control w-100"
+                                                              name="txtComment"
+                                                              required data-required-msg="Yorum giriniz."
+                                                              data-max-msg="En fazla 1 ile 500 karakter arasında metin giriniz."
+                                                              placeholder="Yorum giriniz."></textarea>
+                                                        <div id="k-counter-comment">
+                                                            <span class="k-counter-value">0</span>/500
+                                                        </div>
+
+                                                    </div>
+                                                </form>
+                                                <button type="button"
+                                                    id="btnAddComment"
+                                                    class="btn bg-green text-white float-end">
+                                                    Kaydet
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info">
+                                            <h6>Yorum yapabilmek için giriş yapınız!</h6>
+                                        </div>
+                                        <a class="btn bg-green text-white" href="/login">
+                                            Giriş Yap <i class="fa fa-arrow-right"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion mb-3 shadow" id="accordionComment">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingComment">
+                                <button class="accordion-button bg-white text-dark" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapseComment"
+                                        aria-expanded="true"
+                                        aria-controls="collapseComment">
+                                    <h4>
+                                        <i class="fa-regular fa-comments me-2"></i>
+                                        <span data-bind="text: blog.commentCount"></span> Yorum
+                                    </h4>
+                                </button>
+                            </h2>
+                            <div id="collapseComment"
+                                 class="accordion-collapse collapse show"
+                                 aria-labelledby="headingComment"
+                                 data-bs-parent="#accordionComment">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-12 p-0">
+                                            <div id="loadingComments">
+                                                @await Component.InvokeAsync("Loading")
+                                            </div>
+                                            <div id="contentComment">
+                                                <div id="commentList"></div>
+                                                <div id="pager"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <script id="comment-template" type="text/kendo-ui-template">
+                                        <div class="card w-100 mb-3">
+                                            <div class="card-header bg-white py-2">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <i class="fa fa-user me-2"></i>
+                                                        <span class="fst-italic"> #: item.userFullName # </span>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="float-md-end">
+                                                            <i class="fa fa-clock me-2"></i>
+                                                            <span class="fst-italic"> #: dateTimeFormat(item.insertedDate) # </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-12 mb-3">
+                                                        #: item.description #
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <a onclick="app.replyComment(#:item.id#,
+                                                                                    '#:item.userFullName#',
+                                                                                    '#:item.description#,')"
+                                                           class="btn btn-outline-secondary btn-sm">
+                                                           <i class="fa fa-reply me-1"></i> <small>Cevapla</small>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </script>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="sidebar shadow border">
+                        <h3 class="sidebar-title pb-2">Çok Okunanlar</h3>
+                        <div class="sidebar-item recent-posts" data-template="mostRead-template"
+                             data-bind="source: mostReads"></div>
+                        <script id="mostRead-template" type="text/x-kendo-template">
+                            <div class="post-item mb-4 clearfix">
+                                <img src="#:imageUrl#" alt="">
+                                <h4><a href="/blog/#:url#/#:id#">#:title#</a></h4>
+                                <time>#:dateFormat(insertedDate)#</time>
+                            </div>
+                        </script>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="replyCommentModal" tabindex="-1" aria-labelledby="replyCommentLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="replyCommentLabel">Yorum Cevapla</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                {
+                                    <form id="formReplyComment">
+                                        <div class="mb-3">
+                                            <div class="card">
+                                                <div class="card-header bg-white my-2">
+                                                    <i class="fa fa-user me-2"></i> <span data-bind="text:comment.userFullName"></span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-bind="text: comment.description"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="message-text" class="col-form-label">Yorum</label>
+                                            <textarea id="txtReplyComment"
+                                                  class="form-control w-100"
+                                                  name="txtReplyComment"
+                                                  required data-required-msg="Yorum giriniz."
+                                                  data-max-msg="En fazla 1 ile 500 karakter arasında metin giriniz."
+                                                  placeholder="Yorum giriniz."></textarea>
+                                            <div id="k-counter-reply-comment">
+                                                <span class="k-counter-value">0</span>/500
+                                            </div>
+                                        </div>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        <h6>Yorumu cevaplayabilmek için giriş yapınız!</h6>
+                                    </div>
+                                    <a class="btn bg-green text-white" href="/login">
+                                        Giriş Yap <i class="fa fa-arrow-right"></i>
+                                    </a>
+                                }
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                {
+                                    <button id="btnCommentReply" type="button" class="btn btn-primary bg-green text-white">
+                                        Cevapla
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="/js/pages/frontend/blog/blog-detail.js"></script>
+}

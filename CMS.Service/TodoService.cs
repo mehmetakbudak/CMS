@@ -101,7 +101,7 @@ namespace CMS.Service
 
         public ServiceResult Post(TodoModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Post };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Post };
 
             if (model.Id == 0)
             {
@@ -124,7 +124,7 @@ namespace CMS.Service
 
         public ServiceResult Put(TodoModel model)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Put };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
 
             var todo = _unitOfWork.Repository<Todo>()
                    .FirstOrDefault(x => x.Id == model.Id);
@@ -149,7 +149,7 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            ServiceResult serviceResult = new ServiceResult { StatusCode = (int)HttpStatusCode.OK, Message = AlertMessages.Delete };
+            ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
 
             var todo = _unitOfWork.Repository<Todo>()
                    .FirstOrDefault(x => x.Id == id);

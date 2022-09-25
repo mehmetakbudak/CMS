@@ -24,7 +24,7 @@ namespace CMS.Service
 
         public ServiceResult Post(ChatModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var chat = new Chat
             {

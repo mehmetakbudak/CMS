@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Blog";
+}
+
+<main id="main">
+    <input id="searchText" type="hidden" value="@ViewBag.SearchText" />
+
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Blog</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>Blog</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="blog" class="blog">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 entries">
+                    @await Component.InvokeAsync("Loading")
+
+                    <div id="content">
+                        <div id="blogList"></div>
+                        <script type="text/x-kendo-template" id="blogTemplate">
+                            <article class="entry shadow border">
+                                <div class="entry-img">
+                                    <img src="#:imageUrl#" alt="" class="img-fluid">
+                                </div>
+
+                                <h2 class="entry-title">
+                                    <a href="/blog/#:url#/#:id#">#:title#</a>
+                                </h2>
+
+                                <div class="entry-meta">
+                                    <ul>
+                                        <li class="d-flex align-items-center">
+                                            <i class="fa fa-user me-1"></i>
+                                            <a>#:userName#</a>
+                                        </li>
+                                        <li class="d-flex align-items-center">
+                                            <i class="fa fa-clock me-1"></i>
+                                            <a>
+                                                <time>#:dateFormat(insertedDate)#</time>
+                                            </a>
+                                        </li>
+                                        <li class="d-flex align-items-center">
+                                            <i class="fa fa-comments me-1"></i>
+                                            <a>#:commentCount# Yorum</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="entry-content">
+                                    <p>
+                                        #:description#
+                                    </p>
+                                    <div class="read-more">
+                                        <a href="/blog/#:url#/#:id#">Daha Fazla
+                                            <i class="fa fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        </script>
+
+                        <div class="pb-4">
+                            <div id="pager"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="sidebar shadow border">
+                        <h3 class="sidebar-title">Ara</h3>
+                        <div class="sidebar-item search-form">
+                            <form action="">
+                                <input type="text" id="txtSearch">
+                                <button type="button" id="btnSearch">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <h3 class="sidebar-title pb-2">Kategoriler</h3>
+                        <div class="sidebar-item categories">
+                            <ul id="blogCategoryList">
+                            </ul>
+                        </div>
+
+                        <script type="text/x-kendo-template" id="blogCategoryTemplate">
+                            <li class="my-3">
+                                <a href="/blog/#:url#">
+                                    <i class='fa fa-chevron-right me-2'></i>
+                                    #:name# <span>(#:blogCount#)</span>
+                                </a>
+                            </li>
+                        </script>
+
+                        <h3 class="sidebar-title pb-2">Çok Okunanlar</h3>
+
+                        <div class="sidebar-item recent-posts" id="blogMostReadList"></div>
+
+                        <script type="text/x-kendo-template" id="blogMostReadTemplate">
+                            <div class="post-item mb-4 clearfix">
+                                <img src="#:imageUrl#" alt="">
+                                <h4><a href="/blog/#:url#/#:id#">#:title#</a></h4>
+                                <time>#:dateFormat(insertedDate)#</time>
+                            </div>
+                        </script>
+
+                        <h3 class="sidebar-title">Etiketler</h3>
+
+                        <div class="sidebar-item tags">
+                            <ul>
+                                <li><a href="#">App</a></li>
+                                <li><a href="#">IT</a></li>
+                                <li><a href="#">Business</a></li>
+                                <li><a href="#">Mac</a></li>
+                                <li><a href="#">Design</a></li>
+                                <li><a href="#">Office</a></li>
+                                <li><a href="#">Creative</a></li>
+                                <li><a href="#">Studio</a></li>
+                                <li><a href="#">Smart</a></li>
+                                <li><a href="#">Tips</a></li>
+                                <li><a href="#">Marketing</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="/js/pages/frontend/blog/blog-list.js"></script>
+}

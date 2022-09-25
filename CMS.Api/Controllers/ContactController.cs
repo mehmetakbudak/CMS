@@ -14,6 +14,11 @@ namespace CMS.Api
             _contactService = contactService;
         }
 
+        /// <summary>
+        /// Yeni iletişim mesajı ekler.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Post([FromBody] ContactModel model)
         {

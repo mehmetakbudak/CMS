@@ -53,6 +53,20 @@ namespace CMS.Data.Context
 
         public virtual DbSet<MailTemplate> MailTemplates { get; set; }
 
+        public virtual DbSet<Team> Teams { get; set; }
+
+        public virtual DbSet<Service> Services { get; set; }
+
+        public virtual DbSet<Testimonial> Testimonials { get; set; }
+
+        public virtual DbSet<Client> Clients { get; set; }
+
+        public virtual DbSet<HomepageSlider> HomepageSliders { get; set; }
+
+        public virtual DbSet<Tag> Tags { get; set; }
+
+        public virtual DbSet<SourceTag> SourceTags { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

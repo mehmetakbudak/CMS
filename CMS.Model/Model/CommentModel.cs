@@ -77,7 +77,7 @@ namespace CMS.Model.Model
 
         public DateTime InsertedDate { get; set; }
 
-        public List<CommentGetModel> Children { get; set; }
+        public List<CommentGetModel> Items { get; set; }
     }
 
     public class SourceCommentModel
@@ -90,7 +90,11 @@ namespace CMS.Model.Model
     {
         public int Id { get; set; }
 
-        public string Source { get; set; }
+        public string SourceTypeName { get; set; }
+
+        public string Title { get; set; }
+
+        public int SourceId { get; set; }
 
         public string Status { get; set; }
 

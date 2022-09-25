@@ -1,0 +1,55 @@
+﻿@model CMS.Model.Model.ViewModel.ServiceDetailViewModel;
+
+@{
+    ViewData["Title"] = "Hizmetler";
+}
+
+<main id="main">
+    <input type="hidden" id="serviceUrl" value="@ViewBag.Url" />
+
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 data-bind="text: service.name">Hizmetler</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li><a href="/service">Hizmetler</a></li>
+                    <li>@Model.Detail.Name</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="services section-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <div class="card shadow">
+                        <img class="card-img-top" src="@Model.Detail.ImageUrl" alt="" />
+                        <div class="p-3">@Html.Raw(Model.Detail.Content)</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow">
+                        <div class="card-header bg-white py-2">
+                            <h3>Hizmetler</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="mt-2 sidebar-item">
+                                @foreach (var service in Model.Services)
+                                {
+                                    <div class="mb-4 clearfix">
+                                        <a class="text-dark" href="/service/@service.Url">
+                                            <i class='fa fa-chevron-right me-1'></i> @service.Name
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>

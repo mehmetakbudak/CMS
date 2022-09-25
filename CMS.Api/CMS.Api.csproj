@@ -38,7 +38,10 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\images\blogs\" />
+    <Folder Include="wwwroot\images\testimonials\" />
+    <Folder Include="wwwroot\images\services\" />
+    <Folder Include="wwwroot\images\teams\" />
   </ItemGroup>
 
 </Project>

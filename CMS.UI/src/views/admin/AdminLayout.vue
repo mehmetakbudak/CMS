@@ -1,11 +1,16 @@
 <template>
   <nav class="navbar navbar-light bg-light border fixed-top">
     <div class="container-fluid">
-      <router-link class="navbar-brand" to="/admin">CMS Admin Paneli</router-link>
+      <router-link class="navbar-brand" to="/admin"
+        ><h5 class="text-transform-none">CMS Admin Paneli</h5></router-link
+      >
       <div class="d-flex">
         <div class="float-end">
           <Button
-            class="me-3 p-button-rounded p-button-primary p-button-outlined p-button-sm"
+            class="
+              me-3
+              p-button-rounded p-button-primary p-button-outlined p-button-sm
+            "
             icon="pi pi-th-large"
             @click="visibleLeft = true"
             v-if="windowWidth < 768"
@@ -14,7 +19,9 @@
           <Button
             :label="currentUser?.fullName"
             @click="toggleRightMenu"
-            class="p-button-rounded p-button-primary p-button-outlined p-button-sm"
+            class="
+              p-button-rounded p-button-primary p-button-outlined p-button-sm
+            "
             icon="pi pi-user"
           />
           <Menu ref="menu" :model="rightMenuItems" :popup="true" />
@@ -28,9 +35,11 @@
       <div>
         <Tree :value="leftMenu" :filter="true" filterMode="lenient">
           <template #default="menu">
-            <a class="text-dark text-decoration-none" v-if="menu.node.to == null">{{
-              menu.node?.label
-            }}</a>
+            <a
+              class="text-dark text-decoration-none"
+              v-if="menu.node.to == null"
+              >{{ menu.node?.label }}</a
+            >
             <router-link
               v-if="menu.node.to != null"
               class="text-dark text-decoration-none"
@@ -47,33 +56,27 @@
       <div class="container-fluid px-0 px-md-2">
         <div class="row">
           <div class="col-md-3 mb-3" v-if="windowWidth > 768">
-            <div class="card">
-              <div class="card-body">
-                <DxTreeView
-                  class="py-2"
-                  :items="leftMenu"
-                  itemsExpr="items"
-                  :search-enabled="true"
-                  searchExpr="title"
-                  search-mode="contains"
-                  item-template="left-menu-template"
-                >
-                  <DxSearchEditorOptions placeholder="Menüde Ara..." />
-                  <template #left-menu-template="leftMenuItem">
-                    <div v-if="leftMenuItem.data.to != null">
-                      <router-link
-                        class="text-dark text-decoration-none"
-                        :to="leftMenuItem?.data?.to"
-                        >{{ leftMenuItem?.data?.title }}</router-link
-                      >
-                    </div>
-                    <div v-if="leftMenuItem.data.to == null">
-                      {{ leftMenuItem?.data?.title }}
-                    </div>
+            <Card>
+              <template #content>
+                <Tree :value="leftMenu" :filter="true" filterMode="lenient">
+                  <template #default="menu">
+                    <a
+                      class="text-dark text-decoration-none ps-0"
+                      v-if="menu.node.to == null"
+                    >
+                      {{ menu.node?.label }}
+                    </a>
+                    <router-link
+                      v-if="menu.node.to != null"
+                      class="text-dark text-decoration-none ps-0"
+                      :to="menu.node?.to"
+                    >
+                      {{ menu.node?.label }}
+                    </router-link>
                   </template>
-                </DxTreeView>
-              </div>
-            </div>
+                </Tree>
+              </template>
+            </Card>
           </div>
           <div class="col-md-9">
             <div class="mb-3">
@@ -89,12 +92,12 @@
 <script>
 import { Endpoints } from "../../services/Endpoints";
 import GlobalService from "../../services/GlobalService";
-import DxTreeView, { DxSearchEditorOptions } from "devextreme-vue/tree-view";
+import { useAuthStore } from "../../store";
 
 export default {
-  components: {
-    DxTreeView,
-    DxSearchEditorOptions,
+  setup() {
+    const authStore = useAuthStore();
+    return { authStore };
   },
   data() {
     return {
@@ -110,8 +113,7 @@ export default {
         {
           label: "Çıkış Yap",
           command: () => {
-            this.$store.dispatch("auth/logout");
-            this.$router.push("/");
+            this.authStore.logout();
           },
         },
       ],
@@ -121,7 +123,7 @@ export default {
     this.loadMenu();
     this.windowWidth = window.innerWidth;
     if (this.windowWidth > 768) {
-      this.currentUser = this.$store.state.auth.user;
+      this.currentUser = this.authStore.user;
     }
   },
   methods: {
@@ -129,9 +131,11 @@ export default {
       this.$refs.menu.toggle(event);
     },
     loadMenu() {
-      GlobalService.GetByAuth(`${Endpoints.Admin.Menu}/GetUserMenu`).then((res) => {
-        this.leftMenu = res.data;
-      });
+      GlobalService.GetByAuth(`${Endpoints.Admin.Menu}/GetUserMenu`).then(
+        (res) => {
+          this.leftMenu = res.data;
+        }
+      );
     },
     selectTree() {
       this.visibleLeft = false;
@@ -150,5 +154,9 @@ export default {
 }
 .bg-pi {
   background: #efefef !important;
+}
+
+.text-transform-none {
+  text-transform: none !important;
 }
 </style>

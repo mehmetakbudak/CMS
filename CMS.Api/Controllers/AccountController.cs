@@ -31,7 +31,7 @@ namespace CMS.Api.Controllers
         public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
             var result = await _userService.Authenticate(login);
-            return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace CMS.Api.Controllers
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
         {
             var result = await _userService.ForgotPassword(model);
-            return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -65,6 +65,7 @@ namespace CMS.Api.Controllers
         /// <param name="code"></param>
         /// <returns></returns>
         [HttpGet("ResetPassword/{code}")]
+        [ProducesResponseType(typeof(ResetPasswordInfoModel), 200)] //OK
         public IActionResult ResetPassword(string code)
         {
             var result = _userService.GetUserByCode(code);
@@ -80,7 +81,7 @@ namespace CMS.Api.Controllers
         public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
         {
             var result = _userService.ResetPassword(model);
-            return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -89,6 +90,7 @@ namespace CMS.Api.Controllers
         /// <returns></returns>
         [HttpGet("Profile")]
         [CMSAuthorize(CheckAccessRight = false)]
+        [ProducesResponseType(typeof(UserProfileModel), 200)] //OK
         public IActionResult GetProfile()
         {
             var result = _userService.GetProfile();
@@ -105,7 +107,7 @@ namespace CMS.Api.Controllers
         public IActionResult UpdateProfile([FromBody] UserProfileModel model)
         {
             var result = _userService.UpdateProfile(model);
-            return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -117,7 +119,7 @@ namespace CMS.Api.Controllers
         public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
         {
             var result = await _userService.AddMember(model);
-            return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -130,7 +132,7 @@ namespace CMS.Api.Controllers
         public IActionResult ChangePassword([FromBody] ChangePasswordModel model)
         {
             var result = _userService.ChangePassword(model);
-            return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
 
         /// <summary>
@@ -142,7 +144,7 @@ namespace CMS.Api.Controllers
         public IActionResult EmailVerified(string code)
         {
             var result = _userService.EmailVerified(code);
-            return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
     }
 }

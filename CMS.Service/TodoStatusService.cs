@@ -49,7 +49,7 @@ namespace CMS.Service
 
         public ServiceResult Post(TodoStatus model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var todoStatus = new TodoStatus
             {
@@ -68,7 +68,7 @@ namespace CMS.Service
 
         public ServiceResult Put(TodoStatus model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var todoStatus = _unitOfWork.Repository<TodoStatus>()
                                .FirstOrDefault(x => x.Id == model.Id);
@@ -89,7 +89,7 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var todoStatus = _unitOfWork.Repository<TodoStatus>()
                    .FirstOrDefault(x => x.Id == id);

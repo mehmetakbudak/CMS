@@ -53,6 +53,9 @@ builder.Services.AddScoped<IWebsiteParameterService, WebsiteParameterService>();
 builder.Services.AddScoped<IMailTemplateService, MailTemplateService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ILookupService, LookupService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<ITestimonialService, TestimonialService>();
+builder.Services.AddScoped<IService_Service, Service_Service>();
 
 builder.Services.ConfigureApplicationCookie(s =>
 {

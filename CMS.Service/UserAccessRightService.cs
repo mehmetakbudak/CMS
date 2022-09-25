@@ -86,7 +86,7 @@ namespace CMS.Service
 
         public ServiceResult CreateOrUpdate(UserAccessRightModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var user = _unitOfWork.Repository<User>()
                 .FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == model.UserId && x.UserType != UserType.Member);

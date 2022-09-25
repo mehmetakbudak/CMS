@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Yorumlarım";
+}
+<main id="main">
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Yorumlarım</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>Yorumlarım</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <div class="container my-3">
+        <div class="row">
+            <div class="col-md-3">
+                @await Html.PartialAsync("_ProfileMenu")
+            </div>
+            <div class="col-md-9">
+                <div class="card box-shadow" style="min-height: 500px;">
+                    <div class="card-body mt-4">
+                        <div class="table-responsive">
+                            @await Component.InvokeAsync("Loading")
+
+                            <div id="content">
+                                <table class="table table-striped" id="grid">
+                                    <thead class="fw-bold">
+                                        <tr>
+                                            <th width="50"></th>
+                                            <th width="100">
+                                                Türü
+                                            </th>
+                                            <th width="200">
+                                                Başlık
+                                            </th>
+                                            <th width="100">
+                                                Durumu
+                                            </th>
+                                            <th width="300">
+                                                Yorum
+                                            </th>
+                                            <th width="200">
+                                                Ekleme Tarihi
+                                            </th>
+                                            <th width="200">
+                                                Güncelleme Tarihi
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <script id="rowTemplate" type="text/x-kendo-tmpl">
+                            <tr data-uid="#: id #">
+                                <td width="50">
+                                    <a onclick="app.commentDelete(#:id#)"
+                                        class="btn btn-danger btn-sm text-white">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </td>
+                                <td width="100">
+                                    #: sourceTypeName #
+                                </td>
+                                <td width="200">
+                                    <a class="text-primary" href="#: url #">#: title #</a>
+                                </td>
+                                <td width="100">
+                                    #: status #
+                                </td>
+                                <td width="300">
+                                   #: description #
+                                </td>
+                                <td width="200">
+                                    #: dateTimeFormat(insertedDate) #
+                                </td>
+                                <td width="200">
+                                    #: dateTimeFormat(updatedDate) #
+                                </td>
+                            </tr>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts{
+    <script src="/js/pages/frontend/account/comment.js"></script>
+}

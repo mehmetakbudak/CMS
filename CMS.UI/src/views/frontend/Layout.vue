@@ -1,18 +1,21 @@
 <template>
-  <div class="container">
-    <Header />
-    <div class="my-3">
+  <div>
+    <Header></Header>
+    <div>
       <router-view :key="$route.fullPath"></router-view>
-    </div>
+    </div> 
+    <Footer></Footer>
   </div>
 </template>
 
 <script>
 import Header from "./Header.vue";
+import Footer from "./Footer.vue";
 
 export default {
   components: {
     Header,
+    Footer,
   },
 };
 </script>

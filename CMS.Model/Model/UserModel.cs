@@ -1,4 +1,5 @@
 ﻿using CMS.Model.Entity;
+using CMS.Model.Enum;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -17,7 +18,7 @@ namespace CMS.Model.Model
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Kullanıcı soyadı zorunludur.")]
-        public string Surname { get; set; }      
+        public string Surname { get; set; }
 
         [Required(ErrorMessage = "Email adresi zorunludur.")]
         [EmailAddress(ErrorMessage = "Email formatı uygun değildir.")]
@@ -31,13 +32,15 @@ namespace CMS.Model.Model
     public class UserCreateOrUpdateModel { }
 
 
-    public class UserProfileModel : BaseModel
+    public class UserProfileModel
     {
         public string Name { get; set; }
 
         public string Surname { get; set; }
 
         public string EmailAddress { get; set; }
+
+        public string Phone { get; set; }
     }
 
     public class AddMemberModel
@@ -57,6 +60,9 @@ namespace CMS.Model.Model
 
         [Required(ErrorMessage = "Şifre yeniden zorunludur.")]
         public string RePassword { get; set; }
+
+        [Required(ErrorMessage = "Telefon zorunludur.")]
+        public string Phone { get; set; }
     }
 
     public class ChangePasswordModel
@@ -92,6 +98,7 @@ namespace CMS.Model.Model
 
     public class ResetPasswordInfoModel
     {
+        public string Code { get; set; }
         public string FullName { get; set; }
     }
 
@@ -106,5 +113,12 @@ namespace CMS.Model.Model
         public List<string> OperationAccessRights { get; set; }
 
         public List<string> MenuAccessRights { get; set; }
+    }
+
+    public class AppUserModel
+    {
+        public int UserId { get; set; }
+
+        public UserType UserType { get; set; }
     }
 }

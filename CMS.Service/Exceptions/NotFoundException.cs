@@ -8,12 +8,12 @@ namespace CMS.Service.Exceptions
     {
         public NotFoundException() : base()
         {
-            Error = new BaseResult { StatusCode = (int)HttpStatusCode.NotFound, Message = "Kayıt bulunamadı." };
+            Error = new BaseResult { StatusCode = HttpStatusCode.NotFound, Message = "Kayıt bulunamadı." };
         }
 
         public NotFoundException(String message) : base(message)
         {
-            Error = new BaseResult { StatusCode = (int)HttpStatusCode.NotFound, Message = message };
+            Error = new BaseResult { StatusCode = HttpStatusCode.NotFound, Message = message };
         }
 
         protected override HttpStatusCode HttpStatusCode => HttpStatusCode.NotFound;

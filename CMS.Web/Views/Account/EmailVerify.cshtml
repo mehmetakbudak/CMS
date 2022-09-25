@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Email Doğrulama";
+}
+
+<main id="main">
+
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Email Doğrulama</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>Email Doğrulama</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <div class="card box-shadow">
+                <div class="card-body" style="padding: 50px">
+                    @if (ViewBag.IsSuccess)
+                    {
+                        <div class="alert alert-info">
+                            <h5>
+                                <i class="fa-solid fa-square-check"></i>
+                                Email adresiniz başarıyla doğrulandı.
+                            </h5>
+                        </div>
+                        <p>
+                            <a class="btn bg-green text-white" href="/login">
+                                <i class="fa fa-arrow-right-circle"></i> Giriş Yap
+                            </a>
+                        </p>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <h5>
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                Email doğrulama işlemi başarısız oldu.
+                            </h5>
+                        </div>
+                        <a class="btn btn-outline-secondary" href="/">
+                            <i class="fa-solid fa-house"></i> Anasayfa
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </section>
+</main>

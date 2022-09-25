@@ -1,97 +1,97 @@
 <template>
-  <div class="card">
-    <div class="card-body">
-      <div class="col-md-4 offset-md-4 py-50">
-        <div class="card shadow">
-          <div class="card-header py-3 bg-white">
-            <h4>Üye Ol</h4>
-          </div>
-          <div class="card-body">
-            <form @submit="register">
-              <div class="mb-3">
-                <label class="form-label">Adı</label>
-                <DxTextBox v-model:value="user.name" mode="text">
-                  <DxValidator>
-                    <DxRequiredRule message="Adı gereklidir." />
-                  </DxValidator>
-                </DxTextBox>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Soyadı</label>
-                <DxTextBox v-model:value="user.surname" mode="text">
-                  <DxValidator>
-                    <DxRequiredRule message="Soyadı gereklidir." />
-                  </DxValidator>
-                </DxTextBox>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Email Adresi</label>
-                <DxTextBox v-model:value="user.emailAddress" mode="email">
-                  <DxValidator>
-                    <DxRequiredRule message="Email adresi gereklidir." />
-                    <DxEmailRule message="Email adresi geçersiz." />
-                  </DxValidator>
-                </DxTextBox>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Şifre</label>
-                <DxTextBox v-model:value="user.password" mode="password">
-                  <DxValidator>
-                    <DxRequiredRule message="Şifre gereklidir." />
-                  </DxValidator>
-                </DxTextBox>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Şifre Yeniden</label>
-                <DxTextBox v-model:value="user.rePassword" mode="password">
-                  <DxValidator>
-                    <DxRequiredRule message="Şifre Yeniden gereklidir." />
-                  </DxValidator>
-                </DxTextBox>
-              </div>
-
-              <div class="mb-3">
-                <DxButton
-                  class="w-100"
-                  text="Kaydet"
-                  type="default"
-                  :use-submit-behavior="true"
-                />
-              </div>
-            </form>
-            <div class="text-center">
-              Zaten üye misiniz?
-              <router-link
-                class="text-decoration-none cursor-pointer"
-                to="/giris"
-                >Giriş Yap</router-link
-              >
-            </div>
-          </div>
+  <main id="main">
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2>Üye Ol</h2>
+          <ol>
+            <li><router-link to="/">Anasayfa</router-link></li>
+            <li>Üye Ol</li>
+          </ol>
         </div>
       </div>
+    </section>
+    <div class="container my-3">
+      <Card>
+        <template #content>
+          <div class="col-md-4 offset-md-4">
+            <div class="card">
+              <div class="card-header py-3 bg-white">
+                <h4>Üye Ol</h4>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label">Adı</label>
+                  <InputText type="email" class="w-100" v-model="data.name" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Soyadı</label>
+                  <InputText
+                    type="email"
+                    class="w-100"
+                    v-model="data.surname"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Email Adresi</label>
+                  <InputText
+                    type="email"
+                    class="w-100"
+                    v-model="data.emailAddress"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Şifre</label>
+                  <InputText
+                    type="password"
+                    class="w-100"
+                    v-model="data.password"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Şifre Yeniden</label>
+                  <InputText
+                    type="password"
+                    class="w-100"
+                    v-model="data.rePassword"
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <Button
+                    class="w-100 bg-green"
+                    type="submit"
+                    label="Kaydet"
+                    @click="register"
+                  ></Button>
+                </div>
+                <div class="text-center">
+                  Zaten üye misiniz?
+                  <router-link
+                    class="text-decoration-none cursor-pointer"
+                    to="/giris"
+                    >Giriş Yap</router-link
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </Card>
     </div>
-  </div>
+  </main>
 </template>
 
 <script>
-import { DxButton } from "devextreme-vue/button";
-import {
-  DxValidator,
-  DxRequiredRule,
-  DxEmailRule,
-} from "devextreme-vue/validator";
-import { DxTextBox } from "devextreme-vue/text-box";
 import AlertService from "../../services/AlertService";
 import { Endpoints } from "../../services/Endpoints";
 import GlobalService from "../../services/GlobalService";
 
 export default {
   mixins: [AlertService],
-  components: { DxTextBox, DxButton, DxValidator, DxRequiredRule, DxEmailRule },
   data() {
     return {
-      user: {
+      data: {
         name: "",
         surname: "",
         emailAddress: "",
@@ -112,21 +112,24 @@ export default {
   },
   methods: {
     register() {
-      GlobalService.Post(Endpoints.Account.AddMember, this.user)
+      GlobalService.Post(Endpoints.Account.AddMember, this.data)
         .then((res) => {
-          this.user = {
+          this.data = {
             name: "",
             surname: "",
             emailAddress: "",
             password: "",
             rePassword: "",
           };
-          this.successMessage( res.user.message);
+          this.successMessage(this, res.data.message);
         })
         .catch((e) => {
-          this.errorMessage( e.response.user.message);
+          this.errorMessage(this, e.response.data.message);
         });
     },
   },
 };
 </script>
+
+<style>
+</style>

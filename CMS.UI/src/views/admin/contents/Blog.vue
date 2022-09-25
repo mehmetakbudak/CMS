@@ -1,12 +1,23 @@
 <template>
-  <div class="card" v-if="showGrid">
+  <div class="card">
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-6">
-          <h3>Bloglar</h3>
+          <h5>{{ title }}</h5>
         </div>
         <div class="col-6">
-          <DxButton icon="plus" @click="add" type="default" class="float-end" />
+          <Button
+            v-if="showGrid"
+            icon="pi pi-plus"
+            class="p-button-primary p-button-sm float-end"
+            @click="add()"
+          />
+          <Button
+            v-if="showForm"
+            icon="pi pi-arrow-left"
+            class="p-button-primary p-button-sm float-end"
+            @click="reset()"
+          />
         </div>
       </div>
     </div>
@@ -42,9 +53,17 @@
               {{ dateFormatValue(data.insertedDate) }}
             </template>
           </Column>
-          <Column field="updatedDate" header="Güncelleme Tarihi" dataType="date">
+          <Column
+            field="updatedDate"
+            header="Güncelleme Tarihi"
+            dataType="date"
+          >
             <template #body="{ data }">
-              {{ data.updatedDate != null ? dateFormatValue(data.updatedDate) : "" }}
+              {{
+                data.updatedDate != null
+                  ? dateFormatValue(data.updatedDate)
+                  : ""
+              }}
             </template>
           </Column>
           <Column field="published" header="Yayında">
@@ -65,105 +84,65 @@
           <template #empty> Kayıt bulunamadı. </template>
         </DataTable>
       </div>
-      <div v-if="showForm"></div>
-    </div>
-  </div>
-  <form @submit="save" v-if="showForm">
-    <div class="card">
-      <div class="card-header bg-white py-3">
+      <div v-if="showForm">
         <div class="row">
-          <div class="col-6">
-            <h3>{{ title }}</h3>
-          </div>
-          <div class="col-6">
-            <DxButton icon="arrowleft" @click="reset" type="default" class="float-end" />
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-12 px-3">
+          <div class="col-md-12">
             <div class="mb-3">
               <label class="form-label">Başlık</label>
-              <DxTextBox v-model:value="blog.title" mode="text" placeholder="Başlık" />
+              <InputText
+                type="text"
+                v-model="blog.title"
+                placeholder="Başlık"
+                class="w-100"
+              />
             </div>
             <div class="mb-3">
               <label class="form-label">Kısa Açıklama</label>
-              <DxTextArea v-model:value="blog.description" placeholder="Kısa Açıklama" />
+              <Textarea
+                type="text"
+                rows="3"
+                v-model="blog.description"
+                placeholder="Kısa Açıklama"
+                class="w-100"
+              ></Textarea>
             </div>
             <div class="mb-3">
               <label class="form-label">Blog Kategoriler</label>
-              <DxTagBox
-                v-model:value="blog.blogCategories"
-                :data-source="blogCategories"
-                display-expr="name"
-                value-expr="id"
+              <MultiSelect
+                class="w-100"
+                v-model="blog.blogCategories"
+                :options="blogCategories"
+                optionLabel="name"
+                optionValue="id"
                 placeholder="Kategori seçiniz."
+                display="chip"
               />
             </div>
             <div class="mb-3">
               <label class="form-label">İçerik</label>
-              <DxHtmlEditor v-model:value="blog.content" height="300px">
-                <DxMediaResizing :enabled="true" />
-                <DxToolbar :multiline="true">
-                  <DxItem name="undo" />
-                  <DxItem name="redo" />
-                  <DxItem name="separator" />
-                  <DxItem :accepted-values="sizeValues" name="size" />
-                  <DxItem :accepted-values="fontValues" name="font" />
-                  <DxItem name="separator" />
-                  <DxItem name="bold" />
-                  <DxItem name="italic" />
-                  <DxItem name="strike" />
-                  <DxItem name="underline" />
-                  <DxItem name="separator" />
-                  <DxItem name="alignLeft" />
-                  <DxItem name="alignCenter" />
-                  <DxItem name="alignRight" />
-                  <DxItem name="alignJustify" />
-                  <DxItem name="separator" />
-                  <DxItem name="orderedList" />
-                  <DxItem name="bulletList" />
-                  <DxItem name="separator" />
-                  <DxItem :accepted-values="headerValues" name="header" />
-                  <DxItem name="separator" />
-                  <DxItem name="color" />
-                  <DxItem name="background" />
-                  <DxItem name="separator" />
-                  <DxItem name="link" />
-                  <DxItem name="image" />
-                  <DxItem name="separator" />
-                  <DxItem name="clear" />
-                  <DxItem name="codeBlock" />
-                  <DxItem name="blockquote" />
-                  <DxItem name="separator" />
-                  <DxItem name="insertTable" />
-                  <DxItem name="deleteTable" />
-                  <DxItem name="insertRowAbove" />
-                  <DxItem name="insertRowBelow" />
-                  <DxItem name="deleteRow" />
-                  <DxItem name="insertColumnLeft" />
-                  <DxItem name="insertColumnRight" />
-                  <DxItem name="deleteColumn" />
-                </DxToolbar>
-              </DxHtmlEditor>
+              <Editor v-model="blog.content" editorStyle="height: 500px" />
             </div>
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Url</label>
-                  <DxTextBox v-model:value="blog.url" :disabled="true" />
+                  <InputText
+                    type="text"
+                    v-model="blog.url"
+                    placeholder="Url"
+                    class="w-100"
+                  />
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
                   <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <label class="form-label">Sıra</label>
-                      <DxNumberBox
-                        v-model:value="blog.displayOrder"
-                        :show-spin-buttons="true"
-                        :min="1"
+                      <InputNumber
+                        v-model="blog.displayOrder"
+                        placeholder="Sıra"
+                        inputStyle="width: 100px !important;"
                       />
                     </div>
                   </div>
@@ -171,85 +150,49 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-2">
                 <div class="mb-3">
-                  <label class="form-label w-100">Yayınla</label>
-                  <DxSwitch
-                    width="100px"
-                    v-model="blog.published"
-                    switchedOffText="Yayında Değil"
-                    switchedOnText="Yayında"
-                  />
+                  <label class="form-label">Yayında</label>
+                  <div>
+                    <InputSwitch v-model="blog.published" />
+                  </div>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-2">
                 <div class="mb-3">
-                  <label class="form-label w-100">Aktif</label>
-                  <DxSwitch
-                    v-model="blog.isActive"
-                    switchedOffText="Pasif"
-                    switchedOnText="Aktif"
-                  />
+                  <label class="form-label">Aktif</label>
+                  <div>
+                    <InputSwitch v-model="blog.isActive" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="card-footer bg-white py-3" v-if="showForm">
-        <DxButton text="Kaydet" type="default" :useSubmitBehavior="true" />
-        <DxButton text="Vazgeç" @click="reset" class="ms-2" />
-      </div>
     </div>
-  </form>
+    <div class="card-footer bg-white py-3" v-if="showForm">
+      <Button label="Kaydet" @click="save()" />
+      <Button
+        label="Vazgeç"
+        @click="reset()"
+        class="ms-2 p-button-outlined p-button-secondary"
+      />
+    </div>
+  </div>
 </template>
 
 <script>
-import { DxButton } from "devextreme-vue/button";
-import { DxSwitch } from "devextreme-vue/switch";
-import { DxNumberBox } from "devextreme-vue/number-box";
-import { DxTextArea } from "devextreme-vue/text-area";
-import { DxTextBox } from "devextreme-vue/text-box";
-import { DxTagBox } from "devextreme-vue/tag-box";
-import {
-  DxHtmlEditor,
-  DxToolbar,
-  DxMediaResizing,
-  DxItem,
-} from "devextreme-vue/html-editor";
 import GlobalService from "../../../services/GlobalService";
 import dateFormat from "../../../infrastructure/DateFormat";
 import { Endpoints } from "../../../services/Endpoints";
 import AlertService from "../../../services/AlertService";
 
 export default {
-  components: {
-    DxButton,
-    DxSwitch,
-    DxNumberBox,
-    DxTextArea,
-    DxTextBox,
-    DxTagBox,
-    DxHtmlEditor,
-    DxToolbar,
-    DxMediaResizing,
-    DxItem,
-  },
+  name: "name",
   mixins: [AlertService],
   data() {
     return {
-      sizeValues: ["8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt"],
-      fontValues: [
-        "Arial",
-        "Courier New",
-        "Georgia",
-        "Impact",
-        "Lucida Console",
-        "Tahoma",
-        "Times New Roman",
-        "Verdana",
-      ],
-      headerValues: [false, 1, 2, 3, 4, 5],
       title: "",
       loading: true,
       showGrid: true,
@@ -292,13 +235,16 @@ export default {
               acceptLabel: "Evet",
               rejectLabel: "Hayır",
               accept: () => {
-                GlobalService.DeleteByAuth(Endpoints.Admin.Blog, this.selectedBlog.id)
+                GlobalService.DeleteByAuth(
+                  Endpoints.Admin.Blog,
+                  this.selectedBlog.id
+                )
                   .then((res) => {
                     this.getAll();
-                    this.successMessage(res.data.message);
+                    this.successMessage(this, res.data.message);
                   })
                   .catch((e) => {
-                    this.errorMessage(e.response.data.message);
+                    this.errorMessage(this, e.response.data.message);
                   });
               },
             });
@@ -320,9 +266,11 @@ export default {
       });
     },
     getBlogCategories() {
-      GlobalService.GetByAuth(Endpoints.Admin.Lookup.BlogCategories).then((res) => {
-        this.blogCategories = res.data;
-      });
+      GlobalService.GetByAuth(Endpoints.Admin.Lookup.BlogCategories).then(
+        (res) => {
+          this.blogCategories = res.data;
+        }
+      );
     },
     add() {
       this.showForm = true;
@@ -352,27 +300,26 @@ export default {
       this.showGrid = true;
       this.title = "Bloglar";
     },
-    save(e) {
-      e.preventDefault();
+    save() {
       if (this.blog.id == 0) {
         GlobalService.PostByAuth(Endpoints.Admin.Blog, this.blog)
           .then((res) => {
             this.getAll();
             this.reset();
-            this.successMessage(res.data.message);
+            this.successMessage(this, res.data.message);
           })
           .catch((e) => {
-            this.errorMessage(e.response.data.message);
+            this.errorMessage(this, e.response.data.message);
           });
       } else {
         GlobalService.PutByAuth(Endpoints.Admin.Blog, this.blog)
           .then((res) => {
             this.getAll();
             this.reset();
-            this.successMessage(res.data.message);
+            this.successMessage(this, res.data.message);
           })
           .catch((e) => {
-            this.errorMessage(e.response.data.message);
+            this.errorMessage(this, e.response.data.message);
           });
       }
     },

@@ -27,14 +27,14 @@ namespace CMS.Api.Controllers.Admin
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] BlogCategoryDtoModel model)
+        public IActionResult Post([FromBody] BlogCategoryModel model)
         {
             var result = _blogCategoryService.Post(model);
             return StatusCode(result.StatusCode, result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] BlogCategoryDtoModel model)
+        public IActionResult Put([FromBody] BlogCategoryModel model)
         {
             var result = _blogCategoryService.Put(model);
             return StatusCode(result.StatusCode, result);

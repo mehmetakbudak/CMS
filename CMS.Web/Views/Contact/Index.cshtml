@@ -1,0 +1,117 @@
+﻿@{
+    ViewData["Title"] = "İletişim";
+}
+
+<main id="main">
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>İletişim</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>İletişim</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <div class="map-section">
+        <iframe style="border:0; width: 100%; height: 350px;" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="row justify-content-center" data-aos="fade-up">
+                <div class="col-lg-10">
+                    <div class="info-wrap">
+                        <div class="row">
+                            <div class="col-lg-4 info">
+                                <i class="fa fa-map h6"></i>
+                                <h4>Adres:</h4>
+                                <p>A108 Adam Street<br>New York, NY 535022</p>
+                            </div>
+
+                            <div class="col-lg-4 info mt-4 mt-lg-0">
+                                <i class="fa fa-envelope"></i>
+                                <h4>Email Adresi:</h4>
+                                <p>info@example.com<br>contact@example.com</p>
+                            </div>
+
+                            <div class="col-lg-4 info mt-4 mt-lg-0">
+                                <i class="fa fa-phone"></i>
+                                <h4>Telefon:</h4>
+                                <p>+1 5589 55488 51<br>+1 5589 22475 14</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5 justify-content-center">
+                <div class="col-lg-10">
+                    <form id="contactForm" class="php-email-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Konu</label>
+                                <input class="bg-white"
+                                       id="cmbContactCategory"
+                                       name="cmbContactCategory"
+                                       required data-required-msg="Konu seçiniz." />
+
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email Adres</label>
+                                <input type="email"
+                                       class="form-control w-100"
+                                       name="txtEmailAddress"
+                                       id="txtEmailAddress"
+                                       placeholder="Email Adresi"
+                                       required data-required-msg="Email adresi giriniz."
+                                       data-email-msg="Email formatı geçersiz.">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Adı</label>
+                                <input type="text"
+                                       class="form-control"
+                                       name="txtName"
+                                       id="txtName"
+                                       placeholder="Adı"
+                                       required data-required-msg="Adı giriniz.">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Soyadı</label>
+                                <input type="text"
+                                       class="form-control"
+                                       name="txtSurname"
+                                       id="txtSurname"
+                                       placeholder="Soyadı"
+                                       required data-required-msg="Soyadı giriniz.">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mesaj</label>
+                            <textarea class="form-control"
+                                      name="txtMessage"
+                                      id="txtMessage"
+                                      rows="5"
+                                      placeholder="Mesaj"
+                                      required data-required-msg="Mesaj giriniz."></textarea>
+                        </div>
+                        <div style="height: 40px !important;">
+                            <button id="btnSend"
+                                    class="btn bg-green text-white float-end"
+                                    type="submit">
+                                Gönder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="/js/pages/frontend/contact.js"></script>
+}

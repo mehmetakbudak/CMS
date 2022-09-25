@@ -1,6 +1,5 @@
 ﻿using CMS.Model.Enum;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {

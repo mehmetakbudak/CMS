@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Model.Entity
 {
     public class Blog : BaseEntityModel
     {
+        public int UserId { get; set; }
+
+        public User User { get; set; }
+
         public string Url { get; set; }
 
         public string Title { get; set; }
@@ -31,6 +34,9 @@ namespace CMS.Model.Entity
         public bool IsActive { get; set; }
 
         public bool Deleted { get; set; }
+
         public List<SelectedBlogCategory> SelectedBlogCategories { get; set; }
+
+        public List<SourceTag> SourceTags { get; set; }
     }
 }

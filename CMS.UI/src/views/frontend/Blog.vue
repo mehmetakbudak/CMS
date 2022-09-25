@@ -1,126 +1,147 @@
 <template>
-  <div class="card mt-3">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-9 mb-3">
-          <page-loading :loading="loading" />
-          <div v-if="!loading">
-            <div class="row">
-              <div class="col-md-9">
-                <h3 class="p-2">{{ title }}</h3>
-              </div>
-              <div class="col-md-3">
+  <main id="main">
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2>Blog</h2>
+          <ol>
+            <li><router-link to="/">Anasayfa</router-link></li>
+            <li>Blog</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="blog" class="blog">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 entries">
+            <DataView :value="blogs" layout="grid" :paginator="true" :rows="5">
+              <template #grid="slotProps">
+                <article class="entry">
+                  <div class="entry-img">
+                    <router-link
+                      :to="`/blog/${slotProps.data.url}/${slotProps.data.id}`"
+                    >
+                      <img
+                        :src="slotProps.data.imageUrl"
+                        alt=""
+                        class="img-fluid"
+                      />
+                    </router-link>
+                  </div>
+
+                  <h2 class="entry-title">
+                    <router-link
+                      :to="`/blog/${slotProps.data.url}/${slotProps.data.id}`"
+                    >
+                      {{ slotProps.data.title }}
+                    </router-link>
+                  </h2>
+
+                  <div class="entry-meta">
+                    <ul>
+                      <li class="d-flex align-items-center">
+                        <i class="pi pi-user"></i>
+                        {{ slotProps.data.userName }}
+                      </li>
+                      <li class="d-flex align-items-center">
+                        <i class="pi pi-clock"></i>
+                        <time>
+                          {{ dateFormatValue(slotProps.data.insertedDate) }}
+                        </time>
+                      </li>
+                      <li class="d-flex align-items-center">
+                        <i class="pi pi-comments"></i>
+                        {{ slotProps.data.commentCount }} Yorum
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="entry-content">
+                    <p>
+                      {{ slotProps.data.description }}
+                    </p>
+                    <div class="read-more">
+                      <router-link
+                        :to="`/blog/${slotProps.data.url}/${slotProps.data.id}`"
+                        >Daha Fazlası &nbsp;
+                        <i class="pi pi-arrow-circle-right"></i
+                      ></router-link>
+                    </div>
+                  </div>
+                </article>
+              </template>
+              <template #empty
+                ><p class="my-3 alert alert-info">Kayıt bulunamadı.</p>
+              </template>
+            </DataView>
+          </div>
+          <div class="col-lg-4">
+            <div class="sidebar border">
+              <h3 class="sidebar-title">Ara</h3>
+              <div class="sidebar-item search-form">
                 <div class="p-inputgroup">
                   <InputText placeholder="Ara" v-model="searchText" />
                   <Button
                     icon="pi pi-search"
-                    class="p-button-default"
-                    @click="getAll()"
+                    class="bg-green"
+                    @click="search()"
                   />
                 </div>
               </div>
-            </div>
-            <div class="row" v-if="!visibleError">
-              <DataView
-                :value="blogCategory.blogs"
-                :layout="layout"
-                :paginator="true"
-                :rows="9"
-              >
-                <template #grid="slotProps">
-                  <div class="col-md-4 p-2 mb-3">
-                    <div class="card">
-                      <img
-                        class="card-img-top"
-                        src="http://via.placeholder.com/268x180"
-                        :alt="slotProps.data.title"
-                      />
-                      <div class="card-body">
-                        <div class="badge bg-secondary mt-2">
-                          {{ slotProps.data.category }}
-                        </div>
-                        <h5 class="card-title mt-2 mb-2">
-                          {{ slotProps.data.title }}
-                        </h5>
-                        <p class="card-text mt-2 mb-2">
-                          {{ slotProps.data.description }}
-                        </p>
-                        <div class="mt-3"></div>
-                      </div>
-                      <div class="card-footer bg-white border-top-0">
-                        <router-link
-                          :to="`${slotProps.data.url}/${slotProps.data.id}`"
-                          class="btn btn-outline-primary float-end"
-                          >Detaylar</router-link
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </template>
-                <template #empty
-                  ><p class="my-3 alert alert-info">Kayıt bulunamadı.</p>
-                </template>
-              </DataView>
-            </div>
-            <div v-if="visibleError">
-              <div class="alert alert-danger mt-3">{{ message }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="mb-3">
-            <h5 class="mb-3">Kategoriler</h5>
-            <Listbox
-              :options="blogCategories"
-              :multiple="true"
-              :filter="true"
-              optionLabel="name"
-              listStyle="max-height:250px"
-              style="width: 100%"
-              filterPlaceholder="Ara"
-            >
-              <template #option="slotProps">
-                <router-link
-                  class="text-dark text-decoration-none"
-                  :to="`/blog/${slotProps.option.url}`"
-                  >{{ slotProps.option.name }}</router-link
+              <h3 class="sidebar-title">Kategoriler</h3>
+              <div class="sidebar-item categories">
+                <ul>
+                  <li
+                    class="py-2"
+                    v-for="blogCategory in blogCategories"
+                    :key="blogCategory.id"
+                  >
+                    <router-link :to="`/blog/${blogCategory.url}`"
+                      >{{ blogCategory.name }}
+                      <span>({{ blogCategory.blogCount }})</span></router-link
+                    >
+                  </li>
+                </ul>
+              </div>
+              <h3 class="sidebar-title">Çok Okunanlar</h3>
+              <div class="sidebar-item recent-posts">
+                <div
+                  class="post-item clearfix py-2"
+                  v-for="item in mostReadList"
+                  :key="item.id"
                 >
-              </template>
-            </Listbox>
-          </div>
-          <div v-if="blogCategory?.blogs?.length > 0">
-            <h5>Çok Okunanlar</h5>
-            <div class="my-4" v-for="item in mostReadList" :key="item.id">
-              <router-link
-                class="text-decoration-none"
-                :to="`/blog/${item.url}/${item.id}`"
-              >
-                <img
-                  class="img-fluid w-100"
-                  src="http://via.placeholder.com/268x180"
-                />
-                <div class="text-dark fw-bold mt-2">
-                  {{ item.title }}
+                  <router-link :to="`/blog/${item.url}/${item.id}`">
+                    <img :src="item.imageUrl" alt="" />
+                  </router-link>
+                  <h4>
+                    <router-link :to="`/blog/${item.url}/${item.id}`">{{
+                      item.title
+                    }}</router-link>
+                  </h4>
+                  <time> {{ dateFormatValue(item.insertedDate) }}</time>
                 </div>
-              </router-link>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script>
 import { Endpoints } from "../../services/Endpoints";
 import GlobalService from "../../services/GlobalService";
+import dateFormat from "../../infrastructure/DateFormat";
+
 export default {
   data() {
     return {
-      layout: "grid",
       title: "",
       loading: true,
-      blogCategory: {},
+      blogs: [],
       blogCategories: [],
       mostReadList: [],
       searchText: null,
@@ -129,20 +150,23 @@ export default {
     };
   },
   created() {
+    if (this.$route.query.ara) {
+      this.searchText = this.$route.query.ara;
+    }
+
     this.getAll();
     this.getBlogCategories();
+    this.mostRead();
   },
   methods: {
     getAll() {
-      var url = `${Endpoints.Blog}/GetByText?categoryUrl=${this.$route.params.categoryUrl}`;
+      var url = `${Endpoints.Blog}/GetBlogs`;
       if (this.searchText) {
-        url = `${url}&text=${this.searchText}`;
+        url = `${url}?text=${this.searchText}`;
       }
       GlobalService.Get(url)
         .then((res) => {
-          this.blogCategory = res.data;
-          this.mostRead();
-          this.title = "Blog - " + this.blogCategory.name;
+          this.blogs = res.data;
           this.loading = false;
         })
         .catch((e) => {
@@ -155,13 +179,19 @@ export default {
         this.blogCategories = res.data;
       });
     },
+    dateFormatValue(value) {
+      return dateFormat.convertShortDate(value);
+    },
     mostRead() {
-      if (this.blogCategory) {
-        GlobalService.Get(
-          `${Endpoints.Blog}/MostReadByBlogCategoryId/${this.blogCategory.id}`
-        ).then((res) => {
-          this.mostReadList = res.data;
-        });
+      GlobalService.Get(`${Endpoints.Blog}/MostRead`).then((res) => {
+        this.mostReadList = res.data;
+      });
+    },
+    search() {
+      if (this.searchText) {
+        this.$router.push(`/blog?ara=${this.searchText}`);
+      } else {
+        this.$router.push("/blog");
       }
     },
   },

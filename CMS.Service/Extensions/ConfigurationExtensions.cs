@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Net;
 
 namespace CMS.Service.Middlewares
 {
@@ -42,7 +43,7 @@ namespace CMS.Service.Middlewares
                         {
                             error = new BaseResult
                             {
-                                StatusCode = statusCode,
+                                StatusCode = HttpStatusCode.InternalServerError,
                                 Message = ex.Message
                             };
                             result = JsonConvert.SerializeObject(error, serializerSettings);

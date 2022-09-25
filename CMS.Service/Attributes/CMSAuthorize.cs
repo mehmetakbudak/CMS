@@ -1,7 +1,5 @@
 ﻿using CMS.Model.Enum;
-using CMS.Model.Model;
-using CMS.Service.Exceptions;
-using CMS.Service.Helper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Linq;
@@ -18,31 +16,21 @@ namespace CMS.Service.Attributes
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            ServiceResult result = new ServiceResult();
-            
-            var userAccessRightService = (IUserAccessRightService)context.HttpContext.RequestServices.GetService(typeof(IUserAccessRightService));
+            if (!context.HttpContext.User.Identity.IsAuthenticated)
+            {
+                context.Result = new RedirectResult("/login");
+                return;
+            }
 
-            var jwtHelper = (IJwtHelper)context.HttpContext.RequestServices.GetService(typeof(IJwtHelper));
+            var userAccessRightService = (IUserAccessRightService)context.HttpContext.RequestServices.GetService(typeof(IUserAccessRightService));
 
             var userService = (IUserService)context.HttpContext.RequestServices.GetService(typeof(IUserService));
 
-            var token = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            var _userId = context.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId").Value;
 
-            if (string.IsNullOrEmpty(token))
-            {
-                throw new NotFoundException("Token bulunamadı.");
-            }
+            Int32.TryParse(_userId, out int userId);
 
-            var jwtToken = jwtHelper.ValidateToken(token);
-
-            if (jwtToken == null)
-            {
-                throw new BadRequestException("Token doğrulanamadı.");
-            }
-
-            var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "UserId").Value);
-
-            var user = userService.GetTokenInfo(userId, token);
+            var user = userService.GetById(userId);
 
             if (user != null)
             {
@@ -62,24 +50,21 @@ namespace CMS.Service.Attributes
 
                         if (!check)
                         {
-                            throw new UnAuthorizedException("Yetkisiz İşlem");
+                            context.Result = new RedirectResult("/login");
+                            return;
                         }
                     }
                     else
                     {
-                        throw new UnAuthorizedException("Yetkisiz İşlem");
+                        context.Result = new RedirectResult("/login");
+                        return;
                     }
                 }
-
-                AuthTokenContent.Current = new AuthTokenContent
-                {
-                    UserId = userId,
-                    UserType = user.UserType
-                };
             }
             else
             {
-                throw new NotAcceptableException("Token geçerliliğini yitirmiş olabilir. Lütfen yeniden giriş yapınız.");
+                context.Result = new RedirectResult("/login");
+                return;
             }
 
         }

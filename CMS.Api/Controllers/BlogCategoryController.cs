@@ -17,10 +17,11 @@ namespace CMS.Api
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(List<BlogCategoryWithCountModel>), 200)]
         public IActionResult Get()
         {
-            var list = blogCategoryService.GetAll();
+            var list = blogCategoryService.GetAllActive();
             return Ok(list);
-        }        
+        }
     }
 }

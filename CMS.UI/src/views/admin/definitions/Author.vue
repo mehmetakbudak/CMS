@@ -76,7 +76,7 @@
         </div>
         <div class="mb-3">
           <label>Hayatı</label>
-          <Editor v-model="author.resume" editorStyle="height: 320px" />
+          <!-- <Editor v-model="author.resume" editorStyle="height: 320px" /> -->
         </div>
         <div class="mb-3">
           <label>Aktif</label>

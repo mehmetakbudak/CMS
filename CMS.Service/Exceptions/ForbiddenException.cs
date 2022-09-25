@@ -8,12 +8,12 @@ namespace CMS.Service.Exceptions
     {
         public ForbiddenException() : base()
         {
-            Error = new BaseResult { StatusCode = (int)HttpStatusCode.Forbidden, Message = "Yetkisiz Giriş." };
+            Error = new BaseResult { StatusCode = HttpStatusCode.Forbidden, Message = "Yetkisiz Giriş." };
         }
 
         public ForbiddenException(string message) : base(message)
         {
-            Error = new BaseResult { StatusCode = (int)HttpStatusCode.Forbidden, Message = message };
+            Error = new BaseResult { StatusCode = HttpStatusCode.Forbidden, Message = message };
         }
 
         protected override HttpStatusCode HttpStatusCode => HttpStatusCode.Forbidden;

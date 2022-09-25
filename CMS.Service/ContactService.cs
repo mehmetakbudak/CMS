@@ -29,7 +29,7 @@ namespace CMS.Service
 
         public ServiceResult Delete(int id)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             var contactMessage = _unitOfWork.Repository<Contact>()
                 .FirstOrDefault(x => x.Id == id);
             if (contactMessage == null)
@@ -53,7 +53,7 @@ namespace CMS.Service
 
         public ServiceResult Post(ContactModel model)
         {
-            var result = new ServiceResult { StatusCode = (int)HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var contact = new Contact
             {

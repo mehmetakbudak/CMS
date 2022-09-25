@@ -1,87 +1,50 @@
 <template>
-  <div class="border-bottom">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <router-link class="text-secondary text-decoration-none" to="/"
-            >Anasayfa</router-link
-          >
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">
-          <router-link
-            class="text-secondary text-decoration-none"
-            to="/sayfalar/hakkinda"
-            >Hakkında</router-link
-          >
-        </li>
-      </ol>
-    </nav>
-  </div>
-  <div class="row mb-3 mt-3">
-    <div class="col-md-3">
-      <div class="card">
-        <h5 class="card-header">Kurumsal</h5>
-        <div class="card-body">
-          <Tree :value="menuDatasource">
-            <template #default="menu">
-              <router-link
-                class="text-dark text-decoration-none"
-                :to="menu.node.url"
-              >
-                {{ menu.node.title }}
-              </router-link>
-            </template>
-          </Tree>
+  <main id="main">
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2>{{ page.title }}</h2>
+          <ol>
+            <li><router-link to="/">Anasayfa</router-link></li>
+            <li>{{ page.title }}</li>
+          </ol>
         </div>
       </div>
-    </div>
-    <div class="col-md-9">
-      <h5>Hakkında</h5>
-      <div class="mb-3 mt-3">
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quas vitae
-        earum et excepturi error quibusdam, nam, unde, quisquam assumenda ab
-        sapiente? Numquam consequuntur excepturi quam vel sequi ipsam
-        dignissimos odio. Lorem, ipsum dolor sit amet consectetur adipisicing
-        elit. Quas vitae earum et excepturi error quibusdam, nam, unde, quisquam
-        assumenda ab sapiente? Numquam consequuntur excepturi quam vel sequi
-        ipsam dignissimos odio. Lorem, ipsum dolor sit amet consectetur
-        adipisicing elit. Quas vitae earum et excepturi error quibusdam, nam,
-        unde, quisquam assumenda ab sapiente? Numquam consequuntur excepturi
-        quam vel sequi ipsam dignissimos odio.
+    </section>
+
+    <section id="pages">
+      <div class="container">
+        <div v-html="page.content"></div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script>
+import { Endpoints } from "../../services/Endpoints";
+import GlobalService from "../../services/GlobalService";
+
 export default {
   data() {
     return {
-      menuDatasource: [
-        {
-          title: "Hakkımızda",
-          url: "/sayfalar/hakkimizda",
-        },
-        {
-          title: "Haberler",
-          url: "/haberler",
-        },
-        {
-          title: "Şirket Profili",
-          url: "/sayfalar/sirket-profili",
-          children: [
-            {
-              title: "Mehmet Akbudak",
-              url: "safsdf fsdfds fsdf fdsfdsf",
-            },
-            {
-              title: "Güler Akbudak",
-              url: "fsdf dsfdsf sdfds",
-            },
-          ],
-        },
-      ],
+      page: {},
     };
+  },
+  created() {
+    this.getPageInfo();
+  },
+  methods: {
+    getPageInfo() {
+      var url = this.$route.params.url;
+      GlobalService.Get(`${Endpoints.Page}/GetByUrl/${url}`)
+        .then((res) => {
+          this.page = res.data;
+        })
+        .catch((e) => {
+          this.visibleError = true;
+          this.message = e.response.data.message;
+        });
+    },
   },
 };
 </script>

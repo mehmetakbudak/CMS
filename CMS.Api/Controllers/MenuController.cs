@@ -1,10 +1,5 @@
 ﻿using CMS.Model.Dto;
-using CMS.Model.Entity;
-using CMS.Model.Enum;
-using CMS.Model.Model;
 using CMS.Service;
-using CMS.Service.Attributes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
@@ -28,13 +23,20 @@ namespace CMS.Api
             this.memoryCache = memoryCache;
         }
 
+        /// <summary>
+        /// Ön arayüz menü elemanlarını döner.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Frontend")]
+        [ProducesResponseType(typeof(List<MenubarModel>), 200)] //OK
         public IActionResult GetFrontendMenu()
         {
             const string key = "frontEndMenu";
 
             if (memoryCache.TryGetValue(key, out object menus))
+            {
                 return Ok(menus);
+            }
 
             menus = menuService.GetFrontendMenu();
             memoryCache.Set(key, menus, new MemoryCacheEntryOptions
@@ -42,6 +44,6 @@ namespace CMS.Api
                 Priority = CacheItemPriority.Normal
             });
             return Ok(menus);
-        }        
+        }
     }
 }

@@ -1,0 +1,42 @@
+﻿.bold {
+    font-weight: 500 !important;
+}
+
+.k-expander-title {
+    color: unset !important;
+    text-transform: unset !important;
+    font-size: 20px !important;
+}
+
+.k-menu:not(.k-context-menu) > .k-item {
+    color: black !important;
+}
+
+.k-icon {
+    bottom: 2px !important;
+}
+
+.main {
+    position: relative;
+    top: 15px;
+}
+
+.grid-buttons {
+    width: 50px;
+}
+
+.k-scrollview-next, .k-scrollview-prev {
+    opacity: unset !important;
+    text-shadow: unset !important;
+    color: silver !important;
+}
+
+@media (max-width:768px) {
+    .user-name {
+        display: none !important;
+    }
+
+    .grid-buttons {
+        width: 90px;
+    }
+}

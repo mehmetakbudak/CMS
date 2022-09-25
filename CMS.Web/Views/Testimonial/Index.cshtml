@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Referanslar";
+}
+
+
+<main id="main">
+
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Referanslar</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>Referanslar</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials section-bg">
+        <div class="container">
+            @await Component.InvokeAsync("Loading")
+
+            <div id="content">
+                <div id="testimonialList" class="row"></div>
+                <script id="template" type="text/x-kendo-template">
+                    <div class="col-lg-6 p-3">
+                        <div class="testimonial-item">
+                            <img src="#:imageUrl#" class="testimonial-img" alt="">
+                            <h3>#:name# #:surname#</h3>
+                            <h4>#:corporateName# - #:title#</h4>
+                            <p>
+                                #:description#
+                            </p>
+                        </div>
+                    </div>
+                </script>
+                <div class="my-3" id="pager"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+@section Scripts {
+    <script src="/js/pages/frontend/testimonial-list.js"></script>
+}

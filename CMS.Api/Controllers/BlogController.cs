@@ -1,9 +1,7 @@
 ﻿using CMS.Model.Model;
 using CMS.Service;
-using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CMS.Api
 {
@@ -24,7 +22,7 @@ namespace CMS.Api
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(BlogDetailModel), 200)] //OK
+        [ProducesResponseType(typeof(BlogDetailViewModel), 200)] //OK
         public IActionResult Get(int id)
         {
             var model = _blogService.GetDetailById(id);
@@ -32,16 +30,28 @@ namespace CMS.Api
         }
 
         /// <summary>
-        /// Kategoriye ve arama metnine göre blog listesi döner.
+        /// Arama metnine göre blog listesi döner.
         /// </summary>
-        /// <param name="categoryUrl"></param>
         /// <param name="text"></param>
         /// <returns></returns>
-        [HttpGet("GetByText")]
-        [ProducesResponseType(typeof(BlogCategoryModel), 200)] //OK
-        public IActionResult GetByText(string categoryUrl, string? text)
+        [HttpGet("GetBlogs")]
+        [ProducesResponseType(typeof(List<BlogViewModel>), 200)] //OK
+        public IActionResult GetBlogs(string? text)
         {
-            var list = _blogService.GetBlogList(categoryUrl, text);
+            var list = _blogService.GetBlogs(text);
+            return Ok(list);
+        }
+
+        /// <summary>
+        /// Kategoriye göre blog listesi döner.
+        /// </summary>
+        /// <param name="blogCategoryUrl"></param>
+        /// <returns></returns>
+        [HttpGet("GetBlogsByCategoryUrl/{blogCategoryUrl}")]
+        [ProducesResponseType(typeof(BlogCategoryViewModel), 200)] //OK
+        public IActionResult GetBlogsByCategoryUrl(string blogCategoryUrl)
+        {
+            var list = _blogService.GetBlogsByCategoryUrl(blogCategoryUrl);
             return Ok(list);
         }
 
@@ -62,7 +72,7 @@ namespace CMS.Api
         /// </summary>
         /// <returns></returns>
         [HttpGet("MostRead")]
-        [ProducesResponseType(typeof(List<BlogGetModel>), 200)] //OK
+        [ProducesResponseType(typeof(List<MostReadBlogViewModel>), 200)] //OK
         public IActionResult MostRead()
         {
             var list = _blogService.MostRead();
@@ -72,13 +82,13 @@ namespace CMS.Api
         /// <summary>
         /// Blog kategorisine göre çok okunan blog listesini döner.
         /// </summary>
-        /// <param name="blogCategoryId"></param>
+        /// <param name="blogCategoryUrl"></param>
         /// <returns></returns>
-        [HttpGet("MostReadByBlogCategoryId/{blogCategoryId}")]
-        [ProducesResponseType(typeof(List<BlogGetModel>), 200)] //OK
-        public IActionResult MostReadByBlogCategoryId(int blogCategoryId)
+        [HttpGet("MostReadByBlogCategory/{blogCategoryUrl}")]
+        [ProducesResponseType(typeof(List<MostReadBlogViewModel>), 200)] //OK
+        public IActionResult MostReadByBlogCategoryId(string blogCategoryUrl)
         {
-            var list = _blogService.MostRead(blogCategoryId);
+            var list = _blogService.MostRead(blogCategoryUrl);
             return Ok(list);
         }
     }

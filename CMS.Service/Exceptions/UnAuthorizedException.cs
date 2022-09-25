@@ -10,12 +10,12 @@ namespace CMS.Service.Exceptions
     {
         public UnAuthorizedException() : base()
         {
-            Error = new BaseResult { StatusCode = (int)HttpStatusCode.Unauthorized, Message = "Kimlik bilgileri doğrulanamadı." };
+            Error = new BaseResult { StatusCode = HttpStatusCode.Unauthorized, Message = "Kimlik bilgileri doğrulanamadı." };
         }
 
         public UnAuthorizedException(string message) : base(message)
         {
-            Error = new BaseResult { StatusCode = (int)HttpStatusCode.Unauthorized, Message = message };
+            Error = new BaseResult { StatusCode = HttpStatusCode.Unauthorized, Message = message };
         }
 
 

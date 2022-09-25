@@ -25,6 +25,10 @@ export const Endpoints = {
     Menu: "Menu",
     Contact: "Contact",
     Comment: "Comment",
+    Page: "Page",
+    Service: "Service",
+    Team: "Team",
+    Testimonial: "Testimonial",
     Account: {
         Login: "Account/Login",
         Logout: "Account/Logout",

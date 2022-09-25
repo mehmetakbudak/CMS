@@ -3,10 +3,9 @@
     <div class="card-header bg-white py-3">
       <div class="row">
         <div class="col-md-6">
-          <h3>Yorumlarım</h3>
+          <h5>Yorumlarım</h5>
         </div>
         <div class="col-md-6">
-          
           <Dropdown
             class="float-end"
             v-model="type"
@@ -72,9 +71,14 @@ import { Constants } from "../../models/Constants";
 import GlobalService from "../../services/GlobalService";
 import dateFormat from "../../infrastructure/DateFormat";
 import AlertService from "../../services/AlertService";
+import { useBreadcrumbStore } from '../../store';
 
 export default {
   mixins: [AlertService],
+   setup() {
+    const breadcrumbStore = useBreadcrumbStore();
+    return { breadcrumbStore };
+  },
   data() {
     return {
       type: 0,
@@ -99,10 +103,10 @@ export default {
                 )
                   .then((res) => {
                     this.getAll();
-                    this.successMessage( res.data.message);
+                    this.successMessage(res.data.message);
                   })
                   .catch((e) => {
-                    this.errorMessage( e.response.data.message);
+                    this.errorMessage(e.response.data.message);
                   });
               },
             });
@@ -110,6 +114,10 @@ export default {
         },
       ],
     };
+  },
+  created() {
+    this.breadcrumbStore.title = "Yorumlarım";
+    this.getAll();
   },
   methods: {
     getAll() {
@@ -129,9 +137,6 @@ export default {
       this.selectedComment = data;
       this.$refs.menu.toggle(event);
     },
-  },
-  created() {
-    this.getAll();
   },
 };
 </script>

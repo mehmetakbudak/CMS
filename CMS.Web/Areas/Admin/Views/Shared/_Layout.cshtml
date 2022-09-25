@@ -1,0 +1,151 @@
+﻿@using Microsoft.AspNetCore.Http;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title - Admin Paneli</title>
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/kendo.bootstrap-main.min.css" />
+    @RenderSection("Styles", false)
+    <link rel="stylesheet" href="~/css/style.css" />
+    <script src="~/js/lib/font-awesome.js"></script>
+</head>
+<body class="sb-nav-fixed">
+    <span id="notification" class="d-none"></span>
+    <script id="errorTemplate" type="text/x-kendo-template">
+        <div class="wrong-pass">
+            <h5>
+               <i class="k-icon k-i-warning k-icon-md"></i>
+               #= title #
+            </h5>
+            <p>#= message #</p>
+        </div>
+    </script>
+    <script id="successTemplate" type="text/x-kendo-template">
+        <div class="upload-success">
+            <h5>
+                <i class="k-icon k-i-success k-icon-md"></i>
+                 #= title #
+            </h5>
+            <p>#= message #</p>
+        </div>
+    </script>
+    <nav class="sb-topnav navbar navbar-expand navbar-light bg-light border-bottom shadow">
+        <a class="navbar-brand ps-3" href="/Admin/Dashboard">Admin Paneli</a>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+        </div>
+        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            <li class="nav-item dropdown">
+                <div class="nav-link dropdown-toggle text-secondary" id="navbarDropdown"
+                     href="#" role="button"
+                     data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user fa-fw"></i>
+                    <span class="user-name">
+                        @this.User.Claims.FirstOrDefault(x => x.Type=="FullName")?.Value
+                    </span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li>
+                        <a class="dropdown-item" href="/">
+                            Siteye Git
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <a class="dropdown-item" href="/logout">
+                            Çıkış Yap
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-light border-end shadow" id="sidenavAccordion">
+                <div class="sb-sidenav-menu p-2">
+                    <ul id="leftMenu">
+                        <li class="py-2">
+                            <a class="nav-link mt-2 text-secondary" href="/Admin/Dashboard">
+                                <i class="fas fa-dashboard pe-2"></i> Anasayfa
+                            </a>
+                        </li>
+                        <li class="py-2 text-secondary">
+                            <i class="fas fa-address-book pe-2"></i>İçerik Yönetimi
+                            <ul>
+                                <li class="py-2">
+                                    <a class="nav-link text-secondary" href="/Admin/Blog">
+                                        Bloglar
+                                    </a>
+                                </li>
+                                <li class="py-2">
+                                    <a class="nav-link text-secondary" href="/Admin/Service">
+                                        Hizmetler
+                                    </a>
+                                </li>
+                                <li class="py-2">
+                                    <a class="nav-link text-secondary" href="/Admin/Testimonial">
+                                        Referanslar
+                                    </a>
+                                </li>
+                                <li class="py-2">
+                                    <a class="nav-link text-secondary" href="/Admin/HomepageSlider">
+                                        Anasayfa Slider
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="py-2 text-secondary">
+                            <i class="fas fa-info-circle pe-2"></i>Tanımlar
+                            <ul>                               
+                                <li class="py-2">
+                                    <a class="nav-link text-secondary" href="/Admin/TodoDefinition">
+                                        Yapılacak Tanımları
+                                    </a>
+                                </li>
+                                <li class="py-2">
+                                    <a class="nav-link text-secondary" href="/Admin/BlogCategory">
+                                        Blog Kategorileri
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="py-2 text-secondary">
+                            <i class="fas fa-cogs pe-2"></i>Ayarlar
+                            <ul>
+                                <li class="py-1">
+                                    <a class="nav-link text-secondary" href="/Admin/Todo">
+                                        Yapılacaklar
+                                    </a>
+                                </li>
+                                <li class="py-2">
+                                    <a class="nav-link text-secondary" href="/Admin/User">
+                                        Kullanıcılar
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4 main">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="~/js/lib/jquery.js"></script>
+    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="~/js/lib/kendo.all.min.js"></script>
+    <script src="~/js/pages/admin/global.js"></script>
+    @RenderSection("Scripts", false)
+</body>
+</html>

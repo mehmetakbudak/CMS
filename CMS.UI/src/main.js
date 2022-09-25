@@ -2,17 +2,16 @@ import 'primeflex/primeflex.css';
 import 'primevue/resources/themes/bootstrap4-light-blue/theme.css';
 import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
-import 'devextreme/dist/css/dx.light.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
 import "./assets/style.css";
 
 import {
     createApp
-} from 'vue'
+} from 'vue';
+import { createPinia } from 'pinia';
 import App from './App.vue'
 import router from "./router";
-import store from './store';
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import PrimeVue from "primevue/config";
@@ -108,8 +107,7 @@ import Editor from 'primevue/editor';
 import PageLoading from "./components/PageLoading";
 
 const app = createApp(App);
-
-app.use(store);
+app.use(createPinia());
 app.use(PrimeVue);
 app.use(router);
 app.use(VueAxios, axios)
