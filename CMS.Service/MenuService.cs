@@ -11,21 +11,18 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IMenuService
     {
 
-        List<MenuModel> GetFrontendMenu(int? parentId = null, List<MenuModel> children = null);
-
-        List<TreeDataModel> GetFrontendTreeMenu(int? parentId = null, List<TreeDataModel> children = null);
-
-        ServiceResult PostFrontendMenu(TreeDataModel model);
-
-        ServiceResult PutFrontendMenu(TreeDataModel model);
-        
-        ServiceResult DeleteFrontendMenu(int id);
+        Task<List<MenuModel>> GetFrontendMenu(int? parentId = null, List<MenuModel> children = null);
+        Task<List<TreeDataModel>> GetFrontendTreeMenu(int? parentId = null, List<TreeDataModel> children = null);
+        Task<ServiceResult> PostFrontendMenu(TreeDataModel model);
+        Task<ServiceResult> PutFrontendMenu(TreeDataModel model);
+        Task<ServiceResult> DeleteFrontendMenu(int id);
     }
 
     public class MenuService : IMenuService
@@ -38,13 +35,13 @@ namespace CMS.Service
         {
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
-        }       
+        }
 
-        public List<MenuModel> GetFrontendMenu(int? parentId = null, List<MenuModel> children = null)
+        public async Task<List<MenuModel>> GetFrontendMenu(int? parentId = null, List<MenuModel> children = null)
         {
             var menuItems = new List<MenuModel>();
 
-            var list = _unitOfWork.Repository<MenuItem>()
+            var list = await _unitOfWork.Repository<MenuItem>()
                 .Where(x => x.Menu.Type == MenuType.FrontEnd && !x.Deleted && x.IsActive && x.ParentId == parentId)
                 .Include(x => x.Menu)
                 .OrderBy(x => x.DisplayOrder)
@@ -53,13 +50,13 @@ namespace CMS.Service
                     Id = x.Id,
                     Title = x.Title,
                     Url = x.Url
-                }).ToList();
+                }).ToListAsync();
 
             menuItems.AddRange(list);
 
             foreach (var menuItem in list)
             {
-                var items = GetFrontendMenu(menuItem.Id, list);
+                var items = await GetFrontendMenu(menuItem.Id, list);
                 if (items != null && items.Count > 0)
                 {
                     menuItem.Items = items;
@@ -68,28 +65,28 @@ namespace CMS.Service
             return menuItems;
         }
 
-        public List<TreeDataModel> GetFrontendTreeMenu(int? parentId = null, List<TreeDataModel> children = null)
+        public async Task<List<TreeDataModel>> GetFrontendTreeMenu(int? parentId = null, List<TreeDataModel> children = null)
         {
             var menuItems = new List<TreeDataModel>();
 
-            var list = _unitOfWork.Repository<MenuItem>()
+            var list = await _unitOfWork.Repository<MenuItem>()
                 .Where(x => x.Menu.Type == MenuType.FrontEnd && !x.Deleted && x.IsActive && x.ParentId == parentId)
                 .Include(x => x.Menu)
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x => new TreeDataModel
-                {                     
+                {
                     Title = x.Title,
                     Url = x.Url,
                     DisplayOrder = x.DisplayOrder,
                     ParentId = x.ParentId,
                     IsActive = x.IsActive
-                }).ToList();
+                }).ToListAsync();
 
             menuItems.AddRange(list);
 
             foreach (var menuItem in list)
             {
-                var items = GetFrontendTreeMenu(menuItem.Id, list);
+                var items = await GetFrontendTreeMenu(menuItem.Id, list);
                 if (items != null && items.Count > 0)
                 {
                     menuItem.Children = items;
@@ -98,11 +95,12 @@ namespace CMS.Service
             return menuItems;
         }
 
-        public ServiceResult PostFrontendMenu(TreeDataModel model)
+        public async Task<ServiceResult> PostFrontendMenu(TreeDataModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var menu = _unitOfWork.Repository<Menu>().FirstOrDefault(x => x.Type == MenuType.FrontEnd);
+            var menu = await _unitOfWork.Repository<Menu>()
+                .FirstOrDefault(x => x.Type == MenuType.FrontEnd);
 
             var menuItem = new MenuItem()
             {
@@ -114,53 +112,67 @@ namespace CMS.Service
                 Title = model.Title,
                 Url = model.Url
             };
-            _unitOfWork.Repository<MenuItem>().Add(menuItem);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<MenuItem>().Add(menuItem);
+
+            await _unitOfWork.Save();
+
             _memoryCache.Remove("frontEndMenu");
+
             result.Message = AlertMessages.Post;
+
             return result;
         }
 
-        public ServiceResult PutFrontendMenu(TreeDataModel model)
+        public async Task<ServiceResult> PutFrontendMenu(TreeDataModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var menuItem = _unitOfWork.Repository<MenuItem>()
+            var menuItem = await _unitOfWork.Repository<MenuItem>()
                 .Where(x => !x.Deleted && x.Id == model.Id && x.Menu.Type == MenuType.FrontEnd)
                 .Include(x => x.Menu)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (menuItem == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             menuItem.Title = model.Title;
             menuItem.DisplayOrder = model.DisplayOrder;
             menuItem.Url = model.Url;
             menuItem.IsActive = model.IsActive;
             menuItem.ParentId = model.ParentId;
-            _unitOfWork.Save();
+            
+            await _unitOfWork.Save();
+            
             _memoryCache.Remove("frontEndMenu");
+            
             result.Message = AlertMessages.Put;
+            
             return result;
         }
 
-        public ServiceResult DeleteFrontendMenu(int id)
+        public async Task<ServiceResult> DeleteFrontendMenu(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var menuItem = _unitOfWork.Repository<MenuItem>()
+            var menuItem = await _unitOfWork.Repository<MenuItem>()
                 .Where(x => !x.Deleted && x.Id == id && x.Menu.Type == MenuType.FrontEnd)
                 .Include(x => x.Menu)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (menuItem == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             menuItem.Deleted = true;
-            _unitOfWork.Save();
+            
+            await _unitOfWork.Save();
+            
             _memoryCache.Remove("frontEndMenu");
+            
             result.Message = AlertMessages.Delete;
 
             return result;

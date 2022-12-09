@@ -12,26 +12,20 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IAccessRightService
     {
-        AccessRightGetModel Get();
-
-        AccessRightModel Get(int id);
-
-        List<TreeMenuModel> GetUserMenu();
-
-        ServiceResult PostMenu(AccessRightModel model);
-
-        ServiceResult PutMenu(AccessRightModel model);
-
-        ServiceResult PostOperation(AccessRightModel model);
-
-        ServiceResult PutOperation(AccessRightModel model);
-
-        ServiceResult Delete(int id);
+        Task<AccessRightGetModel> Get();
+        Task<AccessRightModel> Get(int id);
+        Task<List<TreeMenuModel>> GetUserMenu();
+        Task<ServiceResult> PostMenu(AccessRightModel model);
+        Task<ServiceResult> PutMenu(AccessRightModel model);
+        Task<ServiceResult> PostOperation(AccessRightModel model);
+        Task<ServiceResult> PutOperation(AccessRightModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class AccessRightService : IAccessRightService
@@ -50,11 +44,12 @@ namespace CMS.Service
             _httpContext = httpContext;
         }
 
-        public AccessRightGetModel Get()
+        public async Task<AccessRightGetModel> Get()
         {
             var model = new AccessRightGetModel();
 
-            var accessRights = _unitOfWork.Repository<AccessRight>().Where(x => !x.Deleted).ToList();
+            var accessRights = await _unitOfWork.Repository<AccessRight>()
+                .Where(x => !x.Deleted).ToListAsync();
 
             if (accessRights != null && accessRights.Any())
             {
@@ -85,17 +80,18 @@ namespace CMS.Service
             return model;
         }
 
-        public AccessRightModel Get(int id)
+        public async Task<AccessRightModel> Get(int id)
         {
-            var accessRight = _unitOfWork.Repository<AccessRight>()
+            var accessRight = await _unitOfWork.Repository<AccessRight>()
                 .Where(x => x.Id == id && !x.Deleted)
                 .Include(x => x.AccessRightEndpoints)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (accessRight == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             var model = new AccessRightModel()
             {
                 DisplayOrder = accessRight.DisplayOrder,
@@ -105,6 +101,7 @@ namespace CMS.Service
                 Name = accessRight.Name,
                 ParentId = accessRight.ParentId
             };
+
             if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
             {
                 var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
@@ -132,7 +129,7 @@ namespace CMS.Service
             return list;
         }
 
-        public List<TreeMenuModel> GetUserMenu()
+        public async Task<List<TreeMenuModel>> GetUserMenu()
         {
             var list = new List<TreeMenuModel>();
             var accessRights = new List<AccessRight>();
@@ -141,16 +138,16 @@ namespace CMS.Service
 
             if (loginUser.UserType == (int)UserType.SuperAdmin)
             {
-                accessRights = _unitOfWork.Repository<AccessRight>()
+                accessRights = await _unitOfWork.Repository<AccessRight>()
                     .Where(x => x.Type == AccessRightType.Menu)
-                    .Include(x => x.AccessRightEndpoints).ToList();
+                    .Include(x => x.AccessRightEndpoints).ToListAsync();
             }
             else
             {
-                var userAccessRights = _unitOfWork.Repository<UserAccessRight>()
+                var userAccessRights = await _unitOfWork.Repository<UserAccessRight>()
                     .Where(x => x.UserId == loginUser.UserId)
                     .Include(x => x.AccessRight)
-                    .ThenInclude(x => x.AccessRightEndpoints).ToList();
+                    .ThenInclude(x => x.AccessRightEndpoints).ToListAsync();
 
                 if (userAccessRights != null && userAccessRights.Any())
                 {
@@ -192,7 +189,7 @@ namespace CMS.Service
             return list;
         }
 
-        public ServiceResult PostMenu(AccessRightModel model)
+        public async Task<ServiceResult> PostMenu(AccessRightModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -214,27 +211,31 @@ namespace CMS.Service
                     AccessRight = accessRight,
                     Endpoint = model.Endpoint
                 };
-                _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
+
+                await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
             }
             else
             {
-                _unitOfWork.Repository<AccessRight>().Add(accessRight);
+                await _unitOfWork.Repository<AccessRight>().Add(accessRight);
             }
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Post;
-            ClearUserCache();
+
+            await ClearUserCache();
 
             return result;
         }
 
-        public ServiceResult PutMenu(AccessRightModel model)
+        public async Task<ServiceResult> PutMenu(AccessRightModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var accessRight = _unitOfWork.Repository<AccessRight>()
+            var accessRight = await _unitOfWork.Repository<AccessRight>()
                .Where(x => x.Id == model.Id && !x.Deleted && x.Type == AccessRightType.Menu)
                .Include(x => x.AccessRightEndpoints)
-               .FirstOrDefault();
+               .FirstOrDefaultAsync();
 
             if (accessRight == null)
             {
@@ -252,6 +253,7 @@ namespace CMS.Service
                 if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
                 {
                     var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
+
                     accessRightEndpoint.Endpoint = model.Endpoint;
                 }
                 else
@@ -261,7 +263,8 @@ namespace CMS.Service
                         AccessRightId = accessRight.Id,
                         Endpoint = model.Endpoint
                     };
-                    _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
+
+                    await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
                 }
             }
             else
@@ -269,24 +272,27 @@ namespace CMS.Service
                 if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
                 {
                     var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-                    _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
+
+                    await _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
                 }
             }
-            _unitOfWork.Save();
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Put;
-            ClearUserCache();
+
+            await ClearUserCache();
 
             return result;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var accessRight = _unitOfWork.Repository<AccessRight>()
+            var accessRight = await _unitOfWork.Repository<AccessRight>()
                .Where(x => x.Id == id && !x.Deleted)
                .Include(x => x.AccessRightEndpoints)
-               .FirstOrDefault();
+               .FirstOrDefaultAsync();
 
             if (accessRight == null)
             {
@@ -298,18 +304,24 @@ namespace CMS.Service
             if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
             {
                 var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-                _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
+
+                await _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
             }
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Delete;
-            ClearUserCache();
+
+            await ClearUserCache();
 
             return result;
         }
 
-        public void ClearUserCache()
+        public async Task ClearUserCache()
         {
-            var userIds = _unitOfWork.Repository<User>().Where(x => x.IsActive && !x.Deleted && x.UserType != UserType.Member).Select(x => x.Id).ToList();
+            var userIds = await _unitOfWork.Repository<User>()
+                .Where(x => x.IsActive && !x.Deleted && x.UserType != UserType.Member)
+                .Select(x => x.Id).ToListAsync();
 
             foreach (var userId in userIds)
             {
@@ -318,7 +330,7 @@ namespace CMS.Service
             }
         }
 
-        public ServiceResult PostOperation(AccessRightModel model)
+        public async Task<ServiceResult> PostOperation(AccessRightModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -341,27 +353,31 @@ namespace CMS.Service
                     Endpoint = model.Endpoint,
                     Method = model.Method
                 };
-                _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
+
+                await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
             }
             else
             {
-                _unitOfWork.Repository<AccessRight>().Add(accessRight);
+                await _unitOfWork.Repository<AccessRight>().Add(accessRight);
             }
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Post;
-            ClearUserCache();
+
+            await ClearUserCache();
 
             return result;
         }
 
-        public ServiceResult PutOperation(AccessRightModel model)
+        public async Task<ServiceResult> PutOperation(AccessRightModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var accessRight = _unitOfWork.Repository<AccessRight>()
+            var accessRight = await _unitOfWork.Repository<AccessRight>()
                .Where(x => x.Id == model.Id && !x.Deleted && x.Type == AccessRightType.Operation)
                .Include(x => x.AccessRightEndpoints)
-               .FirstOrDefault();
+               .FirstOrDefaultAsync();
 
             if (accessRight == null)
             {
@@ -390,7 +406,8 @@ namespace CMS.Service
                         Endpoint = model.Endpoint,
                         Method = model.Method
                     };
-                    _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
+
+                    await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
                 }
             }
             else
@@ -398,12 +415,15 @@ namespace CMS.Service
                 if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
                 {
                     var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-                    _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
+
+                    await _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
                 }
             }
-            _unitOfWork.Save();
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Put;
-            ClearUserCache();
+
+            await ClearUserCache();
 
             return result;
         }

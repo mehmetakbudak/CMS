@@ -5,12 +5,13 @@ using CMS.Model.Enum;
 using CMS.Model.Model;
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IChatService
     {
-        ServiceResult Post(ChatModel model);
+        Task<ServiceResult> Post(ChatModel model);
     }
 
     public class ChatService : IChatService
@@ -22,7 +23,7 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public ServiceResult Post(ChatModel model)
+        public async Task<ServiceResult> Post(ChatModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -36,12 +37,16 @@ namespace CMS.Service
                 Surname = model.Surname,
                 Phone = model.Phone
             };
-            _unitOfWork.Repository<Chat>().Add(chat);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<Chat>().Add(chat);
+
+            await _unitOfWork.Save();
+
             result.Data = new
             {
                 Guid = chat.Code
             };
+
             result.Message = "Canlı destek kaydınız başarıyla alınmıştır.";
 
             return result;

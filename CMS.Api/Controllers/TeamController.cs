@@ -3,6 +3,7 @@ using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers
 {
@@ -23,9 +24,9 @@ namespace CMS.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<Team>), 200)] //OK
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _teamService.GetAll().Where(x => x.IsActive).ToList();
+            var result = await _teamService.GetAllActive();
             return Ok(result);
         }
     }

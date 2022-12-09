@@ -2,14 +2,16 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IHomepageSliderService
     {
-        List<HomepageSliderModel> GetAllActive();
+        Task<List<HomepageSliderModel>> GetAllActive();
     }
 
     public class HomepageSliderService : IHomepageSliderService
@@ -21,9 +23,9 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<HomepageSliderModel> GetAllActive()
+        public async Task<List<HomepageSliderModel>> GetAllActive()
         {
-            return _unitOfWork.Repository<HomepageSlider>()
+            return await _unitOfWork.Repository<HomepageSlider>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .OrderBy(x => x.DisplayOrder).Select(x => new HomepageSliderModel
                 {
@@ -32,7 +34,7 @@ namespace CMS.Service
                     ImageUrl = x.ImageUrl,
                     Title = x.Title,
                     Url = x.Url
-                }).ToList();
+                }).ToListAsync();
         }
     }
 }

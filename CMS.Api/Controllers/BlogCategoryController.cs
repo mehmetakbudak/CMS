@@ -2,6 +2,7 @@
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CMS.Api
 {
@@ -18,9 +19,9 @@ namespace CMS.Api
 
         [HttpGet]
         [ProducesResponseType(typeof(List<BlogCategoryWithCountModel>), 200)]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var list = blogCategoryService.GetAllActive();
+            var list = await blogCategoryService.GetAllActive();
             return Ok(list);
         }
     }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CMS.Api
 {
-    [CMSAuthorize]
+    //[CMSAuthorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AdminLookupController : ControllerBase
@@ -63,6 +63,13 @@ namespace CMS.Api
         public IActionResult GetMethodTypes()
         {
             var list = _lookupService.MethodTypes();
+            return Ok(list);
+        }
+
+        [HttpGet("UserTypes")]
+        public IActionResult UserTypes()
+        {
+            var list = _lookupService.UserTypes();
             return Ok(list);
         }
     }

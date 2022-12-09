@@ -3,6 +3,7 @@ using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Admin
 {
@@ -26,24 +27,24 @@ namespace CMS.Api.Admin
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] TodoCategory model)
+        public async Task<IActionResult> Post([FromBody] TodoCategory model)
         {
-            var result = todoCategoryService.Post(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoCategoryService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] TodoCategory model)
+        public async Task<IActionResult> Put([FromBody] TodoCategory model)
         {
-            var result = todoCategoryService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoCategoryService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = todoCategoryService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoCategoryService.Delete(id);
+            return Ok(result);
         }
     }
 }

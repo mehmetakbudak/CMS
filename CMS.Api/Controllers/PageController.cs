@@ -1,6 +1,7 @@
 ﻿using CMS.Model.Entity;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api
 {
@@ -22,9 +23,9 @@ namespace CMS.Api
         /// <returns></returns>
         [HttpGet("GetByUrl/{url}")]
         [ProducesResponseType(typeof(Page), 200)] //OK
-        public IActionResult GetByUrl(string url)
+        public async Task<IActionResult> GetByUrl(string url)
         {
-            var result = _pageService.GetByUrl(url);
+            var result = await _pageService.GetByUrl(url);
             return Ok(result);
         }        
     }

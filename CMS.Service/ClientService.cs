@@ -2,14 +2,16 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IClientService
     {
-        List<ClientModel> GetAllActive();
+        Task<List<ClientModel>> GetAllActive();
     }
 
     public class ClientService : IClientService
@@ -21,16 +23,18 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<ClientModel> GetAllActive()
+        public async Task<List<ClientModel>> GetAllActive()
         {
-            return _unitOfWork.Repository<Client>()
+            var list = await _unitOfWork.Repository<Client>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .OrderByDescending(x => x.Id).Select(x => new ClientModel
                 {
                     Id = x.Id,
                     ImageUrl = x.ImageUrl,
                     Title = x.Title
-                }).ToList();
+                }).ToListAsync();
+
+            return list;
         }
     }
 }

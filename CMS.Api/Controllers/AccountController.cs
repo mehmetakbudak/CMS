@@ -1,9 +1,12 @@
-﻿using CMS.Model.Model;
+﻿using CMS.Model.Entity;
+using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
+using CMS.Service.Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers
@@ -12,14 +15,17 @@ namespace CMS.Api.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private IUserService _userService;
+        private readonly IUserService _userService;
         private readonly IMemoryCache _memoryCache;
+        private readonly IJwtHelper _jwtHelper;
 
         public AccountController(IUserService userService,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IJwtHelper jwtHelper)
         {
             _userService = userService;
             _memoryCache = memoryCache;
+            _jwtHelper = jwtHelper;
         }
 
         /// <summary>
@@ -42,8 +48,8 @@ namespace CMS.Api.Controllers
         [CMSAuthorize(CheckAccessRight = false)]
         public IActionResult Logout()
         {
-            string key = $"userMenu_{AuthTokenContent.Current.UserId}";
-            _memoryCache.Remove(key);
+            //string key = $"userMenu_{AuthTokenContent.Current.UserId}";
+            //_memoryCache.Remove(key);
             return Ok();
         }
 
@@ -66,9 +72,9 @@ namespace CMS.Api.Controllers
         /// <returns></returns>
         [HttpGet("ResetPassword/{code}")]
         [ProducesResponseType(typeof(ResetPasswordInfoModel), 200)] //OK
-        public IActionResult ResetPassword(string code)
+        public async Task<IActionResult> ResetPassword(string code)
         {
-            var result = _userService.GetUserByCode(code);
+            var result = await _userService.GetUserByCode(code);
             return Ok(result);
         }
 
@@ -78,9 +84,9 @@ namespace CMS.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPut("ResetPassword")]
-        public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
         {
-            var result = _userService.ResetPassword(model);
+            var result = await _userService.ResetPassword(model);
             return Ok(result);
         }
 
@@ -91,9 +97,9 @@ namespace CMS.Api.Controllers
         [HttpGet("Profile")]
         [CMSAuthorize(CheckAccessRight = false)]
         [ProducesResponseType(typeof(UserProfileModel), 200)] //OK
-        public IActionResult GetProfile()
+        public async Task<IActionResult> GetProfile()
         {
-            var result = _userService.GetProfile();
+            var result = await _userService.GetProfile();
             return Ok(result);
         }
 
@@ -104,9 +110,9 @@ namespace CMS.Api.Controllers
         /// <returns></returns>
         [HttpPut("Profile")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult UpdateProfile([FromBody] UserProfileModel model)
+        public async Task<IActionResult> UpdateProfile([FromBody] UserProfileModel model)
         {
-            var result = _userService.UpdateProfile(model);
+            var result = await _userService.UpdateProfile(model);
             return Ok(result);
         }
 
@@ -115,10 +121,10 @@ namespace CMS.Api.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [HttpPost("AddMember")]
-        public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            var result = await _userService.AddMember(model);
+            var result = await _userService.Register(model);
             return Ok(result);
         }
 
@@ -129,9 +135,9 @@ namespace CMS.Api.Controllers
         /// <returns></returns>
         [HttpPut("ChangePassword")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult ChangePassword([FromBody] ChangePasswordModel model)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
         {
-            var result = _userService.ChangePassword(model);
+            var result = await _userService.ChangePassword(model);
             return Ok(result);
         }
 
@@ -141,9 +147,9 @@ namespace CMS.Api.Controllers
         /// <param name="code"></param>
         /// <returns></returns>
         [HttpPut("EmailVerified/{code}")]
-        public IActionResult EmailVerified(string code)
+        public async Task<IActionResult> EmailVerified(string code)
         {
-            var result = _userService.EmailVerified(code);
+            var result = await _userService.EmailVerified(code);
             return Ok(result);
         }
     }

@@ -1,7 +1,9 @@
 ﻿using CMS.Model.Model;
+using CMS.Model.Model.ViewModel;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CMS.Api
 {
@@ -23,9 +25,9 @@ namespace CMS.Api
         /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(BlogDetailViewModel), 200)] //OK
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var model = _blogService.GetDetailById(id);
+            var model = await _blogService.GetDetailById(id);
             return Ok(model);
         }
 
@@ -34,11 +36,11 @@ namespace CMS.Api
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        [HttpGet("GetBlogs")]
-        [ProducesResponseType(typeof(List<BlogViewModel>), 200)] //OK
-        public IActionResult GetBlogs(string? text)
+        [HttpGet]
+        [ProducesResponseType(typeof(List<BlogModel>), 200)] //OK
+        public async Task<IActionResult> Get(string? text)
         {
-            var list = _blogService.GetBlogs(text);
+            var list = await _blogService.GetBlogs(text);
             return Ok(list);
         }
 
@@ -48,10 +50,10 @@ namespace CMS.Api
         /// <param name="blogCategoryUrl"></param>
         /// <returns></returns>
         [HttpGet("GetBlogsByCategoryUrl/{blogCategoryUrl}")]
-        [ProducesResponseType(typeof(BlogCategoryViewModel), 200)] //OK
-        public IActionResult GetBlogsByCategoryUrl(string blogCategoryUrl)
+        [ProducesResponseType(typeof(BlogModel), 200)] //OK
+        public async Task<IActionResult> GetBlogsByCategoryUrl(string blogCategoryUrl)
         {
-            var list = _blogService.GetBlogsByCategoryUrl(blogCategoryUrl);
+            var list = await _blogService.GetBlogsByCategoryUrl(blogCategoryUrl);
             return Ok(list);
         }
 
@@ -61,10 +63,10 @@ namespace CMS.Api
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPut("Seen/{id}")]
-        public IActionResult Seen(int id)
+        public async Task<IActionResult> Seen(int id)
         {
-            var result = _blogService.Seen(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await _blogService.Seen(id);
+            return Ok(result);
         }
 
         /// <summary>
@@ -73,9 +75,9 @@ namespace CMS.Api
         /// <returns></returns>
         [HttpGet("MostRead")]
         [ProducesResponseType(typeof(List<MostReadBlogViewModel>), 200)] //OK
-        public IActionResult MostRead()
+        public async Task<IActionResult> MostRead()
         {
-            var list = _blogService.MostRead();
+            var list = await _blogService.MostRead();
             return Ok(list);
         }
 
@@ -86,9 +88,9 @@ namespace CMS.Api
         /// <returns></returns>
         [HttpGet("MostReadByBlogCategory/{blogCategoryUrl}")]
         [ProducesResponseType(typeof(List<MostReadBlogViewModel>), 200)] //OK
-        public IActionResult MostReadByBlogCategoryId(string blogCategoryUrl)
+        public async Task<IActionResult> MostReadByBlogCategoryId(string blogCategoryUrl)
         {
-            var list = _blogService.MostRead(blogCategoryUrl);
+            var list = await _blogService.MostRead(blogCategoryUrl);
             return Ok(list);
         }
     }

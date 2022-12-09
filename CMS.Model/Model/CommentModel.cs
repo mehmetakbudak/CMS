@@ -106,4 +106,9 @@ namespace CMS.Model.Model
 
         public DateTime InsertedDate { get; set; }
     }
+
+    public class UserCommentFilterModel : PaginationFilterModel
+    {
+        public int? Type { get; set; }
+    }
 }

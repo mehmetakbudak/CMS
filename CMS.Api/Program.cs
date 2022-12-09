@@ -5,14 +5,17 @@ using CMS.Service;
 using CMS.Service.Helper;
 using CMS.Service.Infrastructure;
 using CMS.Service.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System;
@@ -20,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,24 +61,30 @@ builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<ITestimonialService, TestimonialService>();
 builder.Services.AddScoped<IService_Service, Service_Service>();
 
-builder.Services.ConfigureApplicationCookie(s =>
-{
-    s.LoginPath = new PathString("/login");
-    s.Cookie = new CookieBuilder
-    {
-        Name = "cms",
-        HttpOnly = false,
-        Expiration = TimeSpan.FromMinutes(2),
-        SameSite = SameSiteMode.Lax,
-        SecurePolicy = CookieSecurePolicy.Always
-    };
-    s.SlidingExpiration = true;
-    s.ExpireTimeSpan = TimeSpan.FromMinutes(2);
-});
-
-builder.Services.AddSession();
 builder.Services.AddSignalR();
 builder.Services.AddCors();
+
+Global.Initialize(builder.Configuration);
+
+var key = Encoding.ASCII.GetBytes(Global.Secret);
+
+builder.Services.AddAuthentication(opt =>
+{
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(x =>
+    {
+        x.RequireHttpsMetadata = false;
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
 
 builder.Services.AddMvc().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
     .ConfigureApiBehaviorOptions(options =>
@@ -86,12 +96,11 @@ builder.Services.AddMvc().AddNewtonsoftJson(opt => opt.SerializerSettings.Refere
             .Select(p => p.ErrorMessage))
             .ToList();
 
-            return new BadRequestObjectResult(
-                new BaseResult
-                {
-                    Message = errors.First(),
-                    StatusCode = (int)HttpStatusCode.BadRequest
-                });
+            return new BadRequestObjectResult(new BaseResult
+            {
+                Message = errors.First(),
+                StatusCode = HttpStatusCode.BadRequest
+            });
         };
     }).AddJsonOptions(options =>
     {
@@ -118,19 +127,19 @@ builder.Services.AddSwaggerGen(options =>
         Description = "JWT Authorization header using the Bearer scheme."
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
                 {
-                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] {}
-                    }
-                });
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
 
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
@@ -148,11 +157,12 @@ if (!app.Environment.IsDevelopment())
 app.ErrorHandler();
 
 app.UseRouting();
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
-app.UseAuthorization();
 
 app.UseCors(builder => builder
 .AllowAnyOrigin()

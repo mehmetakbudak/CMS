@@ -3,6 +3,7 @@ using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CMS.Api
 {
@@ -12,7 +13,7 @@ namespace CMS.Api
     {
         private readonly IAccessRightService accessRightService;
         private readonly IMenuService menuService;
-        private IMemoryCache memoryCache;
+        private readonly IMemoryCache memoryCache;
 
         public MenuController(IAccessRightService accessRightService,
             IMenuService menuService,
@@ -28,8 +29,8 @@ namespace CMS.Api
         /// </summary>
         /// <returns></returns>
         [HttpGet("Frontend")]
-        [ProducesResponseType(typeof(List<MenubarModel>), 200)] //OK
-        public IActionResult GetFrontendMenu()
+        [ProducesResponseType(typeof(List<MenuModel>), 200)] //OK
+        public async Task<IActionResult> GetFrontendMenu()
         {
             const string key = "frontEndMenu";
 
@@ -38,7 +39,7 @@ namespace CMS.Api
                 return Ok(menus);
             }
 
-            menus = menuService.GetFrontendMenu();
+            menus = await menuService.GetFrontendMenu();
             memoryCache.Set(key, menus, new MemoryCacheEntryOptions
             {
                 Priority = CacheItemPriority.Normal

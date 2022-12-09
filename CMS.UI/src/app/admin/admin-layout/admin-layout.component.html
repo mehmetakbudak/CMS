@@ -1,0 +1,33 @@
+<nz-layout>
+  <nz-sider nzWidth="300px" nzTheme="light">
+    <ul nz-menu nzMode="inline" class="sider-menu">
+      <li nz-submenu nzOpen nzTitle="İçerikler">
+        <ul>
+          <li nz-menu-item><a routerLink="/admin/blog">Blog</a></li>
+          <li nz-menu-item>option2</li>
+          <li nz-menu-item>option3</li>
+          <li nz-menu-item>option4</li>
+        </ul>
+      </li>
+      <li nz-submenu nzTitle="Tanımlar">
+        <ul>
+          <li nz-menu-item>option5</li>
+          <li nz-menu-item>option6</li>
+          <li nz-menu-item>option7</li>
+          <li nz-menu-item>option8</li>
+        </ul>
+      </li>
+      <li nz-submenu nzTitle="Ayarlar">
+        <ul>
+          <li nz-menu-item><a routerLink="/admin/user">Kullanıcılar</a></li>
+          <li nz-menu-item>option10</li>
+          <li nz-menu-item>option11</li>
+          <li nz-menu-item>option12</li>
+        </ul>
+      </li>
+    </ul>
+  </nz-sider>
+  <nz-content>
+      <router-outlet></router-outlet>    
+  </nz-content>
+</nz-layout>

@@ -10,16 +10,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface ITodoService
     {
-        List<TodoGetModel> GetAll(TodoFilterModel model);
+        Task<List<TodoGetModel>> GetAll(TodoFilterModel model);
         IQueryable<TodoGetModel> GetUserTodos(int userId);
-        ServiceResult Post(TodoModel model);
-        ServiceResult Put(TodoModel model);
-        ServiceResult Delete(int id);
+        Task<ServiceResult> Post(TodoModel model);
+        Task<ServiceResult> Put(TodoModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class TodoService : ITodoService
@@ -31,9 +32,9 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<TodoGetModel> GetAll(TodoFilterModel model)
+        public async Task<List<TodoGetModel>> GetAll(TodoFilterModel model)
         {
-            var data = _unitOfWork.Repository<Todo>()
+            var data = _unitOfWork.Repository<TaskDmo>()
                 .Where(x => !x.Deleted)
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
@@ -49,13 +50,13 @@ namespace CMS.Service
             if (model.TodoCategoryId.HasValue)
                 data = data.Where(x => x.TodoCategoryId == model.TodoCategoryId.Value);
             if (model.TodoStatusId.HasValue)
-                data = data.Where(x => x.TodoStatusId== model.TodoStatusId.Value);
+                data = data.Where(x => x.TodoStatusId == model.TodoStatusId.Value);
             if (model.UserId.HasValue)
                 data = data.Where(x => x.AssignUserId == model.UserId.Value);
             if (model.IsActive.HasValue)
                 data = data.Where(x => x.IsActive == model.IsActive.Value);
 
-            var list = data.Select(x => new TodoGetModel
+            var list = await data.Select(x => new TodoGetModel
             {
                 Description = x.Description,
                 Id = x.Id,
@@ -69,17 +70,18 @@ namespace CMS.Service
                 UpdatedDate = x.UpdatedDate,
                 UserId = x.AssignUserId,
                 UserNameSurname = x.AssignUser.Name + " " + x.AssignUser.Surname
-            }).OrderByDescending(x => x.Id).ToList();
+            }).OrderByDescending(x => x.Id).ToListAsync();
+
             return list;
         }
 
         public IQueryable<TodoGetModel> GetUserTodos(int userId)
         {
-            return _unitOfWork.Repository<Todo>()
-                .Where(x => !x.Deleted && x.IsActive && x.AssignUserId == userId, x => x
+            return _unitOfWork.Repository<TaskDmo>()
+                .Where(x => !x.Deleted && x.IsActive && x.AssignUserId == userId)
                 .Include(x => x.TodoCategory)
                 .Include(x => x.TodoStatus)
-                .Include(x => x.AssignUser))
+                .Include(x => x.AssignUser)
                 .Select(x => new TodoGetModel
                 {
                     Description = x.Description,
@@ -99,13 +101,13 @@ namespace CMS.Service
                 .AsQueryable();
         }
 
-        public ServiceResult Post(TodoModel model)
+        public async Task<ServiceResult> Post(TodoModel model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Post };
 
             if (model.Id == 0)
             {
-                var todo = new Todo
+                var todo = new TaskDmo
                 {
                     Deleted = false,
                     Description = model.Description,
@@ -116,53 +118,55 @@ namespace CMS.Service
                     TodoStatusId = model.TodoStatusId,
                     AssignUserId = model.UserId
                 };
-                _unitOfWork.Repository<Todo>().Add(todo);
-                _unitOfWork.Save();
+
+                await _unitOfWork.Repository<TaskDmo>().Add(todo);
+
+                await _unitOfWork.Save();
             }
             return serviceResult;
         }
 
-        public ServiceResult Put(TodoModel model)
+        public async Task<ServiceResult> Put(TodoModel model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
 
-            var todo = _unitOfWork.Repository<Todo>()
+            var todo = await _unitOfWork.Repository<TaskDmo>()
                    .FirstOrDefault(x => x.Id == model.Id);
 
-            if (todo != null)
-            {
-                todo.Description = model.Description;
-                todo.IsActive = model.IsActive;
-                todo.Title = model.Title;
-                todo.TodoCategoryId = model.TodoCategoryId;
-                todo.TodoStatusId = model.TodoStatusId;
-                todo.UpdatedDate = DateTime.Now;
-                todo.AssignUserId = model.UserId;
-                _unitOfWork.Save();
-            }
-            else
+            if (todo == null)
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
+
+            todo.Description = model.Description;
+            todo.IsActive = model.IsActive;
+            todo.Title = model.Title;
+            todo.TodoCategoryId = model.TodoCategoryId;
+            todo.TodoStatusId = model.TodoStatusId;
+            todo.UpdatedDate = DateTime.Now;
+            todo.AssignUserId = model.UserId;
+
+            await _unitOfWork.Save();
+
             return serviceResult;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
 
-            var todo = _unitOfWork.Repository<Todo>()
+            var todo = await _unitOfWork.Repository<TaskDmo>()
                    .FirstOrDefault(x => x.Id == id);
 
-            if (todo != null)
-            {
-                todo.Deleted = true;
-                _unitOfWork.Save();
-            }
-            else
+            if (todo == null)
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
+
+            todo.Deleted = true;
+
+            await _unitOfWork.Save();
+
             return serviceResult;
         }
     }

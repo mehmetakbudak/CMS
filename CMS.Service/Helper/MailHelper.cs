@@ -31,7 +31,7 @@ namespace CMS.Service.Helper
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var emailSetting = _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
+                var emailSetting = await _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
 
                 Int32.TryParse(emailSetting.Port, out int port);
 
@@ -64,9 +64,11 @@ namespace CMS.Service.Helper
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
             try
             {
-                var emailSetting = _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
+                var emailSetting = await _websiteParameterService.GetParametersByType<EmailSettingModel>(WebsiteParameterTypes.EmailSettings);
+                
                 var data = model.Data;
-                var mailTemplate = _mailTemplateService.GetTemplateByType(data, model.TemplateType);
+                
+                var mailTemplate = await _mailTemplateService.GetTemplateByType(data, model.TemplateType);
 
                 if (mailTemplate != null)
                 {
@@ -85,7 +87,7 @@ namespace CMS.Service.Helper
                 using (var client = new SmtpClient(emailSetting.Host, port))
                 { 
                     client.UseDefaultCredentials = false;
-                    client.EnableSsl = false;
+                    client.EnableSsl = true;
                     client.Credentials = new NetworkCredential(emailSetting.EmailAddress, emailSetting.Password);
 
                     MailMessage message = new MailMessage();

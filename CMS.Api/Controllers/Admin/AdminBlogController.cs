@@ -1,9 +1,9 @@
 ﻿using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers.Admin
 {
@@ -28,17 +28,17 @@ namespace CMS.Api.Controllers.Admin
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var model = blogService.GetById(id);
+            var model = await blogService.GetById(id);
             return Ok(model);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] BlogPutModel model)
+        public async Task<IActionResult> Put([FromBody] BlogPutModel model)
         {
-            var result = blogService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await blogService.Put(model);
+            return Ok(result);
         }
     }
 }

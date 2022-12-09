@@ -1,0 +1,41 @@
+<div nz-row>
+  <div nz-col nzSm="6" nzXs="24">
+    <nz-card style="margin: 15px">
+      <nz-list>
+        <h2 class="divider">
+            <span nz-icon nzType="user" nzTheme="outline"></span>
+            {{user.fullName}}
+        </h2>
+        <nz-list-item>
+          <a style="color: black" routerLink="/member/profile">
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+            <span style="font-size: 16px"> Hesabım</span>
+          </a>
+        </nz-list-item>
+        <nz-list-item>
+          <a style="color: black" routerLink="/member/my-comment">
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+            <span style="font-size: 16px"> Yorumlarım</span>
+          </a>
+        </nz-list-item>
+        <nz-list-item>
+          <a style="color: black" routerLink="/member/change-password">
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+            <span style="font-size: 16px"> Şifremi Değiştir</span>
+          </a>
+        </nz-list-item>
+        <nz-list-item>
+          <a style="color: black" (click)="logout()">
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+            <span style="font-size: 16px"> Çıkış Yap</span>
+          </a>
+        </nz-list-item>
+      </nz-list>
+    </nz-card>
+  </div>
+  <div nz-col nzSm="18" nzXs="24">
+    <div style="margin: 15px">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

@@ -29,7 +29,7 @@ namespace CMS.Data.Context
 
         public virtual DbSet<ChatMessage> ChatMessages { get; set; }
 
-        public virtual DbSet<Todo> Todos { get; set; }
+        public virtual DbSet<TaskDmo> Todos { get; set; }
 
         public virtual DbSet<TodoCategory> TodoCategories { get; set; }
 

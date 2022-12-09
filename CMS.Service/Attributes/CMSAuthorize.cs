@@ -1,12 +1,18 @@
-﻿using CMS.Model.Enum;
-using Microsoft.AspNetCore.Mvc;
+﻿using CMS.Model.Consts;
+using CMS.Service.Exceptions;
+using CMS.Service.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CMS.Service.Attributes
 {
-    public class CMSAuthorize : Attribute, IAuthorizationFilter
+    public class CMSAuthorize : Attribute, IAsyncAuthorizationFilter
     {
         public bool CheckAccessRight { get; set; }
         public CMSAuthorize()
@@ -14,59 +20,94 @@ namespace CMS.Service.Attributes
             CheckAccessRight = true;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            if (!context.HttpContext.User.Identity.IsAuthenticated)
+            try
             {
-                context.Result = new RedirectResult("/login");
-                return;
-            }
+                var userService = (IUserService)context.HttpContext.RequestServices.GetService(typeof(IUserService));
+                var httpContextAccessor = (IHttpContextAccessor)context.HttpContext.RequestServices.GetService(typeof(IHttpContextAccessor));
 
-            var userAccessRightService = (IUserAccessRightService)context.HttpContext.RequestServices.GetService(typeof(IUserAccessRightService));
 
-            var userService = (IUserService)context.HttpContext.RequestServices.GetService(typeof(IUserService));
+                var request = context.HttpContext.Request;
+                var token = request.Headers["Authorization"].ToString();
 
-            var _userId = context.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId").Value;
-
-            Int32.TryParse(_userId, out int userId);
-
-            var user = userService.GetById(userId);
-
-            if (user != null)
-            {
-                if (CheckAccessRight && user.UserType != UserType.SuperAdmin)
+                if (string.IsNullOrEmpty(token))
                 {
-                    var userAccessRights = userAccessRightService.GetByUserId(userId);
+                    throw new NotFoundException("Token bulunamadı.");
+                }
 
-                    if (userAccessRights != null && userAccessRights.Any())
+                string tokenString = token.Split(' ')[1];
+
+                if (string.IsNullOrEmpty(tokenString))
+                {
+                    throw new BadRequestException("Token formatı uygun değil.");
+                }
+
+                var key = Encoding.ASCII.GetBytes(Global.Secret);
+
+                var handler = new JwtSecurityTokenHandler();
+
+                try
+                {
+                    handler.ValidateToken(tokenString, new TokenValidationParameters
                     {
-                        var accessRights = userAccessRights.Select(x => x.AccessRight).ToList();
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    }, out SecurityToken securityToken);
+                }
+                catch
+                {
+                    throw new BadRequestException("Kimlik doğrulanamadı.");
+                }
 
-                        var endpoint = context.HttpContext.Request.Path.Value.Replace("/api", "");
+                var tokenDescrypt = handler.ReadJwtToken(tokenString);
 
-                        var method = context.HttpContext.Request.Method;
+                var strUserId = tokenDescrypt.Claims.FirstOrDefault(x => x.Type == JwtTokenPayload.UserId);
 
-                        var check = accessRights.Any(x => x.AccessRightEndpoints.Any(a => a.Endpoint.ToLower() == endpoint.ToLower() && a.Method == method) && x.Type == AccessRightType.Operation);
+                if (strUserId == null || !Int32.TryParse(strUserId.Value, out int userId))
+                {
+                    throw new BadRequestException("Token hatalı.");
+                }
 
-                        if (!check)
-                        {
-                            context.Result = new RedirectResult("/login");
-                            return;
-                        }
-                    }
-                    else
+                var user = await userService.GetById(userId);
+
+                if (user == null)
+                {
+                    throw new NotFoundException("Kullanıcı bulunamadı.");
+                }
+
+                if (!string.IsNullOrEmpty(user.Token))
+                {
+                    if (user.Token.ToLower() != tokenString.ToLower())
                     {
-                        context.Result = new RedirectResult("/login");
-                        return;
+                        throw new UnAuthorizedException("Token süresi dolmuş. Tekrar giriş yapınız.");
                     }
                 }
-            }
-            else
-            {
-                context.Result = new RedirectResult("/login");
-                return;
-            }
+                else
+                {
+                    throw new UnAuthorizedException("Lütfen giriş yapınız.");
+                }
 
-        }
+                if (!user.TokenExpireDate.HasValue)
+                {
+                    throw new UnAuthorizedException("Token süresi dolmuş. Tekrar giriş yapınız.");
+                }
+
+                var tokenStartDate = user.TokenExpireDate.Value.AddHours(-2);
+                var tokenEndDate = user.TokenExpireDate.Value;
+
+                if (!((tokenStartDate <= DateTime.Now) && (tokenEndDate >= DateTime.Now)))
+                {
+                    throw new UnAuthorizedException("Token süresi dolmuş. Tekrar giriş yapınız.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new UnAuthorizedException(ex.Message);
+            }
+        }      
     }
 }

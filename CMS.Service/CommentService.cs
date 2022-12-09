@@ -12,18 +12,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface ICommentService
     {
-        List<CommentGetModel> GetSourceComments(SourceCommentModel model, int? parentId = null, List<CommentGetModel> children = null);
-        List<UserCommentModel> GetUserComments(int? type = null);
-        List<CommentModel> GetAllByStatus(int status);
-        CommentDetailModel GetDetail(int id);
-        ServiceResult Post(CommentPostModel model);
-        ServiceResult Put(CommentPutModel model);
-        ServiceResult Delete(int id);
+        Task<List<CommentGetModel>> GetSourceComments(SourceCommentModel model, int? parentId = null, List<CommentGetModel> children = null);
+        Task<IQueryable<UserCommentModel>> GetUserComments(int? type = null);
+        Task<List<CommentModel>> GetAllByStatus(int status);
+        Task<CommentDetailModel> GetDetail(int id);
+        Task<ServiceResult> Post(CommentPostModel model);
+        Task<ServiceResult> Put(CommentPutModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class CommentService : ICommentService
@@ -39,11 +40,11 @@ namespace CMS.Service
             _httpContext = httpContext;
         }
 
-        public List<CommentGetModel> GetSourceComments(SourceCommentModel model, int? parentId = null, List<CommentGetModel> children = null)
+        public async Task<List<CommentGetModel>> GetSourceComments(SourceCommentModel model, int? parentId = null, List<CommentGetModel> children = null)
         {
             List<CommentGetModel> comments = new List<CommentGetModel>();
 
-            var list = _unitOfWork.Repository<Comment>()
+            var list = await _unitOfWork.Repository<Comment>()
                 .Where(x => x.SourceType == model.SourceType && !x.Deleted && x.SourceId == model.SourceId && x.Status == CommentStatus.Approved && x.ParentId == parentId)
                 .Include(x => x.User)
                 .OrderByDescending(x => x.InsertedDate)
@@ -57,19 +58,19 @@ namespace CMS.Service
                     SourceType = x.SourceType,
                     UserFullName = x.User.FullName,
                     InsertedDate = x.InsertedDate
-                }).ToList();
+                }).ToListAsync();
 
             comments.AddRange(list);
 
             foreach (var comment in list)
             {
-                comment.Items = GetSourceComments(model, comment.Id, list);
+                comment.Items = await GetSourceComments(model, comment.Id, list);
             }
 
             return comments;
         }
 
-        public List<UserCommentModel> GetUserComments(int? type = null)
+        public async Task<IQueryable<UserCommentModel>> GetUserComments(int? type = null)
         {
             var loginUser = _httpContext.HttpContext.User.Parse();
 
@@ -80,7 +81,8 @@ namespace CMS.Service
             {
                 data = data.Where(x => x.SourceType == (SourceType)type);
             }
-            var blogs = _unitOfWork.Repository<Blog>().Where(x => !x.Deleted && x.Published).ToList();
+            var blogs = await _unitOfWork.Repository<Blog>()
+                .Where(x => !x.Deleted && x.Published).ToListAsync();
 
             var list = data.OrderByDescending(x => x.InsertedDate)
                 .AsEnumerable()
@@ -100,14 +102,14 @@ namespace CMS.Service
                         Status = EnumHelper.GetDescription(x.Status)
                     };
                     return model;
-                }).ToList();
+                }).AsQueryable();
 
             return list;
         }
 
-        public List<CommentModel> GetAllByStatus(int status)
+        public async Task<List<CommentModel>> GetAllByStatus(int status)
         {
-            var list = _unitOfWork.Repository<Comment>()
+            var list = await _unitOfWork.Repository<Comment>()
                 .Where(x => !x.Deleted && x.Status == (CommentStatus)status)
                 .OrderByDescending(x => x.InsertedDate)
                 .Select(x => new CommentModel()
@@ -122,26 +124,28 @@ namespace CMS.Service
                     Status = EnumHelper.GetDescription(x.Status),
                     UpdatedDate = x.UpdatedDate,
                     UserFullName = x.User.FullName
-                }).ToList();
+                }).ToListAsync();
 
             return list;
         }
 
-        public CommentDetailModel GetDetail(int id)
+        public async Task<CommentDetailModel> GetDetail(int id)
         {
-            var comment = _unitOfWork.Repository<Comment>()
+            var comment = await _unitOfWork.Repository<Comment>()
                 .FirstOrDefault(x => !x.Deleted && x.Id == id);
+
             if (comment == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             var model = new CommentDetailModel();
 
             if (comment.ParentId.HasValue)
             {
-                var parentComment = _unitOfWork.Repository<Comment>()
+                var parentComment = await _unitOfWork.Repository<Comment>()
                     .Where(x => x.Id == comment.ParentId && !x.Deleted)
-                    .Include(x => x.User).FirstOrDefault();
+                    .Include(x => x.User).FirstOrDefaultAsync();
 
                 if (parentComment != null)
                 {
@@ -149,6 +153,7 @@ namespace CMS.Service
                     model.ParentDescription = parentComment.Description;
                 }
             }
+
             model.CommentStatus = comment.Status;
             model.Description = comment.Description;
             model.UpdatedDate = comment.UpdatedDate;
@@ -159,8 +164,9 @@ namespace CMS.Service
 
             if (comment.SourceType == SourceType.Blog)
             {
-                var blog = _unitOfWork.Repository<Blog>()
+                var blog = await _unitOfWork.Repository<Blog>()
                     .FirstOrDefault(x => x.Id == comment.SourceId && !x.Deleted);
+
                 if (blog != null)
                 {
                     model.SourceTitle = blog.Title;
@@ -171,7 +177,7 @@ namespace CMS.Service
             return model;
         }
 
-        public ServiceResult Post(CommentPostModel model)
+        public async Task<ServiceResult> Post(CommentPostModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -188,43 +194,56 @@ namespace CMS.Service
                 UserId = loginUser.UserId,
                 SourceId = model.SourceId
             };
-            _unitOfWork.Repository<Comment>().Add(entity);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<Comment>().Add(entity);
+
+            await _unitOfWork.Save();
+
             result.Message = "Yorumunuz başarıyla kaydedildi. Onay sürecinden sonra yayınlanacaktır.";
+
             return result;
         }
 
-        public ServiceResult Put(CommentPutModel model)
+        public async Task<ServiceResult> Put(CommentPutModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var comment = _unitOfWork.Repository<Comment>().FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
+            var comment = await _unitOfWork.Repository<Comment>()
+                .FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
+
             if (comment == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             comment.Status = model.CommentStatus;
             comment.UpdatedDate = DateTime.Now;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             return result;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var loginUser = _httpContext.HttpContext.User.Parse();
 
-            var comment = _unitOfWork.Repository<Comment>()
+            var comment = await _unitOfWork.Repository<Comment>()
                 .FirstOrDefault(x => !x.Deleted && x.Id == id && x.UserId == loginUser.UserId);
 
             if (comment == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             comment.Deleted = true;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Delete;
+
             return result;
         }
     }

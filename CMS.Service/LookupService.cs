@@ -18,6 +18,7 @@ namespace CMS.Service
         List<LookupModel> Menus();
         List<LookupModel> BlogCategories();
         List<LookupModel> MethodTypes();
+        List<LookupModel> UserTypes();
     }
 
     public class LookupService : ILookupService
@@ -101,6 +102,12 @@ namespace CMS.Service
         public List<LookupModel> MethodTypes()
         {
             var list = EnumHelper.GetEnumLookup((typeof(MethodType)));
+            return list;
+        }
+
+        public List<LookupModel> UserTypes()
+        {
+            var list = EnumHelper.GetEnumLookup((typeof(UserType)));
             return list;
         }
     }

@@ -1,32 +1,22 @@
-﻿using CMS.Model.Entity;
-using CMS.Model.Enum;
+﻿using CMS.Model.Enum;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace CMS.Model.Model
 {
     public class UserModel
     {
         public int Id { get; set; }
-
-        [Required(ErrorMessage = "Kullanıcı tipi seçiniz.")]
         public int UserType { get; set; }
-
         public string UserTypeName { get; set; }
-
-        [Required(ErrorMessage = "Kullanıcı adı zorunludur.")]
         public string Name { get; set; }
-
-        [Required(ErrorMessage = "Kullanıcı soyadı zorunludur.")]
         public string Surname { get; set; }
-
-        [Required(ErrorMessage = "Email adresi zorunludur.")]
-        [EmailAddress(ErrorMessage = "Email formatı uygun değildir.")]
         public string EmailAddress { get; set; }
-
+        public string Phone { get; set; }
         public bool IsActive { get; set; }
-
         public string Status { get; set; }
+        public string Token { get; set; }
+        public DateTime? TokenExpireDate { get; set; }
     }
 
     public class UserCreateOrUpdateModel { }
@@ -43,56 +33,41 @@ namespace CMS.Model.Model
         public string Phone { get; set; }
     }
 
-    public class AddMemberModel
+    public class RegisterModel
     {
-        [Required(ErrorMessage = "Adı zorunludur.")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Soyadı zorunludur.")]
         public string Surname { get; set; }
 
-        [Required(ErrorMessage = "Email adres zorunludur.")]
-        [EmailAddress(ErrorMessage = "Email adresi formatı uygun değildir.")]
         public string EmailAddress { get; set; }
 
-        [Required(ErrorMessage = "Şifre zorunludur.")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Şifre yeniden zorunludur.")]
         public string RePassword { get; set; }
 
-        [Required(ErrorMessage = "Telefon zorunludur.")]
         public string Phone { get; set; }
     }
 
     public class ChangePasswordModel
     {
-        [Required(ErrorMessage = "Eski şifre zorunludur.")]
         public string OldPassword { get; set; }
 
-        [Required(ErrorMessage = "Mevcut şifre zorunludur.")]
         public string NewPassword { get; set; }
 
-        [Required(ErrorMessage = "Yeni şifre tekrar zorunludur.")]
         public string ReNewPassword { get; set; }
     }
 
     public class ForgotPasswordModel
     {
-        [Required(ErrorMessage = "Email adres zorunludur.")]
-        [EmailAddress(ErrorMessage = "Email adresi formatı uygun değildir.")]
         public string EmailAddress { get; set; }
     }
 
     public class ResetPasswordModel
     {
-        [Required(ErrorMessage = "Kod zorunludur.")]
         public string Code { get; set; }
 
-        [Required(ErrorMessage = "Mevcut şifre zorunludur.")]
         public string NewPassword { get; set; }
 
-        [Required(ErrorMessage = "Yeni şifre tekrar zorunludur.")]
         public string ReNewPassword { get; set; }
     }
 

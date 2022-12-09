@@ -1,0 +1,116 @@
+<div nz-row>
+  <div nz-col nzSpan="8" nzOffset="8">
+    <nz-card [nzBordered]="false" nzTitle="Üye Ol" style="margin: 80px 0">
+      <div class="pt-0">
+        <form
+          nz-form
+          [formGroup]="form"
+          class="login-form"
+          (ngSubmit)="save()"
+          style="padding: 20px 0"
+          nzLayout="vertical"
+        >
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="name" nzRequired>
+              <span>Adı</span>
+            </nz-form-label>
+            <nz-form-control nzErrorTip="Lütfen adınızı giriniz!">
+              <input
+                type="text"
+                nz-input
+                formControlName="name"
+                placeholder="Adı"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="surname" nzRequired>
+              <span>Soyadı</span>
+            </nz-form-label>
+            <nz-form-control nzErrorTip="Lütfen soyadı giriniz!">
+              <input
+                type="text"
+                nz-input
+                formControlName="surname"
+                placeholder="Soyadı"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label
+              [nzSm]="6"
+              [nzXs]="24"
+              nzFor="emailAddress"
+              nzRequired
+            >
+              <span>Email Adresi</span>
+            </nz-form-label>
+            <nz-form-control nzErrorTip="Lütfen email adresi giriniz!">
+              <input
+                type="text"
+                nz-input
+                formControlName="emailAddress"
+                placeholder="Email Adresi"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="password" nzRequired>
+              <span>Şifre</span>
+            </nz-form-label>
+            <nz-form-control nzErrorTip="Lütfen şifre giriniz!">
+              <input
+                type="password"
+                nz-input
+                formControlName="password"
+                placeholder="Şifre"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="rePassword" nzRequired>
+              <span>Şifre Tekrar</span>
+            </nz-form-label>
+            <nz-form-control nzErrorTip="Lütfen şifreyi tekrar giriniz!">
+              <input
+                type="password"
+                nz-input
+                formControlName="rePassword"
+                placeholder="Şifre Tekrar"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="phone" nzRequired>
+              <span>Telefon No</span>
+            </nz-form-label>
+            <nz-form-control nzErrorTip="Lütfen telefon no giriniz!">
+              <input
+                type="text"
+                nz-input
+                formControlName="phone"
+                placeholder="Telefon No"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <div nz-row class="login-form-margin">
+            <div nz-col [nzSpan]="12"></div>
+            <div nz-col [nzSpan]="12">
+              <button
+                nz-button
+                style="float: right"
+                class="login-form-button login-form-margin"
+                [nzType]="'primary'"
+              >
+                Kaydet
+              </button>
+            </div>
+          </div>
+          <div style="text-align: center; padding-top: 10px; font-size: 16px">
+            Zaten üye misin? <a routerLink="/login">Giriş Yap!</a>
+          </div>
+        </form>
+      </div>
+    </nz-card>
+  </div>
+</div>

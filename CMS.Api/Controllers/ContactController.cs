@@ -1,6 +1,7 @@
 ﻿using CMS.Model.Model;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api
 {
@@ -20,9 +21,9 @@ namespace CMS.Api
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Post([FromBody] ContactModel model)
+        public async Task<IActionResult> Post([FromBody] ContactModel model)
         {
-            var result = _contactService.Post(model);
+            var result = await _contactService.Post(model);
             return StatusCode((int)result.StatusCode, result);
         }
     }

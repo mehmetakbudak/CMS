@@ -3,12 +3,13 @@ using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
 using CMS.Model.Model;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IMailTemplateService
     {
-        TemplateResponseModel GetTemplateByType<T>(T data, TemplateType type);
+        Task<TemplateResponseModel> GetTemplateByType<T>(T data, TemplateType type);
     }
 
     public class MailTemplateService : IMailTemplateService
@@ -21,11 +22,12 @@ namespace CMS.Service
         }
 
 
-        public TemplateResponseModel GetTemplateByType<T>(T data, TemplateType type)
+        public async Task<TemplateResponseModel> GetTemplateByType<T>(T data, TemplateType type)
         {
             TemplateResponseModel result = null;
 
-            var mailTemplate = _unitOfWork.Repository<MailTemplate>().FirstOrDefault(x => x.TemplateType == type);
+            var mailTemplate = await _unitOfWork.Repository<MailTemplate>()
+                .FirstOrDefault(x => x.TemplateType == type);
 
             if (mailTemplate != null)
             {

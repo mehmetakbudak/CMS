@@ -29,6 +29,9 @@ namespace CMS.Model.Entity
         public string Phone { get; set; }
 
         public string HashCode { get; set; }
+        public string Token { get; set; }
+
+        public DateTime? TokenExpireDate{ get; set; }
 
         public DateTime? PasswordExpireDate { get; set; }
 

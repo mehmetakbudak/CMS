@@ -1,10 +1,10 @@
 ﻿using CMS.Model.Entity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace CMS.Data.Repository
 {
@@ -23,19 +23,19 @@ namespace CMS.Data.Repository
             _dbSet = _context.Set<T>();
         }
 
-        public virtual void Add(T entity)
+        public virtual async Task Add(T entity)
         {
-            _dbSet.Add(entity);
+            await _dbSet.AddAsync(entity);
         }
 
-        public virtual void AddRange(List<T> entity)
+        public virtual async Task AddRange(List<T> entity)
         {
-            _dbSet.AddRange(entity);
+            await _dbSet.AddRangeAsync(entity);
         }
 
-        public virtual void Delete(T entity)
+        public virtual async Task Delete(T entity)
         {
-            entity = FirstOrDefault(x => x.Id == entity.Id);
+            entity = await FirstOrDefault(x => x.Id == entity.Id);
 
             if (entity != null)
             {
@@ -43,9 +43,9 @@ namespace CMS.Data.Repository
             }
         }
 
-        public virtual void Delete(int id)
+        public virtual async Task Delete(int id)
         {
-            var entity = FirstOrDefault(x => x.Id == id);
+            var entity = await FirstOrDefault(x => x.Id == id);
 
             if (entity != null)
             {
@@ -58,15 +58,9 @@ namespace CMS.Data.Repository
             return _dbSet.AsQueryable();
         }
 
-        public IQueryable<T> Where(Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        public IQueryable<T> Where(Expression<Func<T, bool>> predicate = null)
         {
             IQueryable<T> query = _dbSet;
-
-            if (include != null)
-            {
-                query = include(query);
-            }
 
             if (predicate != null)
             {
@@ -75,34 +69,28 @@ namespace CMS.Data.Repository
             return query;
         }
 
-        public virtual T FirstOrDefault(Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        public virtual async Task<T> FirstOrDefault(Expression<Func<T, bool>> predicate = null)
         {
             IQueryable<T> query = _dbSet;
 
-            if (include != null)
-            {
-                query = include(query);
-            }
-
             if (predicate != null)
             {
-                return query.FirstOrDefault(predicate);
+                return await query.FirstOrDefaultAsync(predicate);
             }
 
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
 
-        public bool Any(Expression<Func<T, bool>> predicate = null)
+        public async Task<bool> Any(Expression<Func<T, bool>> predicate = null)
         {
             IQueryable<T> query = _dbSet;
 
             if (predicate != null)
             {
-                return query.Any(predicate);
+                return await query.AnyAsync(predicate);
             }
 
-            return query.Any();
+            return await query.AnyAsync();
         }
 
         public virtual void Update(T entity)

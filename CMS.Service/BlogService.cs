@@ -6,24 +6,26 @@ using CMS.Model.Enum;
 using CMS.Model.Model;
 using CMS.Model.Model.ViewModel;
 using CMS.Service.Exceptions;
+using CMS.Service.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IBlogService
     {
         IQueryable<Blog> GetAll();
-        BlogDetailModel GetById(int id);
-        List<BlogModel> GetBlogs(string text = null, int? top = null);
-        List<BlogModel> GetBlogsByCategoryUrl(string blogCategoryUrl);
-        ServiceResult Put(BlogPutModel model);
-        BlogDetailViewModel GetDetailById(int id);
-        ServiceResult Seen(int id);
-        List<MostReadBlogViewModel> MostRead(string blogCategoryUrl = null);
+        Task<BlogDetailModel> GetById(int id);
+        Task<List<BlogModel>> GetBlogs(string text = null, int? top = null);
+        Task<List<BlogModel>> GetBlogsByCategoryUrl(string blogCategoryUrl);
+        Task<ServiceResult> Put(BlogPutModel model);
+        Task<BlogDetailViewModel> GetDetailById(int id);
+        Task<ServiceResult> Seen(int id);
+        Task<List<MostReadBlogViewModel>> MostRead(string blogCategoryUrl = null);
     }
 
     public class BlogService : IBlogService
@@ -41,7 +43,7 @@ namespace CMS.Service
             return list;
         }
 
-        public List<BlogModel> GetBlogs(string text = null, int? top = null)
+        public async Task<List<BlogModel>> GetBlogs(string text = null, int? top = null)
         {
             var blogs = _unitOfWork.Repository<Blog>()
                 .Where(x => x.IsActive && !x.Deleted)
@@ -60,35 +62,37 @@ namespace CMS.Service
             var comments = _unitOfWork.Repository<Comment>()
                 .Where(x => !x.Deleted && x.Status == CommentStatus.Approved && x.SourceType == SourceType.Blog).AsQueryable();
 
-            var list = blogs.OrderBy(x => x.DisplayOrder)
+            var list = await blogs.OrderBy(x => x.DisplayOrder)
               .Select(x => new BlogModel()
               {
                   Id = x.Id,
                   Url = x.Url,
                   Title = x.Title,
                   Content = x.Content,
-                  ImageUrl = x.ImageUrl,
+                  ImageUrl = $"{Global.ApiUrl}{x.ImageUrl}",
                   Description = x.Description,
                   InsertedDate = x.InsertedDate,
                   UserName = $"{x.User.Name} {x.User.Surname}",
                   CommentCount = comments.Count(x => x.SourceId == x.Id)
-              }).ToList();
+              }).ToListAsync();
 
             return list;
         }
 
-        public List<BlogModel> GetBlogsByCategoryUrl(string blogCategoryUrl)
+        public async Task<List<BlogModel>> GetBlogsByCategoryUrl(string blogCategoryUrl)
         {
-            var blogCategory = _unitOfWork.Repository<BlogCategory>().Where(x => x.Url == blogCategoryUrl && !x.Deleted).FirstOrDefault();
+            var blogCategory = await _unitOfWork.Repository<BlogCategory>()
+                .Where(x => x.Url == blogCategoryUrl && !x.Deleted).FirstOrDefaultAsync();
 
             if (blogCategory == null)
             {
                 throw new NotFoundException("Blog kategorisi bulunamadı.");
             }
+
             var comments = _unitOfWork.Repository<Comment>()
                 .Where(x => !x.Deleted && x.Status == CommentStatus.Approved && x.SourceType == SourceType.Blog).AsQueryable();
 
-            var blogs = _unitOfWork.Repository<SelectedBlogCategory>()
+            var blogs = await _unitOfWork.Repository<SelectedBlogCategory>()
                  .Where(x => !x.Blog.Deleted && x.Blog.Published && x.Blog.IsActive && x.BlogCategoryId == blogCategory.Id)
                  .Include(x => x.Blog)
                  .Include(x => x.BlogCategory)
@@ -100,23 +104,24 @@ namespace CMS.Service
                      Url = x.Url,
                      Title = x.Title,
                      Content = x.Content,
-                     ImageUrl = x.ImageUrl,
+                     ImageUrl = $"{Global.ApiUrl}{x.ImageUrl}",
                      Description = x.Description,
                      InsertedDate = x.InsertedDate,
                      UserName = $"{x.User.Name} {x.User.Surname}",
                      CommentCount = comments.Count(x => x.SourceId == x.Id)
-                 }).ToList();
+                 }).ToListAsync();
 
             return blogs;
         }
 
-        public BlogDetailModel GetById(int id)
+        public async Task<BlogDetailModel> GetById(int id)
         {
             BlogDetailModel model = null;
-            var blog = GetAll()
+            var blog = await GetAll()
                 .Include(x => x.SelectedBlogCategories)
                 .ThenInclude(x => x.BlogCategory)
-                .FirstOrDefault(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (blog != null)
             {
                 model = new BlogDetailModel()
@@ -135,24 +140,24 @@ namespace CMS.Service
             return model;
         }
 
-        public BlogDetailViewModel GetDetailById(int id)
+        public async Task<BlogDetailViewModel> GetDetailById(int id)
         {
             BlogDetailViewModel model = null;
 
-            var blog = _unitOfWork.Repository<Blog>()
+            var blog = await _unitOfWork.Repository<Blog>()
                 .Where(x => x.Id == id && !x.Deleted && x.Published && x.IsActive)
                 .Include(x => x.SelectedBlogCategories)
                 .ThenInclude(x => x.BlogCategory)
                 .Include(x => x.User)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (blog == null)
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
 
-            var commentCount = _unitOfWork.Repository<Comment>()
-                .Where(x => x.SourceType == SourceType.Blog && x.SourceId == id && !x.Deleted && x.Status == CommentStatus.Approved).Count();
+            var commentCount = await _unitOfWork.Repository<Comment>()
+                .Where(x => x.SourceType == SourceType.Blog && x.SourceId == id && !x.Deleted && x.Status == CommentStatus.Approved).CountAsync();
 
             model = new BlogDetailViewModel
             {
@@ -161,7 +166,7 @@ namespace CMS.Service
                 Id = blog.Id,
                 InsertedDate = blog.InsertedDate,
                 Title = blog.Title,
-                ImageUrl = blog.ImageUrl,
+                ImageUrl = $"{Global.ApiUrl}{blog.ImageUrl}",
                 UserName = $"{blog.User.Name} {blog.User.Surname}",
                 CommentCount = commentCount,
                 BlogCategories = blog.SelectedBlogCategories
@@ -176,7 +181,7 @@ namespace CMS.Service
             return model;
         }
 
-        public List<MostReadBlogViewModel> MostRead(string blogCategoryUrl = null)
+        public async Task<List<MostReadBlogViewModel>> MostRead(string blogCategoryUrl = null)
         {
             IQueryable<Blog> data = null;
 
@@ -194,24 +199,25 @@ namespace CMS.Service
                     .Where(x => !x.Deleted && x.IsActive && x.Published);
             }
 
-            var list = data.OrderByDescending(x => x.NumberOfView).Take(5)
+            var list = await data.OrderByDescending(x => x.NumberOfView).Take(5)
                 .Select(x => new MostReadBlogViewModel()
                 {
                     Id = x.Id,
-                    ImageUrl = x.ImageUrl,
+                    ImageUrl = $"{Global.ApiUrl}{x.ImageUrl}",
                     Title = x.Title,
                     Url = x.Url,
                     InsertedDate = x.InsertedDate
-                }).ToList();
+                }).ToListAsync();
 
             return list;
         }
 
-        public ServiceResult Put(BlogPutModel model)
+        public async Task<ServiceResult> Put(BlogPutModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
 
-            var blog = _unitOfWork.Repository<Blog>().FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
+            var blog = await _unitOfWork.Repository<Blog>()
+                .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
 
             if (blog == null)
             {
@@ -226,8 +232,8 @@ namespace CMS.Service
             blog.DisplayOrder = model.DisplayOrder;
             blog.Url = model.Url;
 
-            var selectedBlogCategories = _unitOfWork.Repository<SelectedBlogCategory>()
-                .Where(x => x.BlogId == model.Id).ToList();
+            var selectedBlogCategories = await _unitOfWork.Repository<SelectedBlogCategory>()
+                .Where(x => x.BlogId == model.Id).ToListAsync();
 
             _unitOfWork.Repository<SelectedBlogCategory>().DeleteRange(selectedBlogCategories);
 
@@ -240,24 +246,27 @@ namespace CMS.Service
                         BlogCategoryId = blogCategoryId,
                         BlogId = blog.Id
                     };
-                    _unitOfWork.Repository<SelectedBlogCategory>().Add(selectedBlogCategory);
+                    await _unitOfWork.Repository<SelectedBlogCategory>().Add(selectedBlogCategory);
                 }
             }
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             return result;
         }
 
-        public ServiceResult Seen(int id)
+        public async Task<ServiceResult> Seen(int id)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var blog = _unitOfWork.Repository<Blog>()
+            var blog = await _unitOfWork.Repository<Blog>()
                 .FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Id == id);
 
             if (blog != null)
             {
                 blog.NumberOfView++;
-                _unitOfWork.Save();
+
+                await _unitOfWork.Save();
             }
             return result;
         }

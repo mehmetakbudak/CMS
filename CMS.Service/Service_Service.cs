@@ -1,16 +1,18 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
 using CMS.Model.Model;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IService_Service
     {
         IQueryable<Model.Entity.Service> GetAll();
-        List<ServiceModel> GetAllActive();
-        Model.Entity.Service GetByUrl(string url);
+        Task<List<ServiceModel>> GetAllActive();
+        Task<Model.Entity.Service> GetByUrl(string url);
     }
 
     public class Service_Service : IService_Service
@@ -31,9 +33,10 @@ namespace CMS.Service
             return list;
         }
 
-        public List<ServiceModel> GetAllActive()
+        public async Task<List<ServiceModel>> GetAllActive()
         {
-            return GetAll().Where(x => x.IsActive)
+            return await GetAll()
+                .Where(x => x.IsActive)
                 .Select(x => new ServiceModel
                 {
                     Id = x.Id,
@@ -41,12 +44,12 @@ namespace CMS.Service
                     ImageUrl = x.ImageUrl,
                     Url = x.Url,
                     Content = x.Content
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public Model.Entity.Service GetByUrl(string url)
+        public async Task<Model.Entity.Service> GetByUrl(string url)
         {
-            return _unitOfWork.Repository<Model.Entity.Service>()
+            return await _unitOfWork.Repository<Model.Entity.Service>()
                 .FirstOrDefault(x => !x.Deleted && x.Url == url);
         }
     }

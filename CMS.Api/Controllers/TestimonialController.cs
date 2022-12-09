@@ -3,6 +3,7 @@ using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers
 {
@@ -23,9 +24,9 @@ namespace CMS.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<Testimonial>), 200)] //OK
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var list = _testimonialService.GetAllActive();
+            var list = await _testimonialService.GetAllActive();
             return Ok(list);
         }
     }

@@ -8,14 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IContactService
     {
-        List<Contact> GetDmo();
-        ServiceResult Post(ContactModel model);
-        ServiceResult Delete(int id);
+        Task<List<Contact>> Get();
+        Task<ServiceResult> Post(ContactModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class ContactService : IContactService
@@ -25,33 +26,37 @@ namespace CMS.Service
         public ContactService(IUnitOfWork<CMSContext> unitOfWork)
         {
             _unitOfWork = unitOfWork;
-        }        
+        }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            var contactMessage = _unitOfWork.Repository<Contact>()
+
+            var contactMessage = await _unitOfWork.Repository<Contact>()
                 .FirstOrDefault(x => x.Id == id);
+
             if (contactMessage == null)
             {
                 throw new DllNotFoundException(AlertMessages.NotFound);
             }
-            _unitOfWork.Repository<Contact>().Delete(contactMessage);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<Contact>().Delete(contactMessage);
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Delete;
+
             return result;
         }
 
-        public List<Contact> GetDmo()
+        public async Task<List<Contact>> Get()
         {
-            return _unitOfWork.Repository<Contact>()
+            return await _unitOfWork.Repository<Contact>()
                 .Where(x => !x.ContactCategory.Deleted && x.ContactCategory.IsActive)
                 .Include(x => x.ContactCategory)
-                .OrderByDescending(x => x.InsertedDate)
-                .ToList();
+                .OrderByDescending(x => x.InsertedDate).ToListAsync();
         }
 
-        public ServiceResult Post(ContactModel model)
+        public async Task<ServiceResult> Post(ContactModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -64,8 +69,10 @@ namespace CMS.Service
                 Surname = model.Surname,
                 InsertedDate = DateTime.Now
             };
-            _unitOfWork.Repository<Contact>().Add(contact);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<Contact>().Add(contact);
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Post;
 
             return result;

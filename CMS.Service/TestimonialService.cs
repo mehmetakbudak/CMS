@@ -2,15 +2,17 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Model;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface ITestimonialService
     {
         IQueryable<Testimonial> GetAll();
-        List<TestimonialModel> GetAllActive(int? top = null);
+        Task<List<TestimonialModel>> GetAllActive(int? top = null);
     }
 
     public class TestimonialService : ITestimonialService
@@ -31,16 +33,16 @@ namespace CMS.Service
             return list;
         }
 
-        public List<TestimonialModel> GetAllActive(int? top = null)
+        public Task<List<TestimonialModel>> GetAllActive(int? top = null)
         {
-            var list = GetAll().Where(x => x.IsActive);
+            var data = GetAll().Where(x => x.IsActive);
 
             if (top != null)
             {
-                list = list.Take(top.Value);
+                data = data.Take(top.Value);
             }
 
-            return list.Select(x => new TestimonialModel
+            var list = data.Select(x => new TestimonialModel
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -49,7 +51,9 @@ namespace CMS.Service
                 ImageUrl = x.ImageUrl,
                 Surname = x.Surname,
                 Title = x.Title
-            }).ToList();
+            }).ToListAsync();
+
+            return list;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CMS.Service;
 using CMS.Service.Attributes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers.Admin
 {
@@ -17,17 +17,17 @@ namespace CMS.Api.Controllers.Admin
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var list = _contactService.GetDmo();
+            var list =  await _contactService.Get();
             return Ok(list);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _contactService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await _contactService.Delete(id);
+            return Ok(result);
         }
     }
 }

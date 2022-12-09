@@ -6,15 +6,16 @@ using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface ITodoCategoryService
     {
         IQueryable<TodoCategory> GetAll();
-        ServiceResult Post(TodoCategory model);
-        ServiceResult Put(TodoCategory model);
-        ServiceResult Delete(int id);
+        Task<ServiceResult> Post(TodoCategory model);
+        Task<ServiceResult> Put(TodoCategory model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class TodoCategoryService : ITodoCategoryService
@@ -34,7 +35,7 @@ namespace CMS.Service
                 .AsQueryable();
         }
 
-        public ServiceResult Post(TodoCategory model)
+        public async Task<ServiceResult> Post(TodoCategory model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -44,45 +45,54 @@ namespace CMS.Service
                 IsActive = model.IsActive,
                 Name = model.Name
             };
-            _unitOfWork.Repository<TodoCategory>().Add(todoCategory);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<TodoCategory>().Add(todoCategory);
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Post;
 
             return result;
         }
 
-        public ServiceResult Put(TodoCategory model)
+        public async Task<ServiceResult> Put(TodoCategory model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var todoCategory = _unitOfWork.Repository<TodoCategory>()
+            var todoCategory = await _unitOfWork.Repository<TodoCategory>()
                     .FirstOrDefault(x => x.Id == model.Id);
 
             if (todoCategory == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             todoCategory.Name = model.Name;
             todoCategory.IsActive = model.IsActive;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Put;
 
             return result;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var todoCategory = _unitOfWork.Repository<TodoCategory>()
+            var todoCategory = await _unitOfWork.Repository<TodoCategory>()
                    .FirstOrDefault(x => x.Id == id);
 
             if (todoCategory == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             todoCategory.Deleted = true;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Delete;
 
             return result;

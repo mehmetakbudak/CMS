@@ -1,0 +1,66 @@
+<div>
+  <nz-card [nzBordered]="true" nzTitle="Yorumlar">
+    <nz-table
+      nzBordered
+      nzShowSizeChanger
+      [nzData]="list"
+      [nzFrontPagination]="false"
+      [nzLoading]="loading"
+      [nzTotal]="total"
+      [nzPageSize]="pageSize"
+      [nzPageIndex]="pageNumber"
+      [nzPageSizeOptions]="[5, 10, 20, 50, 100]"
+      (nzQueryParams)="onQueryParamsChange($event)"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="60px"></th>
+          <th nzWidth="50px"></th>
+          <th>Başlığı</th>
+          <th>Türü</th>
+          <th>Durumu</th>
+          <th>Kayıt Tarihi</th>
+          <th>Güncelleme Tarihi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let data of list">
+          <tr>
+            <td>
+              <button
+                style="margin-left: 10px"
+                nz-button
+                nzType="primary"
+                nzDanger
+                nz-popconfirm
+                nzPopconfirmTitle="Silmek istediğinize emin misiniz?"
+                nzCancelText="İptal"
+                nzOkText="Evet"
+                nzPopconfirmPlacement="bottom"
+                (nzOnConfirm)="deleteComment(data.id)"
+              >
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </td>
+            <td
+              [nzExpand]="expandSet.has(data.id)"
+              (nzExpandChange)="onExpandChange(data.id, $event)"
+            ></td>
+            <td>
+              <a target="_blank" routerLink="/{{ data.url }}">
+                {{ data.title }}</a
+              >
+            </td>
+            <td>{{ data.sourceTypeName }}</td>
+            <td>{{ data.status }}</td>
+            <td>{{ data.insertedDate | date : "dd.MM.yyyy" }}</td>
+            <td>{{ data.updatedDate | date : "dd.MM.yyyy" }}</td>           
+          </tr>
+          <tr [nzExpand]="expandSet.has(data.id)">
+            <span>{{ data.description }}</span>
+          </tr>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</div>

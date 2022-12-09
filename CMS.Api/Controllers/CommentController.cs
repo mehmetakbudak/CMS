@@ -2,9 +2,11 @@
 using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
+using CMS.Service.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers
 {
@@ -21,35 +23,36 @@ namespace CMS.Api.Controllers
 
         [HttpPost("GetSourceComments")]
         [ProducesResponseType(typeof(List<CommentGetModel>), 200)] //OK
-        public IActionResult GetSourceComments([FromBody] SourceCommentModel model)
+        public async Task<IActionResult> GetSourceComments([FromBody] SourceCommentModel model)
         {
-            var result = _commentService.GetSourceComments(model);
+            var result = await _commentService.GetSourceComments(model);
             return Ok(result);
         }
 
-        [HttpGet("GetUserComments/{type}")]
+        [HttpGet("GetUserComments/{type?}")]
         [CMSAuthorize(CheckAccessRight = false)]
         [ProducesResponseType(typeof(List<UserCommentModel>), 200)] //OK
-        public IActionResult GetUserComments(int type)
+        public async Task<IActionResult> GetUserComments([FromQuery] UserCommentFilterModel model)
         {
-            var result = _commentService.GetUserComments(type);
-            return Ok(result);
+            var list = await _commentService.GetUserComments(model.Type);
+            var pagedReponse = PaginationHelper.CreatePagedReponse<UserCommentModel>(list, model);
+            return Ok(pagedReponse);
         }
 
         [HttpPost]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult Post([FromBody] CommentPostModel model)
+        public async Task<IActionResult> Post([FromBody] CommentPostModel model)
         {
-            var result = _commentService.Post(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _commentService.Post(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _commentService.Delete(id, AuthTokenContent.Current.UserId);
-            return StatusCode(result.StatusCode, result);
+            var result = await _commentService.Delete(id);
+            return Ok(result);
         }
     }
 }

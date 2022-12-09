@@ -8,16 +8,17 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IBlogCategoryService
     {
         IQueryable<BlogCategory> GetAll();
-        List<BlogCategoryWithCountModel> GetAllActive();
-        BlogCategoryModel GetByUrl(string url);
-        ServiceResult Post(BlogCategoryModel model);
-        ServiceResult Put(BlogCategoryModel model);
+        Task<List<BlogCategoryWithCountModel>> GetAllActive();
+        Task<BlogCategoryModel> GetByUrl(string url);
+        Task<ServiceResult> Post(BlogCategoryModel model);
+        Task<ServiceResult> Put(BlogCategoryModel model);
     }
 
     public class BlogCategoryService : IBlogCategoryService
@@ -38,9 +39,9 @@ namespace CMS.Service
             return list;
         }
 
-        public List<BlogCategoryWithCountModel> GetAllActive()
+        public async Task<List<BlogCategoryWithCountModel>> GetAllActive()
         {
-            var list = _unitOfWork.Repository<BlogCategory>()
+            var list = await _unitOfWork.Repository<BlogCategory>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .Include(x => x.SelectedBlogCategories)
                 .ThenInclude(x => x.Blog)
@@ -53,13 +54,13 @@ namespace CMS.Service
                     BlogCount = x.SelectedBlogCategories
                                  .Select(s => s.Blog)
                                  .Count(x => x.IsActive && x.Published && !x.Deleted)
-                }).ToList();
+                }).ToListAsync();
             return list;
         }
 
-        public BlogCategoryModel GetByUrl(string url)
+        public async Task<BlogCategoryModel> GetByUrl(string url)
         {
-            return _unitOfWork.Repository<BlogCategory>()
+            return await _unitOfWork.Repository<BlogCategory>()
                 .Where(x => !x.Deleted && x.Url == url)
                 .Select(x => new BlogCategoryModel
                 {
@@ -68,47 +69,63 @@ namespace CMS.Service
                     IsShowHome = x.IsShowHome,
                     Name = x.Name,
                     Url = x.Url
-                }).FirstOrDefault();
+                }).FirstOrDefaultAsync();
         }
 
-        public ServiceResult Post(BlogCategoryModel model)
+        public async Task<ServiceResult> Post(BlogCategoryModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Post };
-            var isExist = _unitOfWork.Repository<BlogCategory>().Any(x => !x.Deleted && x.Url == model.Url);
+
+            var isExist = await _unitOfWork.Repository<BlogCategory>()
+                .Any(x => !x.Deleted && x.Url == model.Url);
+
             if (isExist)
             {
                 throw new FoundException("Url ile daha önce kayıt mevcuttur.");
             }
-            _unitOfWork.Repository<BlogCategory>().Add(new BlogCategory()
-            {
-                Deleted = false,
-                IsActive = model.IsActive,
-                IsShowHome = model.IsShowHome,
-                Name = model.Name,
-                Url = model.Url
-            });
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<BlogCategory>()
+                .Add(new BlogCategory()
+                {
+                    Deleted = false,
+                    IsActive = model.IsActive,
+                    IsShowHome = model.IsShowHome,
+                    Name = model.Name,
+                    Url = model.Url
+                });
+
+            await _unitOfWork.Save();
+
             return result;
         }
 
-        public ServiceResult Put(BlogCategoryModel model)
+        public async Task<ServiceResult> Put(BlogCategoryModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
-            var blogCategory = _unitOfWork.Repository<BlogCategory>().FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
+
+            var blogCategory = await _unitOfWork.Repository<BlogCategory>()
+                .FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
+
             if (blogCategory == null)
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
-            var isExist = _unitOfWork.Repository<BlogCategory>().Any(x => !x.Deleted && x.Url == model.Url && x.Id != model.Id);
+
+            var isExist = await _unitOfWork.Repository<BlogCategory>()
+                .Any(x => !x.Deleted && x.Url == model.Url && x.Id != model.Id);
+
             if (isExist)
             {
                 throw new FoundException("Url ile daha önce kayıt mevcuttur.");
             }
+
             blogCategory.Name = model.Name;
             blogCategory.Url = model.Url;
             blogCategory.IsActive = model.IsActive;
             blogCategory.IsShowHome = model.IsShowHome;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             return result;
         }
     }

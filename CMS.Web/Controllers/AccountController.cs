@@ -107,7 +107,7 @@ namespace CMS.Web.Controllers
                 userClaims.Add(new Claim("Name", user.Name));
                 userClaims.Add(new Claim("Surname", user.Surname.ToString()));
                 userClaims.Add(new Claim("UserType", ((int)user.UserType).ToString()));
-
+               
                 var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                 var authProperties = new AuthenticationProperties
@@ -153,7 +153,7 @@ namespace CMS.Web.Controllers
         }
 
         [HttpPost("api/account/add-member")]
-        public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
+        public async Task<IActionResult> AddMember([FromBody] RegisterModel model)
         {
             var result = await _userService.AddMember(model);
             return Ok(result);

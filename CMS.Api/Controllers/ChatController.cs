@@ -3,6 +3,7 @@ using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Api
 {
@@ -18,9 +19,9 @@ namespace CMS.Api
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] ChatModel model)
+        public async Task<IActionResult> Post([FromBody] ChatModel model)
         {
-            var result = chatService.Post(model);
+            var result = await chatService.Post(model);
             return StatusCode((int)result.StatusCode, result);
         }
     }

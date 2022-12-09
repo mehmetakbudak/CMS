@@ -1,11 +1,7 @@
 ﻿using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers
@@ -30,24 +26,24 @@ namespace CMS.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] AuthorModel model)
+        public async Task<IActionResult> Post([FromBody] AuthorModel model)
         {
-            var result = authorService.Post(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await authorService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] AuthorModel model)
+        public async Task<IActionResult> Put([FromBody] AuthorModel model)
         {
-            var result = authorService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await authorService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = authorService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await authorService.Delete(id);
+            return Ok(result);
         }
     }
 }

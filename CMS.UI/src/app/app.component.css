@@ -1,0 +1,17 @@
+.logo {
+    width: 120px;
+    float: left;
+    font-size: 30px;
+    font-weight: 500;
+    padding: 0px;
+    color: black;
+  }
+
+  .header-menu{
+    border-bottom: 1px solid silver;
+    background-color: #fff;
+  }
+
+  .ant-menu {
+    background: unset !important;
+  }

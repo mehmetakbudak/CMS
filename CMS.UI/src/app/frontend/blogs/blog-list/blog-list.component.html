@@ -1,0 +1,60 @@
+<nz-card style="width: 100%; margin-bottom: 10px">
+  <nz-breadcrumb>
+    <nz-breadcrumb-item>
+      <span class="pr-10" nz-icon nzType="home"></span>
+      <a routerLink="/">Anasayfa</a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item>
+      <span class="pr-10" nz-icon nzType="book" nzTheme="outline"></span>Blog
+    </nz-breadcrumb-item>
+  </nz-breadcrumb>
+</nz-card>
+
+<div nz-row>
+  <div nz-col nzSm="16" nzXs="24">
+    <div *ngFor="let item of blogs" style="margin-bottom: 50px">
+      <nz-card style="width: 100%" [nzCover]="coverTemplate">
+        <h2
+          class="cursor-pointer"
+          routerLink="/blog/{{ item.url }}/{{ item.id }}"
+        >
+          {{ item.title }}
+        </h2>
+        <ng-template #coverTemplate>
+          <img
+            class="cursor-pointer"
+            height="300"
+            src="{{ item.imageUrl }}"
+            routerLink="/blog/{{ item.url }}/{{ item.id }}"
+          />
+        </ng-template>
+        <div
+          class="cursor-pointer"
+          routerLink="/blog/{{ item.url }}/{{ item.id }}"
+        >
+          {{ item.description }}
+        </div>
+        <a
+          nz-button
+          nzType="primary"
+          routerLink="/blog/{{ item.url }}/{{ item.id }}"
+          class="float-right mt-15"
+        >
+          Detaylar <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+        </a>
+      </nz-card>
+    </div>
+  </div>
+  <div nz-col nzSm="8" nzXs="24">
+    <nz-card style="margin-left: 20px">
+      <nz-list>
+        <h2 class="divider">Blog Kategorileri</h2>
+        <nz-list-item *ngFor="let item of blogCategories">
+          <a style="color: black" routerLink="/blog/{{ item.url }}"
+            >{{ item.name }} ({{ item.blogCount }})</a
+          >
+        </nz-list-item>
+      </nz-list>
+    </nz-card>
+  </div>
+</div>

@@ -6,17 +6,18 @@ using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IPageService
     {
         IQueryable<Page> GetAll();
-        Page GetById(int id);
-        Page GetByUrl(string url);
-        ServiceResult Post(Page model);
-        ServiceResult Put(Page model);
-        ServiceResult Delete(int id);
+        Task<Page> GetById(int id);
+        Task<Page> GetByUrl(string url);
+        Task<ServiceResult> Post(Page model);
+        Task<ServiceResult> Put(Page model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class PageService : IPageService
@@ -37,52 +38,61 @@ namespace CMS.Service
             return list;
         }
 
-        public Page GetById(int id)
+        public async Task<Page> GetById(int id)
         {
-            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => !x.Deleted && x.Id == id);
+            var page = await _unitOfWork.Repository<Page>()
+                .FirstOrDefault(x => !x.Deleted && x.Id == id);
+
             return page;
         }
 
-        public Page GetByUrl(string url)
+        public async Task<Page> GetByUrl(string url)
         {
             if (string.IsNullOrEmpty(url))
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
 
-            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);            
+            var page = await _unitOfWork.Repository<Page>()
+                .FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Url == url);
+
             return page;
         }
 
-        public ServiceResult Post(Page model)
+        public async Task<ServiceResult> Post(Page model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var isExist = _unitOfWork.Repository<Page>().Any(x => !x.Deleted && x.Url == model.Url);
+            var isExist = await _unitOfWork.Repository<Page>()
+                .Any(x => !x.Deleted && x.Url == model.Url);
+
             if (isExist)
             {
                 throw new FoundException(AlertMessages.UrlAlreadyExist);
             }
 
             model.Deleted = false;
-            _unitOfWork.Repository<Page>().Add(model);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<Page>().Add(model);
+            await _unitOfWork.Save();
 
             return serviceResult;
         }
 
-        public ServiceResult Put(Page model)
+        public async Task<ServiceResult> Put(Page model)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == model.Id);
-            
+            var page = await _unitOfWork.Repository<Page>()
+                .FirstOrDefault(x => x.Id == model.Id);
+
             if (page == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
 
-            var isExist = _unitOfWork.Repository<Page>().Any(x => !x.Deleted && x.Id != model.Id && x.Url == model.Url);
+            var isExist = await _unitOfWork.Repository<Page>()
+                .Any(x => !x.Deleted && x.Id != model.Id && x.Url == model.Url);
 
             if (isExist)
             {
@@ -95,26 +105,28 @@ namespace CMS.Service
             page.Published = model.Published;
             page.Title = model.Title;
             page.Url = model.Url;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
 
             return serviceResult;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var page = _unitOfWork.Repository<Page>().FirstOrDefault(x => x.Id == id);
+            var page = await _unitOfWork.Repository<Page>()
+                .FirstOrDefault(x => x.Id == id);
 
-            if (page != null)
-            {
-                page.Deleted = true;
-                _unitOfWork.Save();
-            }
-            else
+            if (page == null)
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
+
+            page.Deleted = true;
+
+            await _unitOfWork.Save();
+
             return serviceResult;
         }
     }

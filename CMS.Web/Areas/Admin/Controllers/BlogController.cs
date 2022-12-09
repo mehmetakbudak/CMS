@@ -9,5 +9,17 @@ namespace CMS.Web.Areas.Admin.Controllers
         {
             return View();
         }
+
+        public IActionResult Add()
+        {
+            ViewBag.Id = 0;
+            return View("CreateOrUpdate");
+        }
+
+        public IActionResult Edit(int id)
+        {
+            ViewBag.Id = id;
+            return View("CreateOrUpdate");
+        }
     }
 }

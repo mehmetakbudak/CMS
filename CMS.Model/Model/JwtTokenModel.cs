@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CMS.Model.Enum;
+using System;
 
 namespace CMS.Model.Model
 {

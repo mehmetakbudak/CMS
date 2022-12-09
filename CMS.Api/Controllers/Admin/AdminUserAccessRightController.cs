@@ -22,17 +22,17 @@ namespace CMS.Api.Controllers
 
 
         [HttpGet("{userId}")]
-        public IActionResult Get(int userId)
+        public async Task<IActionResult> Get(int userId)
         {
-            var list = userAccessRightService.Get(userId);
+            var list = await userAccessRightService.Get(userId);
             return Ok(list);
         }
 
         [HttpPut("CreateOrUpdate")]
-        public IActionResult CreateOrUpdate([FromBody]UserAccessRightModel model)
+        public async Task<IActionResult> CreateOrUpdate([FromBody]UserAccessRightModel model)
         {
-            var result = userAccessRightService.CreateOrUpdate(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await userAccessRightService.CreateOrUpdate(model);
+            return Ok(result);
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers.Admin
 {
@@ -19,31 +19,31 @@ namespace CMS.Api.Controllers.Admin
         }
 
         [HttpGet("{status}")]
-        public IActionResult Get(int status)
+        public async Task<IActionResult> Get(int status)
         {
-            var result = _commentService.GetAllByStatus(status);
+            var result = await _commentService.GetAllByStatus(status);
             return Ok(result);
         }
 
         [HttpGet("GetDetail/{id}")]
-        public IActionResult GetDetail(int id)
+        public async Task<IActionResult> GetDetail(int id)
         {
-            var result = _commentService.GetDetail(id);
+            var result = await _commentService.GetDetail(id);
             return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] CommentPutModel model)
+        public async Task<IActionResult> Put([FromBody] CommentPutModel model)
         {
-            var result = _commentService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _commentService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _commentService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await _commentService.Delete(id);
+            return Ok(result);
         }
     }
 }

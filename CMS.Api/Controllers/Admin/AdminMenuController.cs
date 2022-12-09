@@ -4,6 +4,7 @@ using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers.Admin
 {
@@ -26,49 +27,49 @@ namespace CMS.Api.Controllers.Admin
         }
 
         [HttpGet("FrontendMenu")]
-        public IActionResult GetFrontendMenu()
+        public async Task<IActionResult> GetFrontendMenu()
         {
-            var list = _menuService.GetFrontendTreeMenu();
+            var list = await _menuService.GetFrontendTreeMenu();
             return Ok(list);
         }
 
         [HttpPost("FrontendMenu")]
-        public IActionResult PostFrontendMenu([FromBody]TreeDataModel model)
+        public async Task<IActionResult> PostFrontendMenu([FromBody]TreeDataModel model)
         {
-            var result = _menuService.PostFrontendMenu(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _menuService.PostFrontendMenu(model);
+            return Ok(result);
         }
 
         [HttpPut("FrontendMenu")]
-        public IActionResult PutFrontendMenu([FromBody] TreeDataModel model)
+        public async Task<IActionResult> PutFrontendMenu([FromBody] TreeDataModel model)
         {
-            var result = _menuService.PutFrontendMenu(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _menuService.PutFrontendMenu(model);
+            return Ok(result);
         }
 
         [HttpDelete("FrontendMenu/{id}")]
-        public IActionResult DeleteFrontendMenu(int id)
+        public async Task<IActionResult> DeleteFrontendMenu(int id)
         {
-            var result = _menuService.DeleteFrontendMenu(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await _menuService.DeleteFrontendMenu(id);
+            return Ok(result);
         }
 
         [HttpGet("GetUserMenu")]
-        public IActionResult GetUserMenu()
+        public async Task<IActionResult> GetUserMenu()
         {
-            string key = $"userMenu_{AuthTokenContent.Current.UserId}";
+            //string key = $"userMenu_{AuthTokenContent.Current.UserId}";
 
-            if (_memoryCache.TryGetValue(key, out object menus))
-            {
-                return Ok(menus);
-            }
+            //if (_memoryCache.TryGetValue(key, out object menus))
+            //{
+            //    return Ok(menus);
+            //}
 
-            menus = _accessRightService.GetUserMenu();
+           var menus = await _accessRightService.GetUserMenu();
 
-            _memoryCache.Set(key, menus, new MemoryCacheEntryOptions
-            {
-                Priority = CacheItemPriority.Normal
-            });
+            //_memoryCache.Set(key, menus, new MemoryCacheEntryOptions
+            //{
+            //    Priority = CacheItemPriority.Normal
+            //});
 
             return Ok(menus);
         }

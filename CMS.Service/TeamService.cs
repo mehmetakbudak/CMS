@@ -2,14 +2,17 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Service.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface ITeamService
     {
-        List<Team> GetAll();
+        Task<List<Team>> GetAll();
+        Task<List<Team>> GetAllActive();
     }
 
     public class TeamService : ITeamService
@@ -21,12 +24,20 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<Team> GetAll()
+        public async Task<List<Team>> GetAll()
         {
-            var list = _unitOfWork.Repository<Team>()
+            var list = await _unitOfWork.Repository<Team>()
                 .Where(x => !x.Deleted)
-                .OrderByDescending(x => x.Id).ToList();
+                .OrderByDescending(x => x.Id).ToListAsync();
+
             return list;
+        }
+
+        public async Task<List<Team>> GetAllActive()
+        {
+            return await _unitOfWork.Repository<Team>()
+                .Where(x => !x.Deleted && x.IsActive)
+                .OrderByDescending(x => x.Id).ToListAsync();
         }
     }
 }

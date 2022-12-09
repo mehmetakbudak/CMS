@@ -1,9 +1,8 @@
-﻿using CMS.Model.Entity;
-using CMS.Model.Model;
+﻿using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers.Admin
 {
@@ -27,17 +26,17 @@ namespace CMS.Api.Controllers.Admin
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] BlogCategoryModel model)
+        public async Task<IActionResult> Post([FromBody] BlogCategoryModel model)
         {
-            var result = _blogCategoryService.Post(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _blogCategoryService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] BlogCategoryModel model)
+        public async Task<IActionResult> Put([FromBody] BlogCategoryModel model)
         {
-            var result = _blogCategoryService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _blogCategoryService.Put(model);
+            return Ok(result);
         }
     }
 }

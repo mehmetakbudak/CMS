@@ -20,34 +20,20 @@ namespace CMS.Service
     public interface IUserService
     {
         IQueryable<UserModel> GetAll();
-
-        User GetById(int id);
-
-        Task<ServiceResult> Authenticate(LoginModel model);
-
-        User GetTokenInfo(int userId, string token);
-
+        Task<UserModel> GetById(int id);
+        Task<LoginResponseModel> Authenticate(LoginModel model);
+        Task<User> GetTokenInfo(int userId, string token);
         Task<ServiceResult> Post(UserModel model);
-
-        ServiceResult Put(UserModel model);
-
-        ServiceResult Delete(int id);
-
-        UserProfileModel GetProfile();
-
-        ServiceResult UpdateProfile(UserProfileModel model);
-
-        Task<ServiceResult> AddMember(AddMemberModel model);
-
+        Task<ServiceResult> Put(UserModel model);
+        Task<ServiceResult> Delete(int id);
+        Task<UserProfileModel> GetProfile();
+        Task<ServiceResult> UpdateProfile(UserProfileModel model);
+        Task<ServiceResult> Register(RegisterModel model);
         Task<ServiceResult> ForgotPassword(ForgotPasswordModel model);
-
-        ServiceResult ChangePassword(ChangePasswordModel model);
-
-        ServiceResult EmailVerified(string code);
-
-        ResetPasswordInfoModel GetUserByCode(string code);
-
-        ServiceResult ResetPassword(ResetPasswordModel model);
+        Task<ServiceResult> ChangePassword(ChangePasswordModel model);
+        Task<ServiceResult> EmailVerified(string code);
+        Task<ResetPasswordInfoModel> GetUserByCode(string code);
+        Task<ServiceResult> ResetPassword(ResetPasswordModel model);
     }
 
     public class UserService : IUserService
@@ -85,27 +71,40 @@ namespace CMS.Service
                     Name = x.Name,
                     Surname = x.Surname,
                     IsActive = x.IsActive,
+                    Phone = x.Phone,
                     Status = EnumHelper.GetDescription<UserStatus>(x.Status),
                 });
         }
 
-        public User GetById(int id)
+        public Task<UserModel> GetById(int id)
         {
-            return _unitOfWork.Repository<User>().FirstOrDefault(x => x.Id == id && !x.Deleted);
+            return _unitOfWork.Repository<User>()
+                .Where(x => x.Id == id && !x.Deleted)
+                .Select(x => new UserModel
+                {
+                    EmailAddress = x.EmailAddress,
+                    Phone = x.Phone,
+                    Id = x.Id,
+                    IsActive = x.IsActive,
+                    Name = x.Name,
+                    Status = EnumHelper.GetDescription<UserStatus>(x.Status),
+                    Surname = x.Surname,
+                    UserType = (int)x.UserType,
+                    Token = x.Token,
+                    TokenExpireDate = x.TokenExpireDate,
+                    UserTypeName = EnumHelper.GetDescription<UserType>(x.UserType)
+                }).FirstOrDefaultAsync();
         }
 
-        public async Task<ServiceResult> Authenticate(LoginModel model)
+        public async Task<LoginResponseModel> Authenticate(LoginModel model)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-
             var hassPassword = Security.MD5Crypt(model.Password);
 
             var user = await _unitOfWork.Repository<User>()
                 .Where(x => x.EmailAddress == model.EmailAddress && x.Password == hassPassword && !x.Deleted)
                 .Include(x => x.UserAccessRights)
                 .ThenInclude(x => x.AccessRight)
-                .ThenInclude(x => x.AccessRightEndpoints)
-                .FirstOrDefaultAsync();
+                .ThenInclude(x => x.AccessRightEndpoints).FirstOrDefaultAsync();
 
             if (user == null)
             {
@@ -124,21 +123,33 @@ namespace CMS.Service
 
             if (user.PasswordExpireDate < DateTime.Now)
             {
-                result = await SendMailResetPassword(user);
+                await SendMailResetPassword(user);
                 throw new ForbiddenException("Şifre geçerlilik süresi dolmuş. Mail adresinize şifre belirleme linki gönderildi.");
             }
 
-            result.Data = user;
+            var jwtResult = _jwtHelper.GenerateJwtToken(user);
+
+            user.Token = jwtResult?.Token;
+            user.TokenExpireDate = DateTime.Now.AddHours(2);
+            await _unitOfWork.Save();
+
+            var result = new LoginResponseModel
+            {
+                UserType = user.UserType,
+                ExpireDate = jwtResult?.ExpireDate,
+                FullName = user.FullName,
+                Token = jwtResult?.Token
+            };
 
             return result;
         }
 
-        public User GetTokenInfo(int userId, string token)
+        public Task<User> GetTokenInfo(int userId, string token)
         {
             var user = _unitOfWork.Repository<User>()
                 .Where(x => !x.Deleted && x.IsActive && x.Id == userId)
                 .Include(x => x.UserAccessRights)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             return user;
         }
 
@@ -146,7 +157,7 @@ namespace CMS.Service
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var checkEmail = _unitOfWork.Repository<User>()
+            var checkEmail = await _unitOfWork.Repository<User>()
                 .Any(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted);
 
             if (checkEmail)
@@ -164,23 +175,29 @@ namespace CMS.Service
                 UserType = (UserType)model.UserType,
                 InsertedDate = DateTime.Now,
                 HashCode = Security.RandomBase64(),
-                Status = UserStatus.NotSetPassword
+                Status = UserStatus.NotSetPassword,
+                Phone = model.Phone
             };
-            _unitOfWork.Repository<User>().Add(user);
-            _unitOfWork.Save();
+
+            await _unitOfWork.Repository<User>().Add(user);
+
+            await _unitOfWork.Save();
 
             // kullanıcıya email gönderiliyor                
             result = await SendMailResetPassword(user);
+
             result.Message = AlertMessages.Post;
+
             return result;
         }
 
-        public ServiceResult Put(UserModel model)
+        public async Task<ServiceResult> Put(UserModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
             var loginUser = _httpContext.HttpContext.User.Parse();
 
-            var isExistUser = _unitOfWork.Repository<User>()
+            var isExistUser = await _unitOfWork.Repository<User>()
                 .Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted && x.Id != model.Id);
 
             if (isExistUser)
@@ -188,60 +205,73 @@ namespace CMS.Service
                 throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
             }
 
-            var user = GetById(model.Id);
+            var user = await _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
 
             if (user == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             user.EmailAddress = model.EmailAddress;
             user.IsActive = model.IsActive;
             user.Name = model.Name;
             user.Surname = model.Surname;
             user.UserType = (UserType)model.UserType;
-            _unitOfWork.Save();
+            user.Phone = model.Phone;
+
+            await _unitOfWork.Save();
 
             if (user.UserType != UserType.Member)
             {
                 _memoryCache.Remove($"userMenu_{model.Id}");
             }
+
             result.Message = AlertMessages.Put;
+
             return result;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var user = GetById(id);
+            var user = await _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.Id == id && !x.Deleted);
 
             if (user == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             user.Deleted = true;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
 
             if (user.UserType != UserType.Member)
             {
                 _memoryCache.Remove($"userMenu_{id}");
             }
+
             result.Message = AlertMessages.Delete;
+
             return result;
         }
 
-        public UserProfileModel GetProfile()
+        public async Task<UserProfileModel> GetProfile()
         {
             UserProfileModel model = null;
 
             var loginUser = _httpContext.HttpContext.User.Parse();
 
-            var user = GetById(loginUser.UserId);
+            var user = await _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.Id == loginUser.UserId && !x.Deleted);
 
             if (user == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             model = new UserProfileModel()
             {
                 EmailAddress = user.EmailAddress,
@@ -249,31 +279,37 @@ namespace CMS.Service
                 Surname = user.Surname,
                 Phone = user.Phone
             };
+
             return model;
         }
 
-        public ServiceResult UpdateProfile(UserProfileModel model)
+        public async Task<ServiceResult> UpdateProfile(UserProfileModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var loginUser = _httpContext.HttpContext.User.Parse();
 
-            var user = GetById(loginUser.UserId);
+            var user = await _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.Id == loginUser.UserId && !x.Deleted);
 
             if (user == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
+
             user.Name = model.Name;
             user.Surname = model.Surname;
             user.Phone = model.Phone;
             user.UpdatedDate = DateTime.Now;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Put;
+
             return result;
         }
 
-        public async Task<ServiceResult> AddMember(AddMemberModel model)
+        public async Task<ServiceResult> Register(RegisterModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -282,7 +318,7 @@ namespace CMS.Service
                 throw new BadRequestException("Şifre alanları uyuşmamaktadır.");
             }
 
-            var isExistEmail = _unitOfWork.Repository<User>()
+            var isExistEmail = await _unitOfWork.Repository<User>()
                 .Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
 
             if (isExistEmail)
@@ -305,7 +341,8 @@ namespace CMS.Service
                 UserType = UserType.Member,
                 Status = UserStatus.EmailNotVerified
             };
-            _unitOfWork.Repository<User>().Add(user);
+
+            await _unitOfWork.Repository<User>().Add(user);
 
             //kullanıcıya email gönderiliyor
             var emailVerifyTemplateModel = new TemplateModel
@@ -322,7 +359,8 @@ namespace CMS.Service
             });
 
             result.Message = "Email adresinize onay maili gönderilmiştir.";
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
 
             return result;
         }
@@ -331,7 +369,7 @@ namespace CMS.Service
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var user = _unitOfWork.Repository<User>()
+            var user = await _unitOfWork.Repository<User>()
                 .FirstOrDefault(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
 
             if (user != null)
@@ -339,16 +377,19 @@ namespace CMS.Service
                 user.HashCode = Security.RandomBase64();
                 user.Status = UserStatus.NotSetPassword;
                 user.UpdatedDate = DateTime.Now;
-                _unitOfWork.Save();
+
+                await _unitOfWork.Save();
 
                 // kullanıcıya mail gönderiliyor
                 result = await SendMailResetPassword(user);
             }
+
             result.Message = "Email adresiniz mevcutsa şifre belirleme linki gönderilmiştir.";
+
             return result;
         }
 
-        public ServiceResult ChangePassword(ChangePasswordModel model)
+        public async Task<ServiceResult> ChangePassword(ChangePasswordModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -359,63 +400,80 @@ namespace CMS.Service
 
             var loginUser = _httpContext.HttpContext.User.Parse();
 
-            var user = GetById(loginUser.UserId);
+            var user = await _unitOfWork.Repository<User>()
+                .FirstOrDefault(x => x.Id == loginUser.UserId && !x.Deleted);
 
             if (user == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
             var oldPassword = Security.MD5Crypt(model.OldPassword);
+
             if (user.Password != oldPassword)
             {
                 throw new BadRequestException("Mevcut şifreniz hatalıdır.");
             }
+
             user.Password = Security.MD5Crypt(model.NewPassword);
             user.PasswordExpireDate = DateTime.Now.AddMonths(3);
             user.UpdatedDate = DateTime.Now;
             user.HashCode = String.Empty;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.Put;
 
             return result;
         }
 
-        public ServiceResult EmailVerified(string code)
+        public async Task<ServiceResult> EmailVerified(string code)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            var user = _unitOfWork.Repository<User>()
+
+            var user = await _unitOfWork.Repository<User>()
                 .FirstOrDefault(x => x.HashCode == code && x.Status == UserStatus.EmailNotVerified);
+
             if (user == null)
             {
                 result.StatusCode = HttpStatusCode.NotFound;
                 return result;
             }
+
             user.HashCode = String.Empty;
             user.Status = UserStatus.Active;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             return result;
         }
 
-        public ServiceResult ResetPassword(ResetPasswordModel model)
+        public async Task<ServiceResult> ResetPassword(ResetPasswordModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            var user = _unitOfWork.Repository<User>()
+
+            var user = await _unitOfWork.Repository<User>()
                 .FirstOrDefault(x => x.HashCode == model.Code && x.Status == UserStatus.NotSetPassword);
+
             if (user == null)
             {
                 throw new BadRequestException(AlertMessages.UserNotFound);
             }
+
             if (model.NewPassword != model.ReNewPassword)
             {
                 throw new BadRequestException("Şifre alanları uyuşmamaktadır.");
             }
+
             user.Password = Security.MD5Crypt(model.NewPassword);
             user.PasswordExpireDate = DateTime.Now.AddMonths(3);
             user.UpdatedDate = DateTime.Now;
             user.HashCode = String.Empty;
             user.Status = UserStatus.Active;
-            _unitOfWork.Save();
+
+            await _unitOfWork.Save();
+
             result.Message = AlertMessages.SuccessResetPassword;
+
             return result;
         }
 
@@ -436,11 +494,11 @@ namespace CMS.Service
             return result;
         }
 
-        public ResetPasswordInfoModel GetUserByCode(string code)
+        public async Task<ResetPasswordInfoModel> GetUserByCode(string code)
         {
             ResetPasswordInfoModel model = null;
 
-            var user = _unitOfWork.Repository<User>()
+            var user = await _unitOfWork.Repository<User>()
                 .FirstOrDefault(x => x.HashCode == code && x.Status == UserStatus.NotSetPassword);
 
             if (user != null)

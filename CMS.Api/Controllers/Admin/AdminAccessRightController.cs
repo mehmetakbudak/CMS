@@ -1,9 +1,8 @@
-﻿using CMS.Model.Enum;
-using CMS.Model.Model;
+﻿using CMS.Model.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Api
 {
@@ -19,52 +18,52 @@ namespace CMS.Api
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _accessRightService.Get();
+            var result = await _accessRightService.Get();
             return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var result = _accessRightService.Get(id);
+            var result = await _accessRightService.Get(id);
             return Ok(result);
         }
 
         [HttpPost("Menu")]
-        public IActionResult PostMenu([FromBody] AccessRightModel model)
+        public async Task<IActionResult> PostMenu([FromBody] AccessRightModel model)
         {
-            var result = _accessRightService.PostMenu(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _accessRightService.PostMenu(model);
+            return Ok(result);
         }
 
         [HttpPut("Menu")]
-        public IActionResult PutMenu([FromBody] AccessRightModel model)
+        public async Task<IActionResult> PutMenu([FromBody] AccessRightModel model)
         {
-            var result = _accessRightService.PutMenu(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _accessRightService.PutMenu(model);
+            return Ok(result);
         }
 
         [HttpPost("Operation")]
-        public IActionResult PostOperation([FromBody] AccessRightModel model)
+        public async Task<IActionResult> PostOperation([FromBody] AccessRightModel model)
         {
-            var result = _accessRightService.PostOperation(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _accessRightService.PostOperation(model);
+            return Ok(result);
         }
 
         [HttpPut("Operation")]
-        public IActionResult PutOperation([FromBody] AccessRightModel model)
+        public async Task<IActionResult> PutOperation([FromBody] AccessRightModel model)
         {
-            var result = _accessRightService.PutOperation(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _accessRightService.PutOperation(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _accessRightService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await _accessRightService.Delete(id);
+            return Ok(result);
         }
     }
 }

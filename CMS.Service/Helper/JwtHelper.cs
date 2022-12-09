@@ -38,7 +38,7 @@ namespace CMS.Service.Helper
             var model = new JwtTokenModel
             {
                 Token = token,
-                ExpireDate = expireDate
+                ExpireDate = expireDate,
             };
             return model;
         }

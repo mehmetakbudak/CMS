@@ -1,32 +1,32 @@
 ﻿using CMS.Model.Entity;
-using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace CMS.Data.Repository
 {
     public interface IRepository<T> where T : BaseEntityModel
     {
-        void Add(T entity);
+        Task Add(T entity);
 
-        void AddRange(List<T> entity);
+        Task AddRange(List<T> entity);
 
         IQueryable<T> Where();
 
-        IQueryable<T> Where(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+        IQueryable<T> Where(Expression<Func<T, bool>> predicate = null);
 
-        T FirstOrDefault(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+        Task<T> FirstOrDefault(Expression<Func<T, bool>> predicate = null);
 
-        bool Any(Expression<Func<T, bool>> predicate = null);
+        Task<bool> Any(Expression<Func<T, bool>> predicate = null);
 
         void Update(T entity);
 
-        void Delete(T entity);
+        Task Delete(T entity);
 
         void DeleteRange(List<T> entity);
 
-        void Delete(int id);
+        Task Delete(int id);
     }
 }

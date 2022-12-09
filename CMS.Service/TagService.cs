@@ -2,14 +2,16 @@
 using CMS.Data.Repository;
 using CMS.Model.Entity;
 using CMS.Model.Enum;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface ITagService
     {
-        List<SourceTag> GetSouceTags(SourceType sourceType, int? top = null);
+        Task<List<SourceTag>> GetSouceTags(SourceType sourceType, int? top = null);
     }
 
     public class TagService : ITagService
@@ -21,7 +23,7 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<SourceTag> GetSouceTags(SourceType sourceType, int? top = null)
+        public async Task<List<SourceTag>> GetSouceTags(SourceType sourceType, int? top = null)
         {
             var tags = _unitOfWork.Repository<SourceTag>()
                 .Where(x => x.SourceType == sourceType)
@@ -32,7 +34,9 @@ namespace CMS.Service
                 tags = tags.Take(top.Value);
             }
 
-            return tags.ToList();
+            var list = await tags.ToListAsync();
+
+            return list;
         }
     }
 }

@@ -8,14 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IChatMessageService
     {
-        List<ChatMessageModel> Get(Guid guid);
-        ServiceResult PostForClient(ChatMessageModel model);
-        ServiceResult PostForUser(ChatMessageModel model);
+        Task<List<ChatMessageModel>> Get(Guid guid);
+        Task<ServiceResult> PostForClient(ChatMessageModel model);
+        Task<ServiceResult> PostForUser(ChatMessageModel model);
     }
 
     public class ChatMessageService : IChatMessageService
@@ -27,24 +28,27 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<ChatMessageModel> Get(Guid code)
+        public async Task<List<ChatMessageModel>> Get(Guid code)
         {
-            return _unitOfWork.Repository<ChatMessage>()
-                .Where(x => x.Chat.Code == code, x => x.Include(o => o.Chat))
+            return await _unitOfWork.Repository<ChatMessage>()
+                .Where(x => x.Chat.Code == code)
+                .Include(x => x.Chat)
                 .Select(x => new ChatMessageModel
                 {
                     Code = x.Chat.Code,
                     NameSurname = x.UserId == null ? x.Chat.Name : (x.User.Name + " " + x.User.Surname),
                     Message = x.Message,
                     InsertDate = x.InsertedDate
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public ServiceResult PostForClient(ChatMessageModel model)
+        public async Task<ServiceResult> PostForClient(ChatMessageModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var chat = _unitOfWork.Repository<Chat>().FirstOrDefault(x => x.Code == model.Code);
+            var chat = await _unitOfWork.Repository<Chat>()
+                .FirstOrDefault(x => x.Code == model.Code);
+
             if (chat != null)
             {
                 var chatMessage = new ChatMessage
@@ -53,17 +57,22 @@ namespace CMS.Service
                     InsertedDate = DateTime.Now,
                     Message = model.Message
                 };
-                _unitOfWork.Repository<ChatMessage>().Add(chatMessage);
-                _unitOfWork.Save();
+
+                await _unitOfWork.Repository<ChatMessage>().Add(chatMessage);
+
+                await _unitOfWork.Save();
             }
+
             return result;
         }
 
-        public ServiceResult PostForUser(ChatMessageModel model)
+        public async Task<ServiceResult> PostForUser(ChatMessageModel model)
         {
             ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var chat = _unitOfWork.Repository<Chat>().FirstOrDefault(x => x.Code == model.Code);
+            var chat = await _unitOfWork.Repository<Chat>()
+                .FirstOrDefault(x => x.Code == model.Code);
+
             if (chat != null)
             {
                 var chatMessage = new ChatMessage
@@ -73,9 +82,11 @@ namespace CMS.Service
                     InsertedDate = DateTime.Now,
                     Message = model.Message
                 };
-                _unitOfWork.Repository<ChatMessage>().Add(chatMessage);
+                await _unitOfWork.Repository<ChatMessage>().Add(chatMessage);
+
                 chat.Status = ChatStatus.Started;
-                _unitOfWork.Save();
+
+                await _unitOfWork.Save();
             }
 
             return result;

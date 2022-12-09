@@ -3,6 +3,7 @@ using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Admin
 {
@@ -26,31 +27,31 @@ namespace CMS.Api.Admin
         }
 
         [HttpGet("GetByTodoCategoryId/{todoCategoryId}")]
-        public IActionResult GetByTodoCategoryId(int todoCategoryId)
+        public async Task<IActionResult> GetByTodoCategoryId(int todoCategoryId)
         {
-            var list = todoStatusService.GetByTodoCategoryId(todoCategoryId);
+            var list = await todoStatusService.GetByTodoCategoryId(todoCategoryId);
             return Ok(list);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] TodoStatus model)
+        public async Task<IActionResult> Post([FromBody] TodoStatus model)
         {
-            var result = todoStatusService.Post(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoStatusService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] TodoStatus model)
+        public async Task<IActionResult> Put([FromBody] TodoStatus model)
         {
-            var result = todoStatusService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoStatusService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = todoStatusService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoStatusService.Delete(id);
+            return Ok(result);
         }
     }
 }

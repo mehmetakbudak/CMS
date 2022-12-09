@@ -1,0 +1,68 @@
+<div nz-row>
+  <div nz-col nzSpan="8" nzOffset="8">
+    <nz-card [nzBordered]="false" nzTitle="Giriş Yap" style="margin: 80px 0">
+      <form
+        nz-form
+        [formGroup]="form"
+        class="login-form pt-0"
+        (ngSubmit)="login()"
+        style="padding: 20px 0"
+        nzLayout="vertical"
+      >
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="emailAddress" nzRequired>
+            <span>Email Adresi</span>
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Lütfen email adresi giriniz!">
+            <nz-input-group nzPrefixIcon="user">
+              <input
+                type="text"
+                nz-input
+                formControlName="emailAddress"
+                placeholder="Email Adresi"
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="password" nzRequired>
+            <span>Şifre</span>
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Lütfen şifre giriniz!">
+            <nz-input-group nzPrefixIcon="lock">
+              <input
+                type="password"
+                nz-input
+                formControlName="password"
+                placeholder="Şifre"
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+        <div nz-row class="login-form-margin">
+          <div nz-col [nzSpan]="12">
+            <a
+              style="float: left"
+              class="login-form-forgot"
+              routerLink="/forgot-password"
+              >Şifremi Unuttum</a
+            >
+          </div>
+          <div nz-col [nzSpan]="12">
+            <button
+              nz-button
+              style="float: right"
+              class="login-form-button login-form-margin"
+              [nzType]="'primary'"
+            >
+              Giriş Yap
+            </button>
+          </div>
+        </div>
+        <div style="text-align: center; padding-top: 10px; font-size: 16px">
+          Üye değilsen <a routerLink="/register">Üye Ol!</a>
+        </div>
+      </form>
+    </nz-card>
+  </div>
+</div>

@@ -11,6 +11,6 @@ namespace CMS.Model.Entity
 
         public bool Deleted { get; set; }
 
-        public virtual ICollection<Todo> Todos { get; set; }
+        public virtual ICollection<TaskDmo> Todos { get; set; }
     }
 }

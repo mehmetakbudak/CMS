@@ -3,6 +3,7 @@ using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Admin
 {
@@ -19,31 +20,31 @@ namespace CMS.Api.Admin
         }
 
         [HttpPost("GetWithFilter")]
-        public IActionResult GetWithFilter([FromBody]TodoFilterModel model)
+        public async Task<IActionResult> GetWithFilter([FromBody] TodoFilterModel model)
         {
-            var list = todoService.GetAll(model);
+            var list = await todoService.GetAll(model);
             return Ok(list);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] TodoModel model)
+        public async Task<IActionResult> Post([FromBody] TodoModel model)
         {
-            var result = todoService.Post(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] TodoModel model)
+        public async Task<IActionResult> Put([FromBody] TodoModel model)
         {
-            var result = todoService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = todoService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await todoService.Delete(id);
+            return Ok(result);
         }
     }
 }

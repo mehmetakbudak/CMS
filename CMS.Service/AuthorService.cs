@@ -6,15 +6,16 @@ using CMS.Model.Model;
 using CMS.Service.Exceptions;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IAuthorService
     {
         IQueryable<Author> GetAll();
-        ServiceResult Post(AuthorModel model);
-        ServiceResult Put(AuthorModel model);
-        ServiceResult Delete(int id);
+        Task<ServiceResult> Post(AuthorModel model);
+        Task<ServiceResult> Put(AuthorModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class AuthorService : IAuthorService
@@ -34,7 +35,7 @@ namespace CMS.Service
             return entity;
         }
 
-        public ServiceResult Post(AuthorModel model)
+        public async Task<ServiceResult> Post(AuthorModel model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Post };
 
@@ -54,17 +55,17 @@ namespace CMS.Service
                     Resume = model.Resume,
 
                 };
-                _unitOfWork.Repository<Author>().Add(entity);
-                _unitOfWork.Save();
+                await _unitOfWork.Repository<Author>().Add(entity);
+                await _unitOfWork.Save();
             }
             return serviceResult;
         }
 
-        public ServiceResult Put(AuthorModel model)
+        public async Task<ServiceResult> Put(AuthorModel model)
         {
             ServiceResult serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
 
-            var entity = _unitOfWork.Repository<Author>()
+            var entity = await _unitOfWork.Repository<Author>()
                 .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
 
             if (entity != null)
@@ -73,8 +74,9 @@ namespace CMS.Service
                 entity.Surname = model.Surname;
                 entity.Resume = model.Resume;
                 entity.IsActive = model.IsActive;
+
                 _unitOfWork.Repository<Author>().Update(entity);
-                _unitOfWork.Save();
+                await _unitOfWork.Save();
             }
             else
             {
@@ -83,17 +85,18 @@ namespace CMS.Service
             return serviceResult;
         }
 
-        public ServiceResult Delete(int id)
+        public async Task<ServiceResult> Delete(int id)
         {
             var serviceResult = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
 
-            var entity = _unitOfWork.Repository<Author>().FirstOrDefault(x => x.Id == id && !x.Deleted);
+            var entity = await _unitOfWork.Repository<Author>().FirstOrDefault(x => x.Id == id && !x.Deleted);
 
             if (entity != null)
             {
                 entity.Deleted = true;
+
                 _unitOfWork.Repository<Author>().Update(entity);
-                _unitOfWork.Save();
+                await _unitOfWork.Save();
             }
             else
             {

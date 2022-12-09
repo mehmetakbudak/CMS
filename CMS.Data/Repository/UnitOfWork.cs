@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
+using System.Threading.Tasks;
 
 namespace CMS.Data.Repository
 {
@@ -10,7 +11,6 @@ namespace CMS.Data.Repository
 
         private readonly TContext _context;
         private bool _disposed;
-        private string _errorMessage = string.Empty;
         private IDbContextTransaction _objTran;
 
         public TContext Context
@@ -24,11 +24,6 @@ namespace CMS.Data.Repository
             _context = context;
         }
 
-        public void Commit()
-        {
-            _objTran.Commit();
-        }
-
         public void CreateTransaction()
         {
             _context.Database.BeginTransaction();
@@ -40,9 +35,14 @@ namespace CMS.Data.Repository
             _objTran.Dispose();
         }
 
-        public void Save()
+        public async Task<int> Save()
         {
-            _context.SaveChanges();
+            return await _context.SaveChangesAsync();
+        }
+
+        public void Commit()
+        {
+            _objTran.Commit();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -65,5 +65,7 @@ namespace CMS.Data.Repository
         {
             return new Repository<T>(_context);
         }
+
+
     }
 }

@@ -2,6 +2,7 @@
 using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Api.Controllers.Admin
 {
@@ -25,31 +26,31 @@ namespace CMS.Api.Controllers.Admin
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var page = _pageService.GetById(id);
+            var page = await _pageService.GetById(id);
             return Ok(page);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Page model)
+        public async Task<IActionResult> Post([FromBody] Page model)
         {
-            var result = _pageService.Post(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _pageService.Post(model);
+            return Ok(result);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] Page model)
+        public async Task<IActionResult> Put([FromBody] Page model)
         {
-            var result = _pageService.Put(model);
-            return StatusCode(result.StatusCode, result);
+            var result = await _pageService.Put(model);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _pageService.Delete(id);
-            return StatusCode(result.StatusCode, result);
+            var result = await _pageService.Delete(id);
+            return Ok(result);
         }
     }
 }

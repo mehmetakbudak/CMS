@@ -1,13 +1,15 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
 using CMS.Model.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface IWebsiteParameterService
     {
-        T GetParametersByType<T>(string code) where T : class, new();
+        Task<T> GetParametersByType<T>(string code) where T : class, new();
     }
 
     public class WebsiteParameterService : IWebsiteParameterService
@@ -19,20 +21,23 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public T GetParametersByType<T>(string code) where T : class, new()
+        public async Task<T> GetParametersByType<T>(string code) where T : class, new()
         {
             T model = new T();
 
-            var parentParameter = _unitOfWork.Repository<WebsiteParameter>().FirstOrDefault(p => p.Code == code && p.ParentId == null);
+            var parentParameter = await _unitOfWork.Repository<WebsiteParameter>()
+                .FirstOrDefault(p => p.Code == code && p.ParentId == null);
 
             if (parentParameter != null)
             {
-                var parameters = _unitOfWork.Repository<WebsiteParameter>().Where(x => x.ParentId == parentParameter.Id).ToList();
+                var parameters = await _unitOfWork.Repository<WebsiteParameter>().Where(x => x.ParentId == parentParameter.Id).ToListAsync();
+
                 var properties = typeof(T).GetProperties();
 
                 foreach (var property in properties)
                 {
                     var parameter = parameters.FirstOrDefault(x => x.Code == property.Name);
+                    
                     if (parameter != null)
                     {
                         property.SetValue(model, parameter.Value);
