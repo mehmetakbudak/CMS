@@ -1,8 +1,8 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Model.Consts;
-using CMS.Model.Entity;
-using CMS.Model.Model;
+using CMS.Storage.Consts;
+using CMS.Storage.Entity;
+using CMS.Storage.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

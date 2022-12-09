@@ -1,5 +1,5 @@
-﻿using CMS.Model.Enum;
-using CMS.Model.Model;
+﻿using CMS.Storage.Enum;
+using CMS.Storage.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
 using CMS.Service.Infrastructure;

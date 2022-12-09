@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CMS.Model\CMS.Model.csproj" />
+    <ProjectReference Include="..\CMS.Storage\CMS.Storage.csproj" />
   </ItemGroup>
 
 </Project>

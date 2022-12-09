@@ -1,8 +1,8 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Model.Entity;
-using CMS.Model.Enum;
-using CMS.Model.Model;
+using CMS.Storage.Entity;
+using CMS.Storage.Enum;
+using CMS.Storage.Model;
 using System.Threading.Tasks;
 
 namespace CMS.Service

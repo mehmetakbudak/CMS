@@ -1,4 +1,4 @@
-﻿using CMS.Model.Entity;
+﻿using CMS.Storage.Entity;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿using CMS.Model.Model;
+﻿using CMS.Storage.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;

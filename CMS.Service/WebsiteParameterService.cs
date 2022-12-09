@@ -1,6 +1,6 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Model.Entity;
+using CMS.Storage.Entity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;

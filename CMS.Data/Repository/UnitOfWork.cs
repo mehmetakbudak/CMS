@@ -1,4 +1,4 @@
-﻿using CMS.Model.Entity;
+﻿using CMS.Storage.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;

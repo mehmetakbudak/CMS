@@ -1,5 +1,5 @@
-﻿using CMS.Model.Entity;
-using CMS.Model.Model;
+﻿using CMS.Storage.Entity;
+using CMS.Storage.Model;
 using CMS.Service.Exceptions;
 using CMS.Service.Infrastructure;
 using Microsoft.IdentityModel.Tokens;

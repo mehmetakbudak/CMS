@@ -1,10 +1,10 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Model.Consts;
-using CMS.Model.Dto;
-using CMS.Model.Entity;
-using CMS.Model.Enum;
-using CMS.Model.Model;
+using CMS.Storage.Consts;
+using CMS.Storage.Dto;
+using CMS.Storage.Entity;
+using CMS.Storage.Enum;
+using CMS.Storage.Model;
 using CMS.Service.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;

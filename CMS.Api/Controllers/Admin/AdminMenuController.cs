@@ -1,5 +1,5 @@
 ﻿using CMS.Service;
-using CMS.Model.Model;
+using CMS.Storage.Model;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;

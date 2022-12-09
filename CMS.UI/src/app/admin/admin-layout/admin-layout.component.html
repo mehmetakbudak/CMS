@@ -4,30 +4,38 @@
       <li nz-submenu nzOpen nzTitle="İçerikler">
         <ul>
           <li nz-menu-item><a routerLink="/admin/blog">Blog</a></li>
-          <li nz-menu-item>option2</li>
-          <li nz-menu-item>option3</li>
-          <li nz-menu-item>option4</li>
+          <li nz-menu-item>Makaleler</li>
+          <li nz-menu-item>Sayfalar</li>
+          <li nz-menu-item>İletişim Mesajları</li>
+          <li nz-menu-item>Anasayfa Slider</li>
+          <li nz-menu-item>Hizmetler</li>
+          <li nz-menu-item><a routerLink="/admin/task">Görevler</a></li>
+          <li nz-menu-item>Takım</li>
+          <li nz-menu-item>Müşteri Değerlendirmeleri</li>
         </ul>
       </li>
       <li nz-submenu nzTitle="Tanımlar">
         <ul>
-          <li nz-menu-item>option5</li>
-          <li nz-menu-item>option6</li>
-          <li nz-menu-item>option7</li>
-          <li nz-menu-item>option8</li>
+          <li nz-menu-item>
+            <a routerLink="/admin/blog-category">Blog Kategorileri</a>
+          </li>
+          <li nz-menu-item>Makale Kategorileri</li>
+          <li nz-menu-item>İletişim Mesaj Türleri</li>
+          <li nz-menu-item>Etiketler</li>
+          <li nz-menu-item>Görev Kategorileri</li>
+          <li nz-menu-item>Görev Durumları</li>
         </ul>
       </li>
       <li nz-submenu nzTitle="Ayarlar">
         <ul>
           <li nz-menu-item><a routerLink="/admin/user">Kullanıcılar</a></li>
-          <li nz-menu-item>option10</li>
-          <li nz-menu-item>option11</li>
-          <li nz-menu-item>option12</li>
+          <li nz-menu-item>Site Parametreleri</li>
+          <li nz-menu-item>Email Şablonları</li>
         </ul>
       </li>
     </ul>
   </nz-sider>
   <nz-content>
-      <router-outlet></router-outlet>    
+    <router-outlet></router-outlet>
   </nz-content>
 </nz-layout>

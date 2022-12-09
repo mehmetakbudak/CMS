@@ -1,4 +1,4 @@
-﻿using CMS.Model.Model;
+﻿using CMS.Storage.Model;
 using System.Collections.Generic;
 using System.Linq;
 

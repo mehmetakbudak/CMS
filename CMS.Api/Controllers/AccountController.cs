@@ -1,5 +1,5 @@
-﻿using CMS.Model.Entity;
-using CMS.Model.Model;
+﻿using CMS.Storage.Entity;
+using CMS.Storage.Model;
 using CMS.Service;
 using CMS.Service.Attributes;
 using CMS.Service.Helper;

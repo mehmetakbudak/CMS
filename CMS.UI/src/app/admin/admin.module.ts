@@ -27,6 +27,9 @@ import { BlogListComponent } from './blogs/blog-list/blog-list.component';
 import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
 import { UserComponent } from './user/user.component';
 import { BlogCreateUpdateComponent } from './blogs/blog-create-update/blog-create-update.component';
+import { TaskListComponent } from './tasks/task-list/task-list.component';
+import { TaskCreateUpdateComponent } from './tasks/task-create-update/task-create-update.component';
+import { BlogCategoryComponent } from './blog-category/blog-category.component';
 
 @NgModule({
   imports: [
@@ -58,6 +61,9 @@ import { BlogCreateUpdateComponent } from './blogs/blog-create-update/blog-creat
     DashboardComponent,
     AdminLayoutComponent,
     UserComponent,
+    TaskListComponent,
+    TaskCreateUpdateComponent,
+    BlogCategoryComponent
   ],
 })
 export class AdminModule {}

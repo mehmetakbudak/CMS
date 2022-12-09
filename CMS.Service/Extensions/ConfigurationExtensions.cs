@@ -1,4 +1,4 @@
-﻿using CMS.Model.Model;
+﻿using CMS.Storage.Model;
 using CMS.Service.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

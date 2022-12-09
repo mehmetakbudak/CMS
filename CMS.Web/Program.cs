@@ -1,6 +1,6 @@
 using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Model.Model;
+using CMS.Storage.Model;
 using CMS.Service;
 using CMS.Service.Helper;
 using CMS.Service.Infrastructure;

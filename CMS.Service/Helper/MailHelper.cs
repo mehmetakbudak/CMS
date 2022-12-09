@@ -1,5 +1,5 @@
-﻿using CMS.Model.Consts;
-using CMS.Model.Model;
+﻿using CMS.Storage.Consts;
+using CMS.Storage.Model;
 using System;
 using System.Net;
 using System.Net.Mail;

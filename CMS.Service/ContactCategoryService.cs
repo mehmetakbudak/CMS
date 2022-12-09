@@ -1,6 +1,6 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Model.Entity;
+using CMS.Storage.Entity;
 using System.Linq;
 
 namespace CMS.Service

@@ -1,4 +1,4 @@
-﻿using CMS.Model.Entity;
+﻿using CMS.Storage.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CMS.Data.Context

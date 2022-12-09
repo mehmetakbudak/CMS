@@ -1,5 +1,5 @@
-﻿using CMS.Model.Model;
-using CMS.Model.Model.ViewModel;
+﻿using CMS.Storage.Model;
+using CMS.Storage.Model.ViewModel;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using CMS.Model.Consts;
+﻿using CMS.Storage.Consts;
 using System;
 using System.Linq;
 

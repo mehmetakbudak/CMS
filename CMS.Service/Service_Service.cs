@@ -1,6 +1,6 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Model.Model;
+using CMS.Storage.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +10,9 @@ namespace CMS.Service
 {
     public interface IService_Service
     {
-        IQueryable<Model.Entity.Service> GetAll();
+        IQueryable<Storage.Entity.Service> GetAll();
         Task<List<ServiceModel>> GetAllActive();
-        Task<Model.Entity.Service> GetByUrl(string url);
+        Task<Storage.Entity.Service> GetByUrl(string url);
     }
 
     public class Service_Service : IService_Service
@@ -24,9 +24,9 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<Model.Entity.Service> GetAll()
+        public IQueryable<Storage.Entity.Service> GetAll()
         {
-            var list = _unitOfWork.Repository<Model.Entity.Service>()
+            var list = _unitOfWork.Repository<Storage.Entity.Service>()
                 .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id).AsQueryable();
 
@@ -47,9 +47,9 @@ namespace CMS.Service
                 }).ToListAsync();
         }
 
-        public async Task<Model.Entity.Service> GetByUrl(string url)
+        public async Task<Storage.Entity.Service> GetByUrl(string url)
         {
-            return await _unitOfWork.Repository<Model.Entity.Service>()
+            return await _unitOfWork.Repository<Storage.Entity.Service>()
                 .FirstOrDefault(x => !x.Deleted && x.Url == url);
         }
     }

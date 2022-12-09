@@ -21,7 +21,7 @@ namespace CMS.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(List<Model.Entity.Service>), 200)] //OK
+        [ProducesResponseType(typeof(List<Storage.Entity.Service>), 200)] //OK
         public IActionResult Get()
         {
             var result = _serviceService.GetAll().Where(x => x.IsActive).ToList();

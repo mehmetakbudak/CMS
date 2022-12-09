@@ -1,4 +1,4 @@
-﻿using CMS.Model.Dto;
+﻿using CMS.Storage.Dto;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
