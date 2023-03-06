@@ -1,42 +1,12 @@
 ﻿@using CMS.Storage.Enum
+@using CMS.Storage.Model;
+
+@model List<CommentGetModel>
+
 @{
     ViewData["Title"] = "Blog";
     var sourceId = (int)SourceType.Blog;
 }
-<style>
-
-    #contentComment .k-treeview {
-        white-space: unset !important;
-    }
-
-    #commentList .k-treeview-leaf.k-selected {
-        border-color: unset !important;
-        color: unset !important;
-        background-color: unset !important;
-    }
-
-    #commentList .k-treeview-md .k-treeview-leaf {
-        width: 100% !important;
-    }
-
-    .k-treeview-md .k-treeview-leaf {
-        width: 100% !important;
-        transition: unset !important;
-    }
-
-    .k-treeview-leaf.k-hover, .k-treeview-leaf:hover, .k-treeview-leaf:focus {
-        background-color: unset !important;
-        box-shadow: unset !important;
-    }
-
-    .k-treeview-leaf .k-selected .k-in .k-focus {
-        box-shadow: unset !important;
-    }
-
-    .k-treeview *, .k-treeview ::after, .k-treeview ::before :active::after {
-        box-sizing: unset !important;
-    }
-</style>
 
 <main id="main">
     <input id="blogId" type="hidden" value="@ViewBag.Id" />
@@ -180,52 +150,18 @@
                                  class="accordion-collapse collapse show"
                                  aria-labelledby="headingComment"
                                  data-bs-parent="#accordionComment">
-                                <div class="accordion-body">
-                                    <div class="row">
-                                        <div class="col-12 p-0">
-                                            <div id="loadingComments">
-                                                @await Component.InvokeAsync("Loading")
-                                            </div>
-                                            <div id="contentComment">
-                                                <div id="commentList"></div>
-                                                <div id="pager"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <script id="comment-template" type="text/kendo-ui-template">
-                                        <div class="card w-100 mb-3">
-                                            <div class="card-header bg-white py-2">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <i class="fa fa-user me-2"></i>
-                                                        <span class="fst-italic"> #: item.userFullName # </span>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="float-md-end">
-                                                            <i class="fa fa-clock me-2"></i>
-                                                            <span class="fst-italic"> #: dateTimeFormat(item.insertedDate) # </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-12 mb-3">
-                                                        #: item.description #
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <a onclick="app.replyComment(#:item.id#,
-                                                                                    '#:item.userFullName#',
-                                                                                    '#:item.description#,')"
-                                                           class="btn btn-outline-secondary btn-sm">
-                                                           <i class="fa fa-reply me-1"></i> <small>Cevapla</small>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </script>
-
+                                <div class="accordion-body">                                    
+                                    @if (Model.Count == 0)
+                                    {
+                                        <div>Henüz yorum yok.</div>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Model)
+                                        {
+                                            @await Html.PartialAsync("BlogCommentTreeView", item)
+                                        }
+                                    }
                                 </div>
                             </div>
                         </div>

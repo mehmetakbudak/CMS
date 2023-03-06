@@ -22,7 +22,7 @@ namespace CMS.Web.Controllers
         #region APIs
         [HttpGet("api/menu/frontend")]
         [ProducesResponseType(typeof(List<MenuModel>), 200)] //OK
-        public IActionResult GetFrontendMenu()
+        public async Task<IActionResult> GetFrontendMenu()
         {
             const string key = "frontEndMenu";
 
@@ -31,7 +31,7 @@ namespace CMS.Web.Controllers
                 return Ok(menus);
             }
 
-            menus = _menuService.GetFrontendMenu();
+            menus = await _menuService.GetFrontendMenu();
             _memoryCache.Set(key, menus, new MemoryCacheEntryOptions
             {
                 Priority = CacheItemPriority.Normal

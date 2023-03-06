@@ -16,16 +16,16 @@ namespace CMS.Web.Controllers
 
         #region APIs
         [HttpGet("api/blog-category")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var list = _blogCategoryService.GetAllActive();
+            var list = await _blogCategoryService.GetAllActive();
             return Ok(list);
         }
 
         [HttpGet("api/blog-category/{url}")]
-        public IActionResult GetByUrl(string url)
+        public async Task<IActionResult> GetByUrl(string url)
         {
-            var result = _blogCategoryService.GetByUrl(url);
+            var result = await _blogCategoryService.GetByUrl(url);
             return Ok(result);
         }
         #endregion

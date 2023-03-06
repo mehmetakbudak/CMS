@@ -80,17 +80,7 @@ $(() => {
         dataTextField: "title"
     });
 
-    $("#treeLeftMenu").kendoTreeView({
-        dataSource: menuDataSource,
-        dataUrlField: "url",
-        dataTextField: "title"
-    });
-
-    $("#profileMenu").kendoExpansionPanel({
-        expanded: true
-    });
-
-    $(".profileMenu .k-expander-title").text($("#userName").val());   
+    $("#profileMenu").kendoPanelBar({});
 
     var validatorNewsletter = $("#formNewsletter").kendoValidator().data("kendoValidator");
 

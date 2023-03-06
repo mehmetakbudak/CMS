@@ -7,12 +7,18 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title - Admin Paneli</title>
     <link rel="stylesheet" href="~/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/kendo.bootstrap-main.min.css" />
+    <link rel="stylesheet" href="~/css/kendo.bootstrap-main.css" />
     @RenderSection("Styles", false)
     <link rel="stylesheet" href="~/css/style.css" />
+    <script src="~/js/lib/jquery.js"></script>
+    @*<script src="~/lib/angular.js/angular.js"></script>*@
+    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="~/js/lib/kendo.ui.core.js"></script>
     <script src="~/js/lib/font-awesome.js"></script>
+    @RenderSection("Scripts", false)
+    <script src="~/js/pages/admin/global.js"></script>
 </head>
-<body class="sb-nav-fixed">
+<body>
     <span id="notification" class="d-none"></span>
     <script id="errorTemplate" type="text/x-kendo-template">
         <div class="wrong-pass">
@@ -32,16 +38,14 @@
             <p>#= message #</p>
         </div>
     </script>
-    <nav class="sb-topnav navbar navbar-expand navbar-light bg-light border-bottom shadow">
+
+    <nav class="navbar navbar-expand navbar-light bg-light border-bottom shadow">
         <a class="navbar-brand ps-3" href="/Admin/Dashboard">Admin Paneli</a>
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
-            <i class="fas fa-bars"></i>
-        </button>
         <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
         </div>
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
-                <div class="nav-link dropdown-toggle text-secondary" id="navbarDropdown"
+                <div class="nav-link dropdown-toggle text-dark" id="navbarDropdown"
                      href="#" role="button"
                      data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-user fa-fw"></i>
@@ -65,66 +69,80 @@
             </li>
         </ul>
     </nav>
-    <div id="layoutSidenav">
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-light border-end shadow" id="sidenavAccordion">
-                <div class="sb-sidenav-menu p-2">
+    <div class="container-fluid" ng-app="app1" ng-controller="AppController">
+        <div class="row">
+            <div class="col-md-2 col-sm-3">
+                <div class="shadow mt-3">
                     <ul id="leftMenu">
-                        <li class="py-2">
-                            <a class="nav-link mt-2 text-secondary" href="/Admin/Dashboard">
+                        <li>
+                            <a class="nav-link mt-2 text-dark cursor-pointer" href="/Admin/Dashboard">
                                 <i class="fas fa-dashboard pe-2"></i> Anasayfa
                             </a>
                         </li>
-                        <li class="py-2 text-secondary">
-                            <i class="fas fa-address-book pe-2"></i>İçerik Yönetimi
+                        <li>
+                            <span class="text-dark cursor-pointer"><i class="fas fa-address-book pe-2"></i>İçerik Yönetimi</span>
                             <ul>
-                                <li class="py-2">
-                                    <a class="nav-link text-secondary" href="/Admin/Blog">
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Blog">
                                         Bloglar
                                     </a>
                                 </li>
-                                <li class="py-2">
-                                    <a class="nav-link text-secondary" href="/Admin/Service">
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Service">
                                         Hizmetler
                                     </a>
                                 </li>
-                                <li class="py-2">
-                                    <a class="nav-link text-secondary" href="/Admin/Testimonial">
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Testimonial">
                                         Referanslar
                                     </a>
                                 </li>
-                                <li class="py-2">
-                                    <a class="nav-link text-secondary" href="/Admin/HomepageSlider">
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Contact">
+                                        İletişim Mesajları
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/HomepageSlider">
                                         Anasayfa Slider
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Comment">
+                                        Yorumlar
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="py-2 text-secondary">
-                            <i class="fas fa-info-circle pe-2"></i>Tanımlar
-                            <ul>                               
-                                <li class="py-2">
-                                    <a class="nav-link text-secondary" href="/Admin/TodoDefinition">
+                        <li>
+                            <span class="text-dark cursor-pointer">
+                                <i class="fas fa-info-circle pe-2"></i>Tanımlar
+                            </span>
+                            <ul>
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/TaskDefinition">
                                         Yapılacak Tanımları
                                     </a>
                                 </li>
-                                <li class="py-2">
-                                    <a class="nav-link text-secondary" href="/Admin/BlogCategory">
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/BlogCategory">
                                         Blog Kategorileri
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="py-2 text-secondary">
-                            <i class="fas fa-cogs pe-2"></i>Ayarlar
+                        <li>
+                            <span class="text-dark cursor-pointer">
+                                <i class="fas fa-cogs pe-2 cursor-pointer"></i>Ayarlar
+                            </span>
                             <ul>
-                                <li class="py-1">
-                                    <a class="nav-link text-secondary" href="/Admin/Todo">
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Task">
                                         Yapılacaklar
                                     </a>
                                 </li>
-                                <li class="py-2">
-                                    <a class="nav-link text-secondary" href="/Admin/User">
+                                <li>
+                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/User">
                                         Kullanıcılar
                                     </a>
                                 </li>
@@ -132,20 +150,15 @@
                         </li>
                     </ul>
                 </div>
-            </nav>
-        </div>
-        <div id="layoutSidenav_content">
-            <main>
-                <div class="container-fluid px-4 main mb-4">
-                    @RenderBody()
-                </div>
-            </main>
+            </div>
+            <div class="col-md-10 col-sm-9">
+                <main>
+                    <div class="main mb-4">
+                        @RenderBody()
+                    </div>
+                </main>
+            </div>
         </div>
     </div>
-    <script src="~/js/lib/jquery.js"></script>
-    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
-    <script src="~/js/lib/kendo.all.min.js"></script>
-    <script src="~/js/pages/admin/global.js"></script>
-    @RenderSection("Scripts", false)
 </body>
 </html>

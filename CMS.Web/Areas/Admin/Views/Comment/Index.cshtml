@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Yorumlar";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mb-3">
+    <div class="card-header bg-white pt-3">
+        <div class="row">
+            <div class="col-12">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a class="text-decoration-none text-dark" href="/Admin">Anasayfa</a>
+                        </li>
+                        <li class="breadcrumb-item">Yorumlar</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+
+
+        <div class="table-responsive" id="content">
+            <div class="d-flex mb-3">
+                <a class="btn btn-primary cursor-pointer me-2 btnStatus" onclick="app.selectStatus(this, 1)">Onay Bekleyenler</a>
+                <a class="btn btn-secondary cursor-pointer me-2 btnStatus" onclick="app.selectStatus(this,2)">Onaylananlar</a>
+                <a class="btn btn-secondary cursor-pointer btnStatus" onclick="app.selectStatus(this,3)">Reddedilenler</a>
+            </div>
+
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th width="120"></th>
+                        <th width="200">
+                            Türü
+                        </th>
+                        <th>
+                            Durumu
+                        </th>
+                        <th>
+                            Adı Soyadı
+                        </th>
+                        <th>
+                            Yorumu
+                        </th>
+                        <th width="200">
+                            Ekleme Tarihi
+                        </th>
+                        <th>
+                            Güncelleme Tarihi
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="content-body"></tbody>
+            </table>
+            <div id="pager"></div>
+        </div>
+        <script id="template" type="text/x-kendo-tmpl">
+            <tr data-uid="#: id #">
+                <td width="120">
+                    <a class="btn btn-secondary btn-sm text-white" href="/Admin/Blog/Edit/#:id#"><i class="fa fa-pencil"></i></a>
+                    <a onclick="app.delete(#:id#)"
+                        class="btn btn-danger btn-sm text-white">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+                <td>
+                    #: source #
+                </td>
+                <td>
+                   #: status #
+                </td>
+                <td>
+                    #: userFullName #
+                </td>
+                <td>
+                    #: description #
+                </td>
+                <td>
+                    #: app.dateTimeFormat(insertedDate) #
+                </td>
+                <td width="200">
+                    #: app.dateTimeFormat(updatedDate) #
+                </td>
+            </tr>
+        </script>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/pages/admin/comment/list.js"></script>
+}

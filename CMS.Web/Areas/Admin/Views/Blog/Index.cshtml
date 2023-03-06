@@ -24,11 +24,83 @@
         </div>
     </div>
     <div class="card-body">
+        @await Component.InvokeAsync("Loading")
+        <div class="table-responsive" id="content">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>
+                            Başlık
+                        </th>
+                        <th>
+                            Kısa Açıklama
+                        </th>
+                        <th>
+                            Görüntüleme Sayısı
+                        </th>
+                        <th>
+                            Aktif
+                        </th>
+                        <th>
+                            Yayında
+                        </th>
+                        <th>
+                            Ekleme Tarihi
+                        </th>
+                        <th>
+                            Güncelleme Tarihi
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="content-body"></tbody>
+            </table>
+            <div id="pager"></div>
+        </div>
+        <script id="template" type="text/x-kendo-tmpl">
+            <tr data-uid="#: id #">
+                <td style="min-width:100px;">
+                    <a class="btn btn-secondary btn-sm text-white" href="/Admin/Blog/Edit/#:id#"><i class="fa fa-pencil"></i></a>
+                    <a onclick="app.delete(#:id#)" class="btn btn-danger btn-sm text-white">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+                <td style="min-width:200px;">
+                    #: title #
+                </td>
+                <td style="min-width:500px;">
+                    #: description #
+                </td>
+                <td style="min-width:100px;">
+                    #: numberOfView #
+                </td>
+                <td style="min-width:80px;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled # if(isActive) { # checked # } #>
+                    </div>
+                </td>
+                <td style="min-width:80px;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled # if(published) { # checked # } #>
+                    </div>
+                </td>
+                <td style="min-width:150px;">
+                    #: app.dateTimeFormat(insertedDate) #
+                </td>
+                <td style="min-width:150px;">
+                    #: app.dateTimeFormat(updatedDate) #
+                </td>
+            </tr>
+        </script>
+
     </div>
 </div>
 
-@section Scripts {
-    <script>
+@section Styles {
+    <link href="~/css/easyui.css" rel="stylesheet" />
+}
 
-    </script>
+@section Scripts {
+    <script src="~/js/lib/jquery.easyui.min.js"></script>
+    <script src="/js/pages/admin/blog/list.js"></script>
 }

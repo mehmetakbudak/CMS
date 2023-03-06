@@ -16,17 +16,15 @@ namespace CMS.Web.Controllers
         #endregion
 
         #region Views
-        public IActionResult Index()
-        {
-            return View();
-        }
+        public IActionResult Index() => View();
+
         #endregion
 
         #region APIs
         [HttpPost("api/contact")]
-        public IActionResult Post([FromBody] ContactModel model)
+        public async Task<IActionResult> Post([FromBody] ContactModel model)
         {
-            var result = _contactService.Post(model);
+            var result = await _contactService.Post(model);
             return StatusCode((int)result.StatusCode, result);
         }
         #endregion

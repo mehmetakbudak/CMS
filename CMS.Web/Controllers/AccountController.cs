@@ -1,8 +1,6 @@
-﻿using CMS.Storage.Entity;
-using CMS.Storage.Enum;
-using CMS.Storage.Model;
-using CMS.Service;
+﻿using CMS.Service;
 using CMS.Service.Attributes;
+using CMS.Storage.Model;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -22,44 +20,27 @@ namespace CMS.Web.Controllers
 
         #region Views
         [Route("login")]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
 
         [Route("register")]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
 
         [Route("forgot-password")]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
+        public IActionResult ForgotPassword() => View();
+
 
         [Route("change-password")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult ChangePassword()
-        {
-            return View();
-        }
+        public IActionResult ChangePassword() => View();
 
         [Route("profile")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult Profile()
-        {
-            return View();
-        }
+        public IActionResult Profile() => View();
 
         [Route("comments")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult Comments()
-        {
-            return View();
-        }
+        public IActionResult Comments() => View();
 
         [Route("logout")]
         public IActionResult Logout()
@@ -69,9 +50,9 @@ namespace CMS.Web.Controllers
         }
 
         [Route("email-verify/{code}")]
-        public IActionResult EmailVerify(string code)
+        public async Task<IActionResult> EmailVerify(string code)
         {
-            var result = _userService.EmailVerified(code);
+            var result = await _userService.EmailVerified(code);
             if (result.StatusCode == HttpStatusCode.OK)
             {
                 ViewBag.IsSuccess = true;
@@ -84,9 +65,9 @@ namespace CMS.Web.Controllers
         }
 
         [Route("set-password/{code}")]
-        public IActionResult SetPassword(string code)
+        public async Task<IActionResult> SetPassword(string code)
         {
-            var user = _userService.GetUserByCode(code);
+            var user = await _userService.GetUserByCode(code);
             return View(user);
         }
         #endregion
@@ -95,11 +76,9 @@ namespace CMS.Web.Controllers
         [HttpPost("api/account/login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var result = await _userService.Authenticate(model);
-            if (result.StatusCode == HttpStatusCode.OK)
+            var user = await _userService.Authenticate(model);
+            if (user != null)
             {
-                var user = (User)result.Data;
-
                 var userClaims = new List<Claim>();
 
                 userClaims.Add(new Claim("UserId", user.Id.ToString()));
@@ -107,7 +86,7 @@ namespace CMS.Web.Controllers
                 userClaims.Add(new Claim("Name", user.Name));
                 userClaims.Add(new Claim("Surname", user.Surname.ToString()));
                 userClaims.Add(new Claim("UserType", ((int)user.UserType).ToString()));
-               
+
                 var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                 var authProperties = new AuthenticationProperties
@@ -117,24 +96,24 @@ namespace CMS.Web.Controllers
 
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);                
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
             }
-            return Ok(result);
+            return Ok(user);
         }
 
         [HttpGet("api/account/profile")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult GetProfile()
+        public async Task<IActionResult> GetProfile()
         {
-            var result = _userService.GetProfile();
+            var result = await _userService.GetProfile();
             return Ok(result);
         }
 
         [HttpPut("api/account/profile")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult UpdateProfile([FromBody] UserProfileModel model)
+        public async Task<IActionResult> UpdateProfile([FromBody] UserProfileModel model)
         {
-            var result = _userService.UpdateProfile(model);
+            var result = await _userService.UpdateProfile(model);
             return Ok(result);
         }
 
@@ -146,31 +125,31 @@ namespace CMS.Web.Controllers
         }
 
         [HttpPut("api/account/reset-password")]
-        public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
         {
-            var result = _userService.ResetPassword(model);
+            var result = await _userService.ResetPassword(model);
             return Ok(result);
         }
 
-        [HttpPost("api/account/add-member")]
-        public async Task<IActionResult> AddMember([FromBody] RegisterModel model)
+        [HttpPost("api/account/register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            var result = await _userService.AddMember(model);
+            var result = await _userService.Register(model);
             return Ok(result);
         }
 
         [HttpPut("api/account/change-password")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public IActionResult ChangePassword([FromBody] ChangePasswordModel model)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
         {
-            var result = _userService.ChangePassword(model);
+            var result = await _userService.ChangePassword(model);
             return Ok(result);
         }
 
         [HttpPut("api/account/email-verified/{code}")]
-        public IActionResult EmailVerified(string code)
+        public async Task<IActionResult> EmailVerified(string code)
         {
-            var result = _userService.EmailVerified(code);
+            var result = await _userService.EmailVerified(code);
             return Ok(result);
         }
         #endregion

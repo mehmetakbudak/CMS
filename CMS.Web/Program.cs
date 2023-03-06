@@ -21,7 +21,11 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<CMSContext>(options =>
-       options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnectionString"), options => options.EnableRetryOnFailure()));
+       options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnectionString"), 
+       options =>
+       {
+           options.EnableRetryOnFailure();           
+       }));
 
 builder.Services.ConfigureApplicationCookie(s =>
 {
@@ -55,9 +59,9 @@ builder.Services.AddScoped<IAccessRightService, AccessRightService>();
 builder.Services.AddScoped<IPageService, PageService>();
 builder.Services.AddScoped<IBlogCategoryService, BlogCategoryService>();
 builder.Services.AddScoped<IBlogService, BlogService>();
-builder.Services.AddScoped<ITodoCategoryService, TodoCategoryService>();
-builder.Services.AddScoped<ITodoStatusService, TodoStatusService>();
-builder.Services.AddScoped<ITodoService, TodoService>();
+builder.Services.AddScoped<ITaskCategoryService, TaskCategoryService>();
+builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<IMailHelper, MailHelper>();

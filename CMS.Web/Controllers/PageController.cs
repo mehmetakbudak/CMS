@@ -16,9 +16,9 @@ namespace CMS.Web.Controllers
 
         #region Views
         [Route("page/{url}")]
-        public IActionResult Index(string url)
+        public async Task<IActionResult> Index(string url)
         {
-            var result = _pageService.GetByUrl(url);
+            var result = await _pageService.GetByUrl(url);
             return View(result);
         }
         #endregion

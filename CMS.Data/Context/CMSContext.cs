@@ -29,11 +29,11 @@ namespace CMS.Data.Context
 
         public virtual DbSet<ChatMessage> ChatMessages { get; set; }
 
-        public virtual DbSet<TaskDmo> Todos { get; set; }
+        public virtual DbSet<TaskDmo> Tasks { get; set; }
 
-        public virtual DbSet<TodoCategory> TodoCategories { get; set; }
+        public virtual DbSet<TaskCategory> TaskCategories { get; set; }
 
-        public virtual DbSet<TodoStatus> TodoStatuses { get; set; }
+        public virtual DbSet<TaskStatusDmo> TaskStatuses { get; set; }
 
         public virtual DbSet<UserAccessRight> UserAccessRights { get; set; }
 

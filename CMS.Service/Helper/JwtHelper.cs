@@ -1,7 +1,6 @@
-﻿using CMS.Storage.Entity;
-using CMS.Storage.Model;
-using CMS.Service.Exceptions;
+﻿using CMS.Service.Exceptions;
 using CMS.Service.Infrastructure;
+using CMS.Storage.Model;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,13 +11,13 @@ namespace CMS.Service.Helper
 {
     public interface IJwtHelper
     {
-        JwtTokenModel GenerateJwtToken(User user);
+        JwtTokenModel GenerateJwtToken(int userId);
         JwtSecurityToken ValidateToken(string token);
     }
 
     public class JwtHelper : IJwtHelper
     {
-        public JwtTokenModel GenerateJwtToken(User user)
+        public JwtTokenModel GenerateJwtToken(int userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Global.Secret);
@@ -27,7 +26,7 @@ namespace CMS.Service.Helper
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim("UserId", user.Id.ToString())
+                    new Claim("UserId", userId.ToString())
                 }),
                 Expires = expireDate,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -74,5 +73,5 @@ namespace CMS.Service.Helper
                 throw new UnAuthorizedException("Token doğrulanamadı.");
             }
         }
-    }
+    }    
 }

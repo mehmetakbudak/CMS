@@ -1,5 +1,4 @@
-﻿using CMS.Storage.Enum;
-using System;
+﻿using System;
 
 namespace CMS.Storage.Model
 {

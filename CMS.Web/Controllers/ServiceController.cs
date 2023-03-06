@@ -17,18 +17,18 @@ namespace CMS.Web.Controllers
         #endregion
 
         #region Views
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var model = _serviceService.GetAllActive();
+            var model = await _serviceService.GetAllActive();
             return View(model);
         }
 
         [Route("/service/{url}")]
-        public IActionResult GetByUrl(string url)
+        public async Task<IActionResult> GetByUrl(string url)
         {
             ViewBag.Url = url;
 
-            var service = _serviceService.GetByUrl(url);
+            var service = await _serviceService.GetByUrl(url);
 
             var model = new ServiceDetailViewModel
             {
@@ -40,7 +40,7 @@ namespace CMS.Web.Controllers
                     Url = service.Url,
                     Content = service.Content
                 },
-                Services = _serviceService.GetAllActive()
+                Services = await _serviceService.GetAllActive()
             };
 
             return View(model);
@@ -49,9 +49,9 @@ namespace CMS.Web.Controllers
 
         #region APIs
         [HttpGet("api/service")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _serviceService.GetAllActive();
+            var result = await _serviceService.GetAllActive();
             return Ok(result);
         }
 

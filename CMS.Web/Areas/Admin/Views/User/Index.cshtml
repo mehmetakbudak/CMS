@@ -1,8 +1,151 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Kullanıcılar";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="card shadow mb-3">
+    <div class="card-header bg-white pt-3">
+        <div class="row">
+            <div class="col-9">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a class="text-decoration-none text-dark" href="/Admin">Anasayfa</a>
+                        </li>
+                        <li class="breadcrumb-item">Kullanıcılar</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-3">
+                <a class="btn btn-outline-primary btn-sm shadow float-end" href="/Admin/Blog/Add">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @await Component.InvokeAsync("Loading")
+
+        <div class="accordion mb-3" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <div class="fw-bold"> Filtrele </div>
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <select id="cmbUserTypes" name="cmbUserTypes"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <input id="txtName" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <input id="txtSurname" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <input id="txtEmailAddress" />
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="btnSearch">Ara</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive" id="content">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>
+                            Türü
+                        </th>
+                        <th>
+                            Adı
+                        </th>
+                        <th>
+                            Soyadı
+                        </th>
+                        <th>
+                            Email Adresi
+                        </th>
+                        <th>
+                            Telefon
+                        </th>
+                        <th>
+                            Durumu
+                        </th>
+                        <th>
+                            Aktif
+                        </th>
+                        <th width="200">
+                            Ekleme Tarihi
+                        </th>
+                        <th width="200">
+                            Güncelleme Tarihi
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="content-body"></tbody>
+            </table>
+            <div id="pager"></div>
+        </div>
+        <script id="template" type="text/x-kendo-tmpl">
+            <tr data-uid="#: id #">
+                <td style="min-width: 100px;">
+                    <a class="btn btn-secondary btn-sm text-white" href="/Admin/Blog/Edit/#:id#"><i class="fa fa-pencil"></i></a>
+                    <a onclick="app.delete(#:id#)" class="btn btn-danger btn-sm text-white">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+                <td style="min-width: 100px;">
+                    #: userTypeName #
+                </td>
+                <td style="min-width: 200px;">
+                    #: name #
+                </td>
+                <td style="min-width: 200px;">
+                    #: surname #
+                </td>
+                <td style="min-width: 200px;">
+                    #: emailAddress #
+                </td>
+                <td style="min-width: 200px;">
+                    # if(phone != null) { #
+                        #:phone#
+                    # } #
+                </td>
+                <td>
+                    #: status #
+                </td>
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled # if(isActive) { # checked # } #>
+                    </div>
+                </td>
+                <td style="min-width: 150px;">
+                    #: app.dateTimeFormat(insertedDate) #
+                </td>
+                <td style="min-width: 150px;">
+                    #: app.dateTimeFormat(updatedDate) #
+                </td>
+            </tr>
+        </script>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/pages/admin/user/list.js"></script>
+}
 

@@ -68,34 +68,6 @@
         }
     });
 
-    var commentDataSource = new kendo.data.HierarchicalDataSource({
-        transport: {
-            read: {
-                url: `/api/comment?sourceType=${sourceType}&sourceId=${id}`,
-                dataType: "json"
-            }
-        },
-        pageSize: 5,
-        schema: {
-            model: {
-                children: "items"
-            }
-        },
-        requestEnd: function (e) {
-            $("#contentComment").show();
-            $("#loadingComments").hide();
-        }
-    });
-
-    $("#commentList").kendoTreeView({
-        template: kendo.template($("#comment-template").html()),
-        dataSource: commentDataSource
-    });
-
-    $("#pager").kendoPager({
-        dataSource: commentDataSource
-    });
-
     function seen() {
         $.get(`/api/Blog/Seen/${id}`).then(() => { });
     }
@@ -110,7 +82,10 @@
         });
     }
 
-    app.replyComment = function (id, userFullName, description) {
+    app.commentReply = function (e) {
+        var id = $(e).data("id");
+        var userFullName = $(e).data("user");
+        var description = $(e).data("description");
         $("#formReplyComment").trigger("reset");
         $("#k-counter-reply-comment .k-counter-value").text("0");
         viewModel.set("comment.id", id);
@@ -118,7 +93,7 @@
         viewModel.set("comment.description", description);
 
         $("#replyCommentModal").modal("show");
-    }
+    };
 
     $("#btnCommentReply").click((e) => {
         e.preventDefault();

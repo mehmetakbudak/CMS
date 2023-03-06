@@ -24,15 +24,23 @@ namespace CMS.Data.Repository
             _context = context;
         }
 
-        public void CreateTransaction()
+        public IExecutionStrategy CreateExecutionStrategy()
         {
-            _context.Database.BeginTransaction();
+            return _context.Database.CreateExecutionStrategy();
         }
 
-        public void Rollback()
+        public async Task CreateTransaction()
         {
-            _objTran.Rollback();
-            _objTran.Dispose();
+            if (_objTran == null)
+            {
+                _objTran = await _context.Database.BeginTransactionAsync();
+            }
+        }
+
+        public async Task Rollback()
+        {
+            await _objTran.RollbackAsync();
+            await _objTran.DisposeAsync();
         }
 
         public async Task<int> Save()
@@ -40,9 +48,9 @@ namespace CMS.Data.Repository
             return await _context.SaveChangesAsync();
         }
 
-        public void Commit()
+        public async Task Commit()
         {
-            _objTran.Commit();
+            await _objTran.CommitAsync();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -65,7 +73,5 @@ namespace CMS.Data.Repository
         {
             return new Repository<T>(_context);
         }
-
-
     }
 }

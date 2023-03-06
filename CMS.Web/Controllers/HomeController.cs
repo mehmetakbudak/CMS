@@ -29,15 +29,15 @@ namespace CMS.Web.Controllers
         #endregion
 
         #region Views
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var model = new HomeViewModel()
             {
-                Services = _service_Service.GetAllActive(),
-                Blogs = _blogService.GetBlogs(null, 10),
-                Testimonials = _testimonialService.GetAllActive(),
-                HomepageSliders = _homepageSliderService.GetAllActive(),
-                Clients = _clientService.GetAllActive(),
+                Services = await _service_Service.GetAllActive(),
+                Blogs = await _blogService.GetBlogs(null, 10),
+                Testimonials = await _testimonialService.GetAllActive(),
+                HomepageSliders = await _homepageSliderService.GetAllActive(),
+                Clients = await _clientService.GetAllActive(),
             };
             return View(model);
         }

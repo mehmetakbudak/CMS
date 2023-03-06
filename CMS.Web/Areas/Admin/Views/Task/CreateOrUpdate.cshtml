@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = ViewBag.Id == 0 ? "Görev Ekle" : "Görev Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<input id="txtId" type="hidden" value="@ViewBag.Id" />
+
+<div class="card shadow mb-5">
+    <div class="card-header bg-white pt-3">
+        <div class="row">
+            <div class="col-10">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a class="text-decoration-none text-dark" href="/Admin">Anasayfa</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a class="text-decoration-none text-dark" href="/Admin/Task">Görevler</a>
+                        </li>
+                        <li class="breadcrumb-item"> @ViewData["Title"]</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-2">
+                <a class="btn btn-outline-primary btn-sm float-end shadow" href="/Admin/Task">
+                    <i class="fa-solid fa-arrow-left me-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @await Component.InvokeAsync("Loading")
+
+        <div class="row" id="content">
+            <div class="col-md-12 py-3">
+                <form id="taskForm">
+                    <div class="mb-4">
+                        <label class="form-label">Başlık</label>
+                        <input id="txtTitle" name="txtTitle" type="text" required data-required-msg="Başlık giriniz." />
+                    </div>
+                    <div class="mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Kategori</label>
+                                <select id="cmbTaskCategories" name="cmbTaskCategories" required data-required-msg="Kategori seçiniz."></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Durumu</label>
+                                <select id="cmbTaskStatuses" name="cmbTaskStatuses" required data-required-msg="Durum seçiniz."></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Atanmış Kullanıcı</label>
+                                <select id="cmbAssignUsers"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="w-100">Aktif</label>
+                                <div class="form-check form-switch form-switch-md">
+                                    <input class="form-check-input" type="checkbox" id="chkIsActive">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Açıklama</label>
+                        <textarea id="txtDescription" name="txtDescription" required data-required-msg="Açıklama giriniz."></textarea>
+                        <span data-for="txtDescription" class="k-invalid-msg"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer bg-white py-3">
+        <button type="submit" class="btn btn-primary" id="btnSave">Kaydet</button>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/css/summernote-lite.min.css" rel="stylesheet" />
+}
+
+@section Scripts{
+    <script src="~/js/lib/summernote-lite.min.js"></script>
+    <script src="~/js/lib/summernote-tr-TR.min.js"></script>
+    <script src="~/js/pages/admin/task/create-update.js"></script>
+}

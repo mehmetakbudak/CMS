@@ -53,6 +53,7 @@
 
     $("#pager").kendoPager({
         dataSource: blogDataSource,
+        responsive: false,
         messages: {
             empty: "Kayıt bulunamadı."
         }

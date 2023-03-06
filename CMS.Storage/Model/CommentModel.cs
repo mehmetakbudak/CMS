@@ -1,7 +1,6 @@
 ﻿using CMS.Storage.Enum;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace CMS.Storage.Model
 {
@@ -11,13 +10,10 @@ namespace CMS.Storage.Model
 
         public int? ParentId { get; set; }
 
-        [Required(ErrorMessage = "Yorum tipi zorunludur.")]
         public SourceType SourceType { get; set; }
 
-        [Required(ErrorMessage = "Id bilgisi zorunludur.")]
         public int SourceId { get; set; }
 
-        [Required(ErrorMessage = "Yorum zorunludur.")]
         public string Description { get; set; }
     }
 
@@ -67,7 +63,6 @@ namespace CMS.Storage.Model
 
         public CommentStatus CommentStatus { get; set; }
     }
-
 
     public class CommentGetModel : CommentBaseModel
     {

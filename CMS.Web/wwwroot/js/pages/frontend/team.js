@@ -9,6 +9,7 @@
                 dataType: "json"
             }
         },
+        pageSize: 8,
         change: function () {
             $("#teams").html(kendo.render(template, this.view()));
         },
@@ -19,4 +20,9 @@
     });
 
     dataSource.read();
+
+    $("#pager").kendoPager({
+        dataSource: dataSource,
+        responsive: false
+    });
 });

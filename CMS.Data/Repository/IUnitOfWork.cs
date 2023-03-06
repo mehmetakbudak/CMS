@@ -1,5 +1,6 @@
 ﻿using CMS.Storage.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Threading.Tasks;
 
 namespace CMS.Data.Repository
@@ -8,9 +9,10 @@ namespace CMS.Data.Repository
     {
         TContext Context { get; }
         IRepository<T> Repository<T>() where T : BaseEntityModel;
-        void CreateTransaction();
-        void Commit();
-        void Rollback();
+        IExecutionStrategy CreateExecutionStrategy();
+        Task CreateTransaction();
+        Task Commit();
+        Task Rollback();
         Task<int> Save();
     }
 }

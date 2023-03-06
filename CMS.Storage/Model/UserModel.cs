@@ -15,8 +15,9 @@ namespace CMS.Storage.Model
         public string Phone { get; set; }
         public bool IsActive { get; set; }
         public string Status { get; set; }
-        public string Token { get; set; }
-        public DateTime? TokenExpireDate { get; set; }
+        public DateTime InsertedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+
     }
 
     public class UserCreateOrUpdateModel { }
@@ -95,5 +96,13 @@ namespace CMS.Storage.Model
         public int UserId { get; set; }
 
         public UserType UserType { get; set; }
+    }
+
+    public class UserFilterModel : FilterModel
+    {
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string EmailAddress { get; set; }
+        public int? UserType { get; set; }
     }
 }

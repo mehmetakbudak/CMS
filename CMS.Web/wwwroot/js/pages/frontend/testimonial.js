@@ -24,8 +24,7 @@
 
     $("#pager").kendoPager({
         dataSource: dataSource,
-        input: false,
-        numeric: true
+        responsive: false
     });
 
 });

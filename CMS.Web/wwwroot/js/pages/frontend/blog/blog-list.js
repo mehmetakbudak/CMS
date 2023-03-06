@@ -53,7 +53,8 @@
     blogMostReadDataSource.read();
 
     $("#pager").kendoPager({
-        dataSource: blogDataSource
+        dataSource: blogDataSource,
+        responsive: false
     });
 
     $("#txtSearch").val(searchText);

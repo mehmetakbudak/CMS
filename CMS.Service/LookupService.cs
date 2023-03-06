@@ -6,17 +6,19 @@ using CMS.Storage.Model;
 using CMS.Service.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace CMS.Service
 {
     public interface ILookupService
     {
-        List<LookupModel> ContactCategories();
-        List<LookupModel> TodoCategories();
-        List<LookupModel> TodoStatuses(int categoryId);
-        List<LookupModel> Users();
-        List<LookupModel> Menus();
-        List<LookupModel> BlogCategories();
+        Task<List<LookupModel>> ContactCategories();
+        Task<List<LookupModel>> TaskCategories();
+        Task<List<LookupModel>> TaskStatuses(int categoryId);
+        Task<List<LookupModel>> Users();
+        Task<List<LookupModel>> Menus();
+        Task<List<LookupModel>> BlogCategories();
         List<LookupModel> MethodTypes();
         List<LookupModel> UserTypes();
     }
@@ -30,73 +32,73 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public List<LookupModel> ContactCategories()
+        public async Task<List<LookupModel>> ContactCategories()
         {
-            return _unitOfWork.Repository<ContactCategory>()
+            return await _unitOfWork.Repository<ContactCategory>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
                     Name = x.Name
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public List<LookupModel> TodoCategories()
+        public async Task<List<LookupModel>> TaskCategories()
         {
-            return _unitOfWork.Repository<TodoCategory>()
+            return await _unitOfWork.Repository<TaskCategory>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
                     Name = x.Name
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public List<LookupModel> TodoStatuses(int categoryId)
+        public async Task<List<LookupModel>> TaskStatuses(int categoryId)
         {
-            return _unitOfWork.Repository<TodoStatus>()
+            return await _unitOfWork.Repository<TaskStatusDmo>()
                 .Where(x => !x.Deleted &&
                               x.IsActive &&
-                              x.TodoCategoryId == categoryId)
+                              x.TaskCategoryId == categoryId)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
                     Name = x.Name
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public List<LookupModel> Users()
+        public async Task<List<LookupModel>> Users()
         {
-            return _unitOfWork.Repository<User>()
+            return await _unitOfWork.Repository<User>()
                 .Where(x => !x.Deleted && x.IsActive && x.UserType != UserType.Member)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
                     Name = x.Name + " " + x.Surname
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public List<LookupModel> Menus()
+        public async Task<List<LookupModel>> Menus()
         {
-            var list = _unitOfWork.Repository<Menu>()
+            var list = await _unitOfWork.Repository<Menu>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .Select(x => new LookupModel
                 {
                     Id = x.Id,
                     Name = x.Name
-                }).ToList();
+                }).ToListAsync();
             return list;
         }
 
-        public List<LookupModel> BlogCategories()
+        public async Task<List<LookupModel>> BlogCategories()
         {
-            return _unitOfWork.Repository<BlogCategory>()
+            return await _unitOfWork.Repository<BlogCategory>()
                 .Where(x => !x.Deleted && x.IsActive)
                 .Select(x => new LookupModel()
                 {
                     Id = x.Id,
                     Name = x.Name
-                }).ToList();
+                }).ToListAsync();
         }
 
         public List<LookupModel> MethodTypes()

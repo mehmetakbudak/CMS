@@ -15,17 +15,15 @@ namespace CMS.Web.Controllers
         #endregion
 
         #region Views
-        public IActionResult Index()
-        {
-            return View();
-        }
+        public IActionResult Index() => View();
+        
         #endregion
 
         #region APIs
         [HttpGet("api/testimonial")]
-        public IActionResult Get(int? top)
+        public async Task<IActionResult> Get(int? top)
         {
-            var list = _testimonialService.GetAllActive(top);
+            var list = await _testimonialService.GetAllActive(top);
             return Ok(list);
         }
         #endregion

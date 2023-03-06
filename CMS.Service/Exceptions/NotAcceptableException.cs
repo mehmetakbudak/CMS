@@ -1,12 +1,9 @@
 ﻿using CMS.Storage.Model;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
 namespace CMS.Service.Exceptions
 {
-   public class NotAcceptableException : ApiExceptionBase
+    public class NotAcceptableException : ApiExceptionBase
     {
         public NotAcceptableException() : base()
         {

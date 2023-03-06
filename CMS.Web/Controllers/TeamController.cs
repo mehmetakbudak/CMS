@@ -15,17 +15,15 @@ namespace CMS.Web.Controllers
         #endregion
 
         #region Views
-        public IActionResult Index()
-        {
-            return View();
-        }
+        public IActionResult Index() => View();
+
         #endregion
 
         #region APIs
         [HttpGet("api/team")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var list = _teamService.GetAll();
+            var list = await _teamService.GetAll();
             return Ok(list);
         }
         #endregion

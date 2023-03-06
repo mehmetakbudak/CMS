@@ -1,6 +1,8 @@
 ﻿$(() => {
     $("#content").hide();
 
+    var template = kendo.template($("#template").html());
+
     var dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -12,20 +14,18 @@
         requestEnd: function () {
             $("#loading").hide();
             $("#content").show();
+        },
+        change: function () {
+            $("#content-body").html(kendo.render(template, this.view()));
         }
     });
 
-    $("#grid").kendoGrid({
+    $("#pager").kendoPager({
         dataSource: dataSource,
-        rowTemplate: kendo.template($("#rowTemplate").html()),
-        pageable: true,
-        scrollable: {
-            virtual: "columns"
-        },
-        noRecords: {
-            template: "<p class='m-3'>Kayıt bulunamadı.</p>"
-        },
+        responsive: false
     });
+
+    dataSource.read();
 
     app.commentDelete = function (id) {
         if (confirm("Silmek istediğinize emin misiniz?")) {

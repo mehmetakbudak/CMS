@@ -1,6 +1,8 @@
 ﻿using CMS.Storage.Model.ViewModel;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
+using CMS.Storage.Model;
+using CMS.Storage.Enum;
 
 namespace CMS.Web.Controllers
 {
@@ -8,10 +10,13 @@ namespace CMS.Web.Controllers
     {
         #region Constructor
         private readonly IBlogService _blogService;
-
-        public BlogController(IBlogService blogService)
+        private readonly ICommentService _commentService;
+        public BlogController(
+            IBlogService blogService,
+            ICommentService commentService)
         {
             _blogService = blogService;
+            _commentService = commentService;
         }
         #endregion
 
@@ -31,62 +36,69 @@ namespace CMS.Web.Controllers
         }
 
         [Route("blog/{url}/{id}")]
-        public IActionResult BlogDetail(string url, int id)
+        public async Task<IActionResult> BlogDetail(string url, int id)
         {
             ViewBag.Url = url;
             ViewBag.Id = id;
-            return View();
+
+            var model = await _commentService.GetSourceComments(new SourceCommentModel
+            {
+                SourceId = id,
+                SourceType = SourceType.Blog
+            });
+
+            return View(model);
         }
 
         [Route("blog/tag/{name}")]
         public IActionResult BlogTag(string name)
         {
-            ViewBag.Name = name;            
+            ViewBag.Name = name;
             return View();
         }
         #endregion
 
         #region APIs
         [HttpGet("api/blog")]
-        public IActionResult Get(string text, int? top)
+        public async Task<IActionResult> Get(string text, int? top)
         {
-            var list = _blogService.GetBlogs(text, top);
+            var list = await _blogService.GetBlogs(text, top);
             return Ok(list);
         }
 
         [HttpGet("api/blog/{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var model = _blogService.GetDetailById(id);
+            var model = await _blogService.GetDetailById(id);
             return Ok(model);
         }
 
         [HttpGet("api/blog/seen/{id}")]
-        public IActionResult Seen(int id)
+        public async Task<IActionResult> Seen(int id)
         {
-            var model = _blogService.Seen(id);
+            var model = await _blogService.Seen(id);
             return Ok(model);
         }
 
         [HttpGet("api/blog/by-category/{blogCategoryUrl}")]
-        public IActionResult GetBlogsByCategoryUrl(string blogCategoryUrl)
+        public async Task<IActionResult> GetBlogsByCategoryUrl(string blogCategoryUrl)
         {
-            var list = _blogService.GetBlogsByCategoryUrl(blogCategoryUrl);
+            var list = await _blogService.GetBlogsByCategoryUrl(blogCategoryUrl);
             return Ok(list);
         }
 
         [HttpGet("api/blog/most-read")]
-        public IActionResult MostRead()
+        public async Task<IActionResult> MostRead()
         {
-            var list = _blogService.MostRead();
+            var list = await _blogService.MostRead();
             return Ok(list);
         }
 
         [HttpGet("api/blog/most-read-by-category/{blogCategoryUrl}")]
         [ProducesResponseType(typeof(List<MostReadBlogViewModel>), 200)] //OK
-        public IActionResult MostReadByBlogCategoryId(string blogCategoryUrl)
+        public async Task<IActionResult> MostReadByBlogCategoryId(string blogCategoryUrl)
         {
-            var list = _blogService.MostRead(blogCategoryUrl);
+            var list = await _blogService.MostRead(blogCategoryUrl);
             return Ok(list);
         }
         #endregion

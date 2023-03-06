@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
+using System.Security.Principal;
 
 namespace CMS.Storage.Model
 {
@@ -13,6 +15,7 @@ namespace CMS.Storage.Model
         public bool Published { get; set; }
         public bool IsActive { get; set; }
         public int DisplayOrder { get; set; }
+        public string ImageUrl { get; set; }
         public List<int> BlogCategories { get; set; }
     }
 
@@ -38,11 +41,11 @@ namespace CMS.Storage.Model
 
     public class BlogPostModel : BlogDetailModel
     {
-
+        public IFormFile Image { get; set; }
     }
 
     public class BlogPutModel : BlogDetailModel
     {
-
+        public IFormFile Image { get; set; }
     }
 }

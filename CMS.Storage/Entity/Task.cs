@@ -6,13 +6,13 @@ namespace CMS.Storage.Entity
     [Table("Tasks")]
     public class TaskDmo : BaseEntityModel
     {
-        public int TodoCategoryId { get; set; }
+        public int TaskCategoryId { get; set; }
 
-        public TodoCategory TodoCategory { get; set; }
+        public TaskCategory TaskCategory { get; set; }
 
-        public int TodoStatusId { get; set; }
+        public int TaskStatusId { get; set; }
 
-        public TodoStatus TodoStatus { get; set; }
+        public TaskStatusDmo TaskStatus { get; set; }
 
         public int? AssignUserId { get; set; }
 

@@ -14,7 +14,7 @@ namespace CMS.Service
 {
     public interface IContactService
     {
-        Task<List<Contact>> Get();
+        IQueryable<Contact> Get();
         Task<ServiceResult> Post(ContactModel model);
         Task<ServiceResult> Delete(int id);
     }
@@ -48,12 +48,12 @@ namespace CMS.Service
             return result;
         }
 
-        public async Task<List<Contact>> Get()
+        public IQueryable<Contact> Get()
         {
-            return await _unitOfWork.Repository<Contact>()
+            return _unitOfWork.Repository<Contact>()
                 .Where(x => !x.ContactCategory.Deleted && x.ContactCategory.IsActive)
                 .Include(x => x.ContactCategory)
-                .OrderByDescending(x => x.InsertedDate).ToListAsync();
+                .OrderByDescending(x => x.InsertedDate).AsQueryable();
         }
 
         public async Task<ServiceResult> Post(ContactModel model)

@@ -13,6 +13,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Http;
+using CMS.Service.Helper;
+using Microsoft.Extensions.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CMS.Service
 {
@@ -22,6 +28,7 @@ namespace CMS.Service
         Task<BlogDetailModel> GetById(int id);
         Task<List<BlogModel>> GetBlogs(string text = null, int? top = null);
         Task<List<BlogModel>> GetBlogsByCategoryUrl(string blogCategoryUrl);
+        Task<ServiceResult> Post(BlogPostModel model);
         Task<ServiceResult> Put(BlogPutModel model);
         Task<BlogDetailViewModel> GetDetailById(int id);
         Task<ServiceResult> Seen(int id);
@@ -31,10 +38,17 @@ namespace CMS.Service
     public class BlogService : IBlogService
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
+        private readonly IHttpContextAccessor _httpContext;
+        private readonly IWebHostEnvironment _environment;
 
-        public BlogService(IUnitOfWork<CMSContext> unitOfWork)
+        public BlogService(
+            IUnitOfWork<CMSContext> unitOfWork,
+            IHttpContextAccessor httpContext,
+            IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
+            _httpContext = httpContext;
+            _environment = environment;
         }
 
         public IQueryable<Blog> GetAll()
@@ -69,7 +83,7 @@ namespace CMS.Service
                   Url = x.Url,
                   Title = x.Title,
                   Content = x.Content,
-                  ImageUrl = $"{Global.ApiUrl}{x.ImageUrl}",
+                  ImageUrl = x.ImageUrl,
                   Description = x.Description,
                   InsertedDate = x.InsertedDate,
                   UserName = $"{x.User.Name} {x.User.Surname}",
@@ -104,7 +118,7 @@ namespace CMS.Service
                      Url = x.Url,
                      Title = x.Title,
                      Content = x.Content,
-                     ImageUrl = $"{Global.ApiUrl}{x.ImageUrl}",
+                     ImageUrl = x.ImageUrl,
                      Description = x.Description,
                      InsertedDate = x.InsertedDate,
                      UserName = $"{x.User.Name} {x.User.Surname}",
@@ -134,6 +148,7 @@ namespace CMS.Service
                     IsActive = blog.IsActive,
                     Published = blog.Published,
                     DisplayOrder = blog.DisplayOrder,
+                    ImageUrl = blog.ImageUrl,
                     BlogCategories = blog.SelectedBlogCategories.Select(x => x.BlogCategory.Id).ToList()
                 };
             }
@@ -166,7 +181,7 @@ namespace CMS.Service
                 Id = blog.Id,
                 InsertedDate = blog.InsertedDate,
                 Title = blog.Title,
-                ImageUrl = $"{Global.ApiUrl}{blog.ImageUrl}",
+                ImageUrl = blog.ImageUrl,
                 UserName = $"{blog.User.Name} {blog.User.Surname}",
                 CommentCount = commentCount,
                 BlogCategories = blog.SelectedBlogCategories
@@ -203,7 +218,7 @@ namespace CMS.Service
                 .Select(x => new MostReadBlogViewModel()
                 {
                     Id = x.Id,
-                    ImageUrl = $"{Global.ApiUrl}{x.ImageUrl}",
+                    ImageUrl = x.ImageUrl,
                     Title = x.Title,
                     Url = x.Url,
                     InsertedDate = x.InsertedDate
@@ -212,46 +227,155 @@ namespace CMS.Service
             return list;
         }
 
+        public async Task<ServiceResult> Post(BlogPostModel model)
+        {
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            var strategy = _unitOfWork.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
+            {
+                try
+                {
+                    if (model == null || model.Id != 0)
+                    {
+                        throw new NotFoundException("Model null olamaz.");
+                    }
+                    if (model.Image == null)
+                    {
+                        throw new BadRequestException("Resim ekleyiniz.");
+                    }
+
+                    var extension = Path.GetExtension(model.Image.FileName);
+                    string imageUrl = $"/images/blogs/{Guid.NewGuid()}{extension}";
+                    var fileUploadUrl = $"{_environment.WebRootPath}{imageUrl}";
+                    model.Image.CopyTo(new FileStream(fileUploadUrl, FileMode.Create));
+
+                    var loginUser = _httpContext.HttpContext.User.Parse();
+
+                    await _unitOfWork.CreateTransaction();
+
+                    var blog = new Blog
+                    {
+                        Content = model.Content,
+                        Deleted = false,
+                        Description = model.Description,
+                        DisplayOrder = model.DisplayOrder,
+                        InsertedDate = DateTime.Now,
+                        IsActive = model.IsActive,
+                        Published = model.Published,
+                        NumberOfView = 0,
+                        Title = model.Title,
+                        UserId = loginUser.UserId,
+                        ImageUrl = imageUrl,
+                        Url = UrlHelper.FriendlyUrl(model.Title)
+                    };
+
+                    await _unitOfWork.Repository<Blog>().Add(blog);
+                    await _unitOfWork.Save();
+
+                    foreach (var blogCategoryId in model.BlogCategories)
+                    {
+                        await _unitOfWork.Repository<SelectedBlogCategory>()
+                            .Add(new SelectedBlogCategory
+                            {
+                                BlogCategoryId = blogCategoryId,
+                                BlogId = blog.Id
+                            });
+                    }
+
+                    await _unitOfWork.Save();
+
+                    result.Message = AlertMessages.Post;
+                }
+                catch (Exception ex)
+                {
+                    await _unitOfWork.Rollback();
+                    throw new Exception(ex.Message);
+                }
+                finally
+                {
+                    await _unitOfWork.Commit();
+                }
+            });
+            return result;
+        }
+
         public async Task<ServiceResult> Put(BlogPutModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
-            var blog = await _unitOfWork.Repository<Blog>()
-                .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
-
-            if (blog == null)
+            var strategy = _unitOfWork.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
             {
-                throw new NotFoundException("Blog kaydı bulunamadı.");
-            }
-            blog.Content = model.Content;
-            blog.Published = model.Published;
-            blog.IsActive = model.IsActive;
-            blog.Description = model.Description;
-            blog.UpdatedDate = DateTime.Now;
-            blog.Title = model.Title;
-            blog.DisplayOrder = model.DisplayOrder;
-            blog.Url = model.Url;
-
-            var selectedBlogCategories = await _unitOfWork.Repository<SelectedBlogCategory>()
-                .Where(x => x.BlogId == model.Id).ToListAsync();
-
-            _unitOfWork.Repository<SelectedBlogCategory>().DeleteRange(selectedBlogCategories);
-
-            if (model.BlogCategories != null)
-            {
-                foreach (var blogCategoryId in model.BlogCategories)
+                try
                 {
-                    var selectedBlogCategory = new SelectedBlogCategory()
+                    var blog = await _unitOfWork.Repository<Blog>()
+                        .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
+
+                    if (blog == null)
                     {
-                        BlogCategoryId = blogCategoryId,
-                        BlogId = blog.Id
-                    };
-                    await _unitOfWork.Repository<SelectedBlogCategory>().Add(selectedBlogCategory);
+                        throw new NotFoundException("Kayıt bulunamadı.");
+                    }
+
+                    await _unitOfWork.CreateTransaction();
+
+                    if (model.Image != null)
+                    {
+                        var currentFileUrl = Path.Combine(_environment.WebRootPath, blog.ImageUrl);
+
+                        if (File.Exists(currentFileUrl))
+                        {
+                            File.Delete(currentFileUrl);
+                        }
+                        var extension = Path.GetExtension(model.Image.FileName);
+                        string imageUrl = $"/images/blogs/{Guid.NewGuid()}{extension}";
+                        var fileUploadUrl = $"{_environment.WebRootPath}{imageUrl}";
+                        model.Image.CopyTo(new FileStream(fileUploadUrl, FileMode.Create));
+
+                        blog.ImageUrl = imageUrl;
+                    }
+
+                    blog.Content = model.Content;
+                    blog.Published = model.Published;
+                    blog.IsActive = model.IsActive;
+                    blog.Description = model.Description;
+                    blog.UpdatedDate = DateTime.Now;
+                    blog.Title = model.Title;
+                    blog.DisplayOrder = model.DisplayOrder;
+                    blog.Url = UrlHelper.FriendlyUrl(model.Title);
+
+                    var selectedBlogCategories = await _unitOfWork.Repository<SelectedBlogCategory>()
+                        .Where(x => x.BlogId == model.Id).ToListAsync();
+
+                    _unitOfWork.Repository<SelectedBlogCategory>().DeleteRange(selectedBlogCategories);
+
+                    if (model.BlogCategories != null)
+                    {
+                        foreach (var blogCategoryId in model.BlogCategories)
+                        {
+                            await _unitOfWork.Repository<SelectedBlogCategory>()
+                                .Add(new SelectedBlogCategory()
+                                {
+                                    BlogCategoryId = blogCategoryId,
+                                    BlogId = blog.Id
+                                });
+                        }
+                    }
+
+                    await _unitOfWork.Save();
+
+                    result.Message = AlertMessages.Put;
                 }
-            }
-
-            await _unitOfWork.Save();
-
+                catch (Exception ex)
+                {
+                    await _unitOfWork.Rollback();
+                    throw new Exception(ex.Message);
+                }
+                finally
+                {
+                    await _unitOfWork.Commit();
+                }
+            });
             return result;
         }
 

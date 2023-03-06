@@ -26,7 +26,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "/api/account/add-member",
+                url: "/api/account/register",
                 data: JSON.stringify(data),
                 dataType: "json",
                 contentType: "application/json; charset=utf-8"

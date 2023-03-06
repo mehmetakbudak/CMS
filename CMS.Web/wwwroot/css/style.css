@@ -1,4 +1,8 @@
-﻿.bold {
+﻿.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.bold {
     font-weight: 500 !important;
 }
 
@@ -10,10 +14,6 @@
 
 .k-menu:not(.k-context-menu) > .k-item {
     color: black !important;
-}
-
-.k-icon {
-    bottom: 2px !important;
 }
 
 .main {
@@ -31,6 +31,20 @@
     color: silver !important;
 }
 
+.k-panelbar > .k-item > .k-link, .k-panelbar > .k-panelbar-header > .k-link {
+    color: unset !important;
+}
+
+    .k-panelbar > .k-item > .k-link.k-selected, .k-panelbar > .k-panelbar-header > .k-link.k-selected {
+        color: unset !important;
+        background-color: unset !important;
+    }
+
+.k-panelbar .k-group > .k-item > .k-link.k-selected, .k-panelbar .k-group > .k-panelbar-item > .k-link.k-selected, .k-panelbar .k-panelbar-group > .k-item > .k-link.k-selected, .k-panelbar .k-panelbar-group > .k-panelbar-item > .k-link.k-selected {
+    color: unset !important;
+    background-color: unset !important;
+}
+
 @media (max-width:768px) {
     .user-name {
         display: none !important;
@@ -40,3 +54,52 @@
         width: 90px;
     }
 }
+
+
+.note-btn.dropdown-toggle:after {
+    content: none;
+}
+
+.form-check-input {
+    clear: left;
+}
+
+.form-switch.form-switch-sm {
+    margin-bottom: 0.5rem; /* JUST FOR STYLING PURPOSE */
+}
+
+    .form-switch.form-switch-sm .form-check-input {
+        height: 1rem;
+        width: calc(1rem + 0.75rem);
+        border-radius: 2rem;
+    }
+
+.form-switch.form-switch-md {
+    margin-bottom: 1rem;
+}
+
+    .form-switch.form-switch-md .form-check-input {
+        height: 1.5rem;
+        width: calc(2rem + 0.75rem);
+        border-radius: 3rem;
+    }
+
+.form-switch.form-switch-lg {
+    margin-bottom: 1.5rem;
+}
+
+    .form-switch.form-switch-lg .form-check-input {
+        height: 2rem;
+        width: calc(3rem + 0.75rem);
+        border-radius: 4rem;
+    }
+
+.form-switch.form-switch-xl {
+    margin-bottom: 2rem;
+}
+
+    .form-switch.form-switch-xl .form-check-input {
+        height: 2.5rem;
+        width: calc(4rem + 0.75rem);
+        border-radius: 5rem;
+    }

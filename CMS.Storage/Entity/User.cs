@@ -20,7 +20,7 @@ namespace CMS.Storage.Entity
             {
                 return $"{Name} {Surname}";
             }
-        }
+        }        
 
         public string EmailAddress { get; set; }
 

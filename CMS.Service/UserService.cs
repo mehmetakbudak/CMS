@@ -4,9 +4,7 @@ using CMS.Storage.Consts;
 using CMS.Storage.Entity;
 using CMS.Storage.Enum;
 using CMS.Storage.Model;
-using CMS.Service.Exceptions;
 using CMS.Service.Helper;
-using CMS.Service.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -14,12 +12,15 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CMS.Service.Exceptions;
+using CMS.Service.Infrastructure;
+using System.Collections.Generic;
 
 namespace CMS.Service
 {
     public interface IUserService
     {
-        IQueryable<UserModel> GetAll();
+        PagedResponse<List<UserModel>> GetByFilter(UserFilterModel model);
         Task<UserModel> GetById(int id);
         Task<LoginResponseModel> Authenticate(LoginModel model);
         Task<User> GetTokenInfo(int userId, string token);
@@ -57,11 +58,12 @@ namespace CMS.Service
             _memoryCache = memoryCache;
         }
 
-        public IQueryable<UserModel> GetAll()
+        public PagedResponse<List<UserModel>> GetByFilter(UserFilterModel model)
         {
-            return _unitOfWork.Repository<User>()
+            var list = _unitOfWork.Repository<User>()
                 .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
+                .AsQueryable()
                 .Select(x => new UserModel
                 {
                     UserType = (int)x.UserType,
@@ -73,7 +75,29 @@ namespace CMS.Service
                     IsActive = x.IsActive,
                     Phone = x.Phone,
                     Status = EnumHelper.GetDescription<UserStatus>(x.Status),
-                });
+                    InsertedDate = x.InsertedDate,
+                    UpdatedDate = x.UpdatedDate
+                }).AsQueryable();
+
+            if (!string.IsNullOrEmpty(model.Name))
+            {
+                list = list.Where(x => x.Name.ToLower().Contains(model.Name.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(model.Surname))
+            {
+                list = list.Where(x => x.Surname.ToLower().Contains(model.Surname.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(model.EmailAddress))
+            {
+                list = list.Where(x => x.EmailAddress.ToLower().Contains(model.EmailAddress.ToLower()));
+            }
+            if (model.UserType != null)
+            {
+                list = list.Where(x => x.UserType == model.UserType);
+            }
+            var result = PaginationHelper.CreatePagedReponse<UserModel>(list, model);
+
+            return result;
         }
 
         public Task<UserModel> GetById(int id)
@@ -90,8 +114,6 @@ namespace CMS.Service
                     Status = EnumHelper.GetDescription<UserStatus>(x.Status),
                     Surname = x.Surname,
                     UserType = (int)x.UserType,
-                    Token = x.Token,
-                    TokenExpireDate = x.TokenExpireDate,
                     UserTypeName = EnumHelper.GetDescription<UserType>(x.UserType)
                 }).FirstOrDefaultAsync();
         }
@@ -127,7 +149,7 @@ namespace CMS.Service
                 throw new ForbiddenException("Şifre geçerlilik süresi dolmuş. Mail adresinize şifre belirleme linki gönderildi.");
             }
 
-            var jwtResult = _jwtHelper.GenerateJwtToken(user);
+            var jwtResult = _jwtHelper.GenerateJwtToken(user.Id);
 
             user.Token = jwtResult?.Token;
             user.TokenExpireDate = DateTime.Now.AddHours(2);
@@ -135,6 +157,9 @@ namespace CMS.Service
 
             var result = new LoginResponseModel
             {
+                Name = user.Name,
+                Surname = user.Surname,
+                Id = user.Id,
                 UserType = user.UserType,
                 ExpireDate = jwtResult?.ExpireDate,
                 FullName = user.FullName,
