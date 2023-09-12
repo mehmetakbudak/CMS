@@ -3,6 +3,12 @@ using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using CMS.Storage.Model;
 using CMS.Storage.Enum;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using CMS.Web.Models;
+using DevExtreme.AspNet.Data;
+using System.Xml.Linq;
+using System.Linq;
 
 namespace CMS.Web.Controllers
 {
@@ -20,7 +26,6 @@ namespace CMS.Web.Controllers
         }
         #endregion
 
-        #region Views
         public IActionResult Index(string text)
         {
             ViewBag.SearchText = text;
@@ -56,13 +61,20 @@ namespace CMS.Web.Controllers
             ViewBag.Name = name;
             return View();
         }
-        #endregion
+
+
+        [HttpGet("blog/list")]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
+        {
+            var list = await _blogService.GetBlogs();
+            return Json(DataSourceLoader.Load(list, loadOptions));
+        }
 
         #region APIs
         [HttpGet("api/blog")]
         public async Task<IActionResult> Get(string text, int? top)
         {
-            var list = await _blogService.GetBlogs(text, top);
+            var list = await _blogService.GetBlogs();
             return Ok(list);
         }
 

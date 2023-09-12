@@ -1,6 +1,7 @@
 ﻿using CMS.Storage.Model.ViewModel;
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
@@ -30,14 +31,14 @@ namespace CMS.Web.Controllers
 
         #region Views
         public async Task<IActionResult> Index()
-        {
+        {            
             var model = new HomeViewModel()
             {
                 Services = await _service_Service.GetAllActive(),
                 Blogs = await _blogService.GetBlogs(null, 10),
                 Testimonials = await _testimonialService.GetAllActive(),
                 HomepageSliders = await _homepageSliderService.GetAllActive(),
-                Clients = await _clientService.GetAllActive(),
+                Clients = await _clientService.GetAllActive()
             };
             return View(model);
         }

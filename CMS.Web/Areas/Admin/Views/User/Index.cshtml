@@ -2,150 +2,445 @@
     ViewData["Title"] = "Kullanıcılar";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-
-<div class="card shadow mb-3">
-    <div class="card-header bg-white pt-3">
-        <div class="row">
-            <div class="col-9">
-                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a class="text-decoration-none text-dark" href="/Admin">Anasayfa</a>
-                        </li>
-                        <li class="breadcrumb-item">Kullanıcılar</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="col-3">
-                <a class="btn btn-outline-primary btn-sm shadow float-end" href="/Admin/Blog/Add">
-                    <i class="fa fa-plus"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        @await Component.InvokeAsync("Loading")
-
-        <div class="accordion mb-3" id="accordionExample">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        <div class="fw-bold"> Filtrele </div>
-                    </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <select id="cmbUserTypes" name="cmbUserTypes"></select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <input id="txtName" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <input id="txtSurname" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <input id="txtEmailAddress" />
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" id="btnSearch">Ara</button>
+<div ng-app="app" ng-controller="appController">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-white pt-3">
+            <div class="row">
+                <div class="col-9">
+                    <nav aria-label="breadcrumb" class="pt-2">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/admin/dashboard" class="text-decoration-none text-dark">
+                                    <i class="fa fa-home"></i>  Anasayfa
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a>
+                                    Ayarlar
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Kullanıcılar
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="btn-group float-end">
+                        <button type="button" class="btn bg-white dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a ng-click="add()" class="dropdown-item text-dark cursor-pointer">
+                                    Kullanıcı Ekle
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="table-responsive" id="content">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>
-                            Türü
-                        </th>
-                        <th>
-                            Adı
-                        </th>
-                        <th>
-                            Soyadı
-                        </th>
-                        <th>
-                            Email Adresi
-                        </th>
-                        <th>
-                            Telefon
-                        </th>
-                        <th>
-                            Durumu
-                        </th>
-                        <th>
-                            Aktif
-                        </th>
-                        <th width="200">
-                            Ekleme Tarihi
-                        </th>
-                        <th width="200">
-                            Güncelleme Tarihi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody id="content-body"></tbody>
-            </table>
-            <div id="pager"></div>
-        </div>
-        <script id="template" type="text/x-kendo-tmpl">
-            <tr data-uid="#: id #">
-                <td style="min-width: 100px;">
-                    <a class="btn btn-secondary btn-sm text-white" href="/Admin/Blog/Edit/#:id#"><i class="fa fa-pencil"></i></a>
-                    <a onclick="app.delete(#:id#)" class="btn btn-danger btn-sm text-white">
+        <div class="card-body">
+            <div ng-cloak dx-data-grid="dataGridOptions" dx-item-alias="data">
+                <div data-options="dxTemplate:{ name:'cellTemplate' }">
+                    <button class="btn btn-outline-secondary btn-sm me-1" ng-click="edit(data)">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" ng-click="delete(data)">
                         <i class="fa fa-trash"></i>
-                    </a>
-                </td>
-                <td style="min-width: 100px;">
-                    #: userTypeName #
-                </td>
-                <td style="min-width: 200px;">
-                    #: name #
-                </td>
-                <td style="min-width: 200px;">
-                    #: surname #
-                </td>
-                <td style="min-width: 200px;">
-                    #: emailAddress #
-                </td>
-                <td style="min-width: 200px;">
-                    # if(phone != null) { #
-                        #:phone#
-                    # } #
-                </td>
-                <td>
-                    #: status #
-                </td>
-                <td>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" disabled # if(isActive) { # checked # } #>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalForm" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{titlePopup}}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form">
+                        <ul class="nav nav-tabs mb-4" id="pills-tab" role="tablist">
+                            <li class="nav-item cursor-pointer" role="presentation">
+                                <span class="nav-link active p-3" id="step1-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step1-tab-pane' aria-controls="step1-tab-pane" aria-selected="true"><span>Kullanıcı Bilgileri</span></span>
+                            </li>
+                            <li class="nav-item cursor-pointer" role="presentation">
+                                <span class="nav-link p-3" id="step2-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step2-tab-pane' aria-controls="step2-tab-pane" aria-selected="false"><span>Yetkiler</span></span>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="formTabsContent">
+                            <div class="tab-pane fade active show" id="step1-tab-pane" role="tabpanel" aria-labelledby="step1-tab" tabindex="0">
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="w-100"
+                                             dx-text-box="nameOptions"
+                                             dx-validator="nameValidatorOptions">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="w-100"
+                                             dx-text-box="surnameOptions"
+                                             dx-validator="surnameValidatorOptions">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="w-100"
+                                             dx-text-box="emailOptions"
+                                             dx-validator="emailValidatorOptions">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="w-100"
+                                             dx-text-box="phoneOptions">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="w-100"
+                                             dx-select-box="userTypeOptions"
+                                             dx-validator="userTypeValidatorOptions">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="w-100"
+                                             dx-select-box="userStatusOptions"
+                                             dx-validator="userStatusValidatorOptions">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4" ng-if="selectedData.userType == 2">
+                                        <div dx-tag-box="{
+                                                label: 'Rol Adı',
+                                                stylingMode: 'outlined',
+                                                labelMode: 'floating',
+                                                displayExpr: 'name',
+                                                valueExpr: 'id',
+                                                bindingOptions: {
+                                                    dataSource: 'roles',
+                                                    value: 'selectedData.roleIds'
+                                                }
+                                             }"
+                                             dx-validator="{
+                                                validationRules: [{
+                                                    type: 'required',
+                                                    message: 'Rol seçiniz.'
+                                             }]
+                                        }">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label w-100">Aktif</label>
+                                        <div dx-switch="{ bindingOptions: {
+                                                value: 'selectedData.isActive'
+                                            }
+                                        }">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade show" id="step2-tab-pane" role="tabpanel" aria-labelledby="step2-tab" tabindex="0">
+
+                                Yetki işlemleri
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button dx-button="{
+                            text: 'Kaydet',
+                            onClick: save,
+                            type: 'default'
+                        }" class="btn"></button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
+                            KAPAT
+                        </button>
                     </div>
-                </td>
-                <td style="min-width: 150px;">
-                    #: app.dateTimeFormat(insertedDate) #
-                </td>
-                <td style="min-width: 150px;">
-                    #: app.dateTimeFormat(updatedDate) #
-                </td>
-            </tr>
-        </script>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+
 @section Scripts {
-    <script src="/js/pages/admin/user/list.js"></script>
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            $scope.titlePopup = "";
+            $scope.selectedData = {};
+            $scope.userStatuses = [];
+            $scope.userTypes = [];
+            $scope.roles = [];
+
+            function getUserStatuses() {
+                $http.get(`/admin/lookup/user-statuses`).then((res) => {
+                    $scope.userStatuses = res.data;
+                });
+            }
+
+            function getUserTypes() {
+                $http.get(`/admin/lookup/user-types`).then((res) => {
+                    $scope.userTypes = res.data;
+                });
+            }
+
+            function getRoles() {
+                $http.get(`/admin/lookup/roles`).then((res) => {
+                    $scope.roles = res.data;
+                });
+            }
+
+            $scope.nameOptions = {
+                label: 'Adı',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'selectedData.name'
+                }
+            };
+
+            $scope.surnameOptions = {
+                label: 'Soyadı',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'selectedData.surname'
+                }
+            };
+
+            $scope.emailOptions = {
+                label: 'Email Adresi',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'selectedData.emailAddress'
+                }
+            };
+
+            $scope.phoneOptions = {
+                label: 'Telefon',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'selectedData.phone'
+                }
+            };
+
+            $scope.userTypeOptions = {
+                label: 'Kullanıcı Tipi',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                displayExpr: 'name',
+                valueExpr: 'id',
+                bindingOptions: {
+                    dataSource: 'userTypes',
+                    value: 'selectedData.userType'
+                }
+            };
+
+            $scope.userStatusOptions = {
+                label: 'Kullanıcı Durumu',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                displayExpr: 'name',
+                valueExpr: 'id',
+                bindingOptions: {
+                    dataSource: 'userStatuses',
+                    value: 'selectedData.status'
+                }
+            };
+
+            $scope.nameValidatorOptions = {
+                validationRules: [{
+                    type: 'required',
+                    message: 'Adı giriniz.'
+                }]
+            };
+
+            $scope.surnameValidatorOptions = {
+                validationRules: [{
+                    type: 'required',
+                    message: 'Soyadı giriniz.'
+                }]
+            };
+
+            $scope.emailValidatorOptions = {
+                validationRules: [{
+                    type: 'required',
+                    message: 'Email adresi gereklidir.',
+                },
+                {
+                    type: 'email',
+                    message: 'Email formatı uygun değildir.',
+                }]
+            }
+
+            $scope.userTypeValidatorOptions = {
+                validationRules: [{
+                    type: 'required',
+                    message: 'Kullanıcı tipi seçiniz.',
+                }]
+            }
+
+            $scope.userStatusValidatorOptions = {
+                validationRules: [{
+                    type: 'required',
+                    message: 'Kullanıcı durumu seçiniz.',
+                }]
+            }
+
+            $scope.dataGridOptions = {
+                dataSource: DevExpress.data.AspNet.createStore({
+                    key: 'id',
+                    loadUrl: '/admin/user/list',
+                }),
+                remoteOperations: true,
+                paging: {
+                    pageSize: 5,
+                },
+                pager: {
+                    visible: true,
+                    allowedPageSizes: [10, 20, 50, 'all'],
+                    showPageSizeSelector: true,
+                    showInfo: true,
+                    showNavigationButtons: true,
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: 'auto',
+                },
+                headerFilter: {
+                    visible: true,
+                    search: {
+                        enabled: true,
+                    },
+                },
+                wordWrapEnabled: true,
+                showBorders: true,
+                showColumnLines: true,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                allowColumnResizing: true,
+                columns: [{
+                    caption: "",
+                    width: 105,
+                    allowHeaderFiltering: false,
+                    allowFiltering: false,
+                    cellTemplate: 'cellTemplate'
+                },
+                {
+                    dataField: 'id',
+                    sortOrder: "desc",
+                    visible: false
+                },
+                {
+                    caption: 'Adı',
+                    dataField: 'name',
+                    width: 150,
+                },
+                {
+                    caption: 'Soyadı',
+                    dataField: 'surname',
+                    width: 150,
+                },
+                {
+                    caption: 'Durumu',
+                    dataField: 'statusName',
+                    width: 200,
+                },
+                {
+                    caption: 'Kullanıcı Tipi',
+                    dataField: 'userTypeName',
+                    width: 200
+                },
+                {
+                    caption: 'Email Adresi',
+                    dataField: 'emailAddress',
+                    width: 200
+                },
+                {
+                    caption: 'Telefon',
+                    dataField: 'phone',
+                    width: 200
+                },
+                {
+                    caption: 'Aktif',
+                    dataField: 'isActive',
+                    width: 100
+                },
+                {
+                    caption: 'Kayıt Tarihi',
+                    dataField: 'insertedDate',
+                    dataType: 'date',
+                    format: 'dd.MM.yyyy HH:mm',
+                    width: 150
+                },
+                {
+                    caption: 'Güncelleme Tarihi',
+                    dataField: 'updatedDate',
+                    dataType: 'date',
+                    format: 'dd.MM.yyyy HH:mm',
+                    width: 150
+                },
+                ],
+                onInitialized(e) {
+                    $scope.dataGrid = e.component;
+                }
+            };
+
+            $scope.add = function () {
+                $scope.titlePopup = "Kullanıcı Ekle";
+                $("#modalForm").modal("show");
+                $scope.selectedData = {};
+                $scope.selectedData.isActive = true;
+                getUserTypes();
+                getUserStatuses();
+                getRoles();
+            };
+
+            $scope.edit = function (row) {
+                $scope.titlePopup = "Kullanıcı Düzenle";
+                $("#modalForm").modal("show");
+                getUserTypes();
+                getUserStatuses();
+                getRoles();
+                $http.get(`/admin/user/${row.data.id}`).then((res) => {
+                    $scope.selectedData = res.data;
+                });
+            }
+
+            $scope.save = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    if ($scope.selectedData.id) {
+                        $http.put("/admin/user", $scope.selectedData)
+                            .then((res) => {
+                                $scope.dataGrid.refresh();
+                                $("#modalForm").modal("hide");
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    } else {
+                        $http.post("/admin/user", $scope.selectedData)
+                            .then((res) => {
+                                $scope.dataGrid.refresh();
+                                $("#modalForm").modal("hide");
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    }
+                }
+            }
+
+            $scope.delete = function (row) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/admin/user/${row.data.id}`).then((res) => {
+                        $scope.dataGrid.refresh();
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+        });
+    </script>
 }
 

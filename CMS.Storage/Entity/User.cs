@@ -20,7 +20,7 @@ namespace CMS.Storage.Entity
             {
                 return $"{Name} {Surname}";
             }
-        }        
+        }
 
         public string EmailAddress { get; set; }
 
@@ -31,7 +31,7 @@ namespace CMS.Storage.Entity
         public string HashCode { get; set; }
         public string Token { get; set; }
 
-        public DateTime? TokenExpireDate{ get; set; }
+        public DateTime? TokenExpireDate { get; set; }
 
         public DateTime? PasswordExpireDate { get; set; }
 
@@ -45,8 +45,7 @@ namespace CMS.Storage.Entity
 
         public bool Deleted { get; set; }
 
-        public virtual ICollection<ChatMessage> ChatMessages { get; set; }
-
-        public virtual ICollection<UserAccessRight> UserAccessRights { get; set; }
+        public virtual List<ChatMessage> ChatMessages { get; set; }
+        public virtual List<UserRole> UserRoles { get; set; }
     }
 }

@@ -7,14 +7,28 @@ namespace CMS.Storage.Model
     public class UserModel
     {
         public int Id { get; set; }
-        public int UserType { get; set; }
+        public UserType UserType { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string EmailAddress { get; set; }
+        public string Phone { get; set; }
+        public bool IsActive { get; set; }
+        public UserStatus Status { get; set; }
+        public List<int> RoleIds { get; set; }
+    }
+
+    public class UserGetModel
+    {
+        public int Id { get; set; }
+        public UserType UserType { get; set; }
         public string UserTypeName { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public string EmailAddress { get; set; }
         public string Phone { get; set; }
         public bool IsActive { get; set; }
-        public string Status { get; set; }
+        public UserStatus Status { get; set; }
+        public string StatusName { get; set; }
         public DateTime InsertedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
 

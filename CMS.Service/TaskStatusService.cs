@@ -14,10 +14,11 @@ namespace CMS.Service
 {
     public interface ITaskStatusService
     {
-        IQueryable<TaskStatusDmo> GetAll();
+        Task<List<TaskStatusDmo>> GetAll();
+        Task<TaskStatusModel> GetById(int id);
         Task<List<TaskStatusDmo>> GetByTaskCategoryId(int categoryId);
-        Task<ServiceResult> Post(TaskStatusDmo model);
-        Task<ServiceResult> Put(TaskStatusDmo model);
+        Task<ServiceResult> Post(TaskStatusModel model);
+        Task<ServiceResult> Put(TaskStatusModel model);
         Task<ServiceResult> Delete(int id);
     }
 
@@ -30,13 +31,33 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<TaskStatusDmo> GetAll()
+        public async Task<List<TaskStatusDmo>> GetAll()
         {
-            return _unitOfWork.Repository<TaskStatusDmo>()
+            return await _unitOfWork.Repository<TaskStatusDmo>()
                 .Where(x => !x.Deleted)
                 .Include(o => o.TaskCategory)
                 .OrderBy(x => x.DisplayOrder)
-                .AsQueryable();
+                .ToListAsync();
+        }
+
+        public async Task<TaskStatusModel> GetById(int id)
+        {
+            var taskStatus = await _unitOfWork.Repository<TaskStatusDmo>()
+                               .FirstOrDefault(x => x.Id == id);
+
+            if (taskStatus == null)
+            {
+                throw new NotFoundException(AlertMessages.NotFound);
+            }
+
+            return new TaskStatusModel
+            {
+                DisplayOrder = taskStatus.DisplayOrder,
+                Id = taskStatus.Id,
+                IsActive = taskStatus.IsActive,
+                Name = taskStatus.Name,
+                TaskCategoryId = taskStatus.TaskCategoryId
+            };
         }
 
         public async Task<List<TaskStatusDmo>> GetByTaskCategoryId(int taskCategoryId)
@@ -48,9 +69,9 @@ namespace CMS.Service
                 .ToListAsync();
         }
 
-        public async Task<ServiceResult> Post(TaskStatusDmo model)
+        public async Task<ServiceResult> Post(TaskStatusModel model)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Post };
 
             var taskStatus = new TaskStatusDmo
             {
@@ -62,17 +83,14 @@ namespace CMS.Service
             };
 
             await _unitOfWork.Repository<TaskStatusDmo>().Add(taskStatus);
-
             await _unitOfWork.Save();
-
-            result.Message = AlertMessages.Post;
 
             return result;
         }
 
-        public async Task<ServiceResult> Put(TaskStatusDmo model)
+        public async Task<ServiceResult> Put(TaskStatusModel model)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
 
             var taskStatus = await _unitOfWork.Repository<TaskStatusDmo>()
                                .FirstOrDefault(x => x.Id == model.Id);
@@ -89,14 +107,12 @@ namespace CMS.Service
 
             await _unitOfWork.Save();
 
-            result.Message = AlertMessages.Post;
-
             return result;
         }
 
         public async Task<ServiceResult> Delete(int id)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
 
             var taskStatus = await _unitOfWork.Repository<TaskStatusDmo>()
                    .FirstOrDefault(x => x.Id == id);
@@ -107,10 +123,7 @@ namespace CMS.Service
             }
 
             taskStatus.Deleted = true;
-
             await _unitOfWork.Save();
-
-            result.Message = AlertMessages.Delete;
 
             return result;
         }

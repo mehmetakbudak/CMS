@@ -9,16 +9,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CMS.Service.Helper;
 
 namespace CMS.Service
 {
     public interface IBlogCategoryService
     {
-        IQueryable<BlogCategory> GetAll();
+        Task<List<BlogCategory>> GetAll();
+        Task<BlogCategoryModel> GetById(int id);
         Task<List<BlogCategoryWithCountModel>> GetAllActive();
         Task<BlogCategoryModel> GetByUrl(string url);
         Task<ServiceResult> Post(BlogCategoryModel model);
         Task<ServiceResult> Put(BlogCategoryModel model);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class BlogCategoryService : IBlogCategoryService
@@ -30,12 +33,30 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<BlogCategory> GetAll()
+        public async Task<ServiceResult> Delete(int id)
         {
-            var list = _unitOfWork.Repository<BlogCategory>()
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
+
+            var blogCategory = await _unitOfWork.Repository<BlogCategory>()
+                .FirstOrDefault(c => c.Id == id);
+            if (blogCategory == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı");
+            }
+            blogCategory.Deleted = true;
+
+            _unitOfWork.Repository<BlogCategory>().Update(blogCategory);
+            await _unitOfWork.Save();
+
+            return result;
+        }
+
+        public async Task<List<BlogCategory>> GetAll()
+        {
+            var list = await _unitOfWork.Repository<BlogCategory>()
                 .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
-                .AsQueryable();
+                .ToListAsync();
             return list;
         }
 
@@ -58,6 +79,26 @@ namespace CMS.Service
             return list;
         }
 
+        public async Task<BlogCategoryModel> GetById(int id)
+        {
+            var blogCategory = await _unitOfWork.Repository<BlogCategory>()
+                .FirstOrDefault(x => x.Id == id);
+
+            if (blogCategory == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+
+            return new BlogCategoryModel
+            {
+                Id = blogCategory.Id,
+                Name = blogCategory.Name,
+                Url = blogCategory.Url,
+                IsActive = blogCategory.IsActive,
+                IsShowHome = blogCategory.IsShowHome
+            };
+        }
+
         public async Task<BlogCategoryModel> GetByUrl(string url)
         {
             return await _unitOfWork.Repository<BlogCategory>()
@@ -75,6 +116,8 @@ namespace CMS.Service
         public async Task<ServiceResult> Post(BlogCategoryModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Post };
+
+            model.Url = UrlHelper.FriendlyUrl(model.Name);
 
             var isExist = await _unitOfWork.Repository<BlogCategory>()
                 .Any(x => !x.Deleted && x.Url == model.Url);
@@ -110,6 +153,8 @@ namespace CMS.Service
             {
                 throw new NotFoundException("Kayıt bulunamadı.");
             }
+
+            model.Url = UrlHelper.FriendlyUrl(model.Name);
 
             var isExist = await _unitOfWork.Repository<BlogCategory>()
                 .Any(x => !x.Deleted && x.Url == model.Url && x.Id != model.Id);

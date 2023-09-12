@@ -16,8 +16,7 @@ $(() => {
         dataTextField: "name",
         dataValueField: "id",
         autoBind: false,
-        dataSource: {
-            type: "json",
+        dataSource: {            
             transport: {
                 read: {
                     url: "/api/Admin/Lookup/BlogCategories",
@@ -26,7 +25,7 @@ $(() => {
         }
     }).data("kendoMultiSelect");
 
-    $("#editor").summernote();
+    var txtContent = $("#txtContent").kendoEditor().data("kendoEditor");
 
     var txtDisplayOder = $("#txtDisplayOder").kendoNumericTextBox({
         min: 1,
@@ -44,7 +43,7 @@ $(() => {
             txtUrl.value(res.url);
             cmbBlogCategories.value(res.blogCategories);
             txtDescription.value(res.description);
-            $("#editor").summernote('code', res.content);
+            txtContent.value(res.content);
             txtDisplayOder.value(res.displayOrder);
             chkIsActive.value(res.isActive);
             chkPublished.value(res.published);
@@ -65,7 +64,7 @@ $(() => {
         data.append("title", txtTitle.value());
         data.append("description", txtDescription.value());
         data.append("blogCategories", cmbBlogCategories.value());
-        data.append("content", $("#editor").summernote('code'));
+        data.append("content", txtContent.value());
         data.append("displayOrder", txtDisplayOder.value());
         data.append("published", chkPublished.value());
         data.append("isActive", chkIsActive.value());

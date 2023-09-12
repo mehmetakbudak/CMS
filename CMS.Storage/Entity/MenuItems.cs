@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMS.Storage.Entity
 {
@@ -19,5 +20,7 @@ namespace CMS.Storage.Entity
         public bool IsActive { get; set; }
 
         public bool Deleted { get; set; }
+
+        public virtual List<MenuItemAccessRight> MenuItemAccessRights { get; set; }
     }
 }

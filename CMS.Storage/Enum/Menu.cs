@@ -3,6 +3,6 @@
     public enum MenuType
     {
         FrontEnd = 1,
-        Page
+        Admin
     }
 }

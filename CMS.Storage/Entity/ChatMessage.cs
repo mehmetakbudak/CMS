@@ -15,7 +15,6 @@ namespace CMS.Storage.Entity
         
         public string Message { get; set; }
 
-        public DateTime InsertedDate { get; set; }
-        
+        public DateTime InsertedDate { get; set; }        
     }
 }

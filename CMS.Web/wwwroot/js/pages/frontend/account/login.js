@@ -21,7 +21,12 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
             }).done(() => {
-                window.location.href = "/";
+                var returnUrl = $("#txtReturnUrl").val();
+                if (returnUrl) {
+                    window.location.href = returnUrl;
+                } else {
+                    window.location.href = "/";
+                }
             }).fail((err) => {
                 this.app.errorNotification("İşlem Başarısız!", err.responseJSON.message);
             });

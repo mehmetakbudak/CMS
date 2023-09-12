@@ -2,7 +2,27 @@
     ViewData["Title"] = "Blog";
 }
 
-<main id="main">
+@section Styles {
+    <style>
+        .blog .entry .entry-content p {
+            text-wrap: wrap;
+        }
+
+        .dx-list-item {
+            cursor: unset !important;
+        }
+
+            .dx-list-item:first-of-type {
+                margin-top: 0px !important;
+            }
+
+        .dx-list-item-content {
+            padding: unset !important;
+        }
+    </style>
+}
+
+<main id="main" ng-app="app" ng-controller="appController">
     <input id="searchText" type="hidden" value="@ViewBag.SearchText" />
 
     <section id="breadcrumbs" class="breadcrumbs">
@@ -20,55 +40,47 @@
     <section id="blog" class="blog">
         <div class="container">
             <div class="row">
-                <div class="col-md-8 entries">
-                    @await Component.InvokeAsync("Loading")
-
-                    <div id="content">
-                        <div id="blogList"></div>
-                        <script type="text/x-kendo-template" id="blogTemplate">
-                            <article class="entry shadow border">
+                <div class="col-md-8 entries mb-5">
+                    <div ng-cloak dx-list="listOptions" dx-item-alias="blog">
+                        <div data-options="dxTemplate: {name: 'item'}">
+                            <article class="entry shadow border pt-0">
                                 <div class="entry-img">
-                                    <img src="#:imageUrl#" alt="" class="img-fluid">
+                                    <img ng-src="{{blog.imageUrl}}" alt="" class="img-fluid">
                                 </div>
 
                                 <h2 class="entry-title">
-                                    <a href="/blog/#:url#/#:id#">#:title#</a>
+                                    <a href="/blog/{{blog.url}}/{{blog.id}}">{{blog.title}}</a>
                                 </h2>
 
                                 <div class="entry-meta">
                                     <ul>
                                         <li class="d-flex align-items-center">
                                             <i class="fa fa-user me-1"></i>
-                                            <a>#:userName#</a>
+                                            <a>{{blog.userName}}</a>
                                         </li>
                                         <li class="d-flex align-items-center">
                                             <i class="fa fa-clock me-1"></i>
                                             <a>
-                                                <time>#:dateFormat(insertedDate)#</time>
+                                                <time>{{blog.insertedDate | date:'dd.MM.yyyy'}}</time>
                                             </a>
                                         </li>
                                         <li class="d-flex align-items-center">
                                             <i class="fa fa-comments me-1"></i>
-                                            <a>#:commentCount# Yorum</a>
+                                            <a>{{blog.commentCount}} Yorum</a>
                                         </li>
                                     </ul>
                                 </div>
 
                                 <div class="entry-content">
-                                    <p>
-                                        #:description#
-                                    </p>
+                                    <p ng-bind="blog.description"></p>
                                     <div class="read-more">
-                                        <a href="/blog/#:url#/#:id#">Daha Fazla
+                                        <a href="/blog/{{blog.url}}/{{blog.id}}">
+                                            Detaylar
                                             <i class="fa fa-arrow-right"></i>
                                         </a>
                                     </div>
                                 </div>
                             </article>
-                        </script>
-
-                        <div class="pb-4">
-                            <div id="pager"></div>
                         </div>
                     </div>
                 </div>
@@ -137,5 +149,30 @@
 </main>
 
 @section Scripts {
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            const store = DevExpress.data.AspNet.createStore({
+                key: 'id',
+                loadUrl: '/blog/list'
+            });
+
+
+            $scope.listOptions = {
+                dataSource: new DevExpress.data.DataSource({
+                    store,
+                    paginate: true,
+                    pageSize: 5,
+                    sort: 'id',
+                }),
+                remoteOperations: true,
+                pageLoadMode: 'nextButton',
+                nextButtonText: 'Daha Fazla',
+                selectByClick: false,
+                hoverStateEnabled: false,
+                activeStateEnabled: false
+            };
+
+        });
+    </script>
     <script src="/js/pages/frontend/blog/blog-list.js"></script>
 }

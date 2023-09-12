@@ -103,3 +103,37 @@
         width: calc(4rem + 0.75rem);
         border-radius: 5rem;
     }
+
+.k-breadcrumb-link, .k-breadcrumb-root-link {
+    text-decoration: none !important;
+}
+
+.k-breadcrumb-root-link, .k-breadcrumb-link {
+    color: #212529;
+}
+
+
+.accordion-button:not(.collapsed) {
+    color: unset !important;
+    background-color: unset !important;
+}
+
+.k-master-row td {
+    overflow: initial !important;
+}
+
+@media (max-width: 767px) {
+    .table-responsive .dropdown-menu {
+        position: static !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .table-responsive {
+        overflow: inherit;
+    }
+}
+
+.dx-button-text {
+    text-transform: unset !important;
+}

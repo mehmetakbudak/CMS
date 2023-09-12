@@ -1,0 +1,627 @@
+﻿@{
+    ViewData["Title"] = "Menüler";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div ng-app="app" ng-controller="appController">
+    <div class="card shadow mb-3">
+        <div class="card-header bg-white pt-3">
+            <div class="row">
+                <div class="col-9">
+                    <nav aria-label="breadcrumb" class="pt-2">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/admin/dashboard" class="text-decoration-none text-dark">
+                                    <i class="fa fa-home"></i>  Anasayfa
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a>
+                                    Tanımlar
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Menüler
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="btn-group float-end">
+                        <button type="button" class="btn bg-white dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a ng-click="addFrontendMenu()"
+                                   class="dropdown-item text-dark cursor-pointer">
+                                    Ön Arayüz Menü Elemanı Ekle
+                                </a>
+                            </li>
+                            <li>
+                                <a ng-click="addAdminMenu()"
+                                   class="dropdown-item text-dark cursor-pointer">
+                                    Admin Menü Elemanı Ekle
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-tabs mb-4" id="pills-tab" role="tablist">
+                <li class="nav-item cursor-pointer" role="presentation">
+                    <span class="nav-link active p-3" id="step1-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step1-tab-pane' aria-controls="step1-tab-pane" aria-selected="true"><span>Ön Arayüz Menü</span></span>
+                </li>
+                <li class="nav-item cursor-pointer" role="presentation">
+                    <span class="nav-link p-3" id="step2-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step2-tab-pane' aria-controls="step2-tab-pane" aria-selected="false"><span>Admin Menü</span></span>
+                </li>
+            </ul>
+            <div class="tab-content" id="formTabsContent">
+                <div class="tab-pane fade active show" id="step1-tab-pane" role="tabpanel" aria-labelledby="step1-tab" tabindex="0">
+                    <div ng-cloak dx-tree-view="frontEndMenuOptions" dx-item-alias="row">
+                        <div data-options="dxTemplate:{ name:'itemTemplate' }">
+                            <button class="btn btn-outline-secondary btn-sm me-1"
+                                    ng-click="editFrontendMenu(row)">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" ng-click="delete(row)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                            <span class="ms-2">{{row.title}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade show" id="step2-tab-pane" role="tabpanel" aria-labelledby="step2-tab" tabindex="0">
+                    <div ng-cloak dx-tree-view="adminMenuOptions" dx-item-alias="row">
+                        <div data-options="dxTemplate:{ name:'itemTemplate' }">
+                            <button class="btn btn-outline-secondary btn-sm me-1"
+                                    ng-click="editAdminMenu(row)">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm"
+                                    ng-click="delete(row)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                            <span class="ms-2">{{row.title}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalFrontEndForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{titleFrontEndPopup}}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="mb-4">
+                                <div dx-drop-down-box="frontEndTreeOptions">
+                                    <div data-options="dxTemplate: { name: 'content' }">
+                                        <div dx-tree-view="frontEndTreeOptions.treeView"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="w-100"
+                                     dx-text-box="{
+                                        label: 'Başlığı',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        bindingOptions: {
+                                            value: 'selectedFrontEndData.title'
+                                        }
+                                     }"
+                                     dx-validator="{
+                                        validationGroup: 'frontendMenuValidateGroup',
+                                        validationRules: [{
+                                            type: 'required',
+                                            message: 'Başlık giriniz.'
+                                        }]
+                                     }">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="w-100"
+                                     dx-text-box="{
+                                        label: 'Url',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        bindingOptions: {
+                                            value: 'selectedFrontEndData.url'
+                                        }
+                                     }">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="w-100"
+                                     dx-number-box="{
+                                        label: 'Sırası',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        min: 1,
+                                        bindingOptions: {
+                                            value: 'selectedFrontEndData.displayOrder'
+                                        }
+                                     }"
+                                     dx-validator="{
+                                        validationGroup: 'frontendMenuValidateGroup',
+                                        validationRules: [{
+                                            type: 'required',
+                                            message: 'Sırası giriniz.'
+                                        }]
+                                     }">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="w-100 pb-2">Aktif</label>
+                                <div dx-switch="{
+                                 bindingOptions: {
+                                    value: 'selectedFrontEndData.isActive'
+                                 }
+                            }">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button dx-button="{
+                            text: 'Kaydet',
+                            onClick: saveFrontendMenu,
+                            validationGroup: 'frontendMenuValidateGroup',
+                            type: 'default'
+                        }" class="btn"></button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
+                            KAPAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAdminForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{titleAdminPopup}}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="mb-4">
+                                <div dx-drop-down-box="adminTreeOptions">
+                                    <div data-options="dxTemplate: { name: 'content' }">
+                                        <div dx-tree-view="adminTreeOptions.treeView"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div dx-drop-down-box="accessRightTreeOptions">
+                                    <div data-options="dxTemplate: { name: 'content' }">
+                                        <div dx-tree-view="accessRightTreeOptions.treeView"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="w-100"
+                                     dx-text-box="{
+                                        label: 'Başlığı',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        bindingOptions: {
+                                            value: 'selectedAdminData.title'
+                                        }
+                                     }"
+                                     dx-validator="{
+                                        validationGroup: 'adminMenuValidateGroup',
+                                        validationRules: [{
+                                            type: 'required',
+                                            message: 'Başlık giriniz.'
+                                        }]
+                                     }">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="w-100"
+                                     dx-text-box="{
+                                        label: 'Url',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        bindingOptions: {
+                                            value: 'selectedAdminData.url'
+                                        }
+                                     }">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="w-100"
+                                     dx-number-box="{
+                                        label: 'Sırası',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        min: 1,
+                                        bindingOptions: {
+                                            value: 'selectedAdminData.displayOrder'
+                                        }
+                                     }"
+                                     dx-validator="{
+                                        validationGroup: 'adminMenuValidateGroup',
+                                        validationRules: [{
+                                            type: 'required',
+                                            message: 'Sırası giriniz.'
+                                        }]
+                                     }">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="w-100 pb-2">Aktif</label>
+                                <div dx-switch="{
+                                 bindingOptions: {
+                                    value: 'selectedAdminData.isActive'
+                                 }
+                            }">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button dx-button="{
+                            text: 'Kaydet',
+                            onClick: saveAdminMenu,
+                            validationGroup: 'adminMenuValidateGroup',
+                            type: 'default'
+                        }" class="btn"></button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
+                            KAPAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            let treeViewFrondEndMenu;
+            let treeViewAdminMenu;
+            let treeAcessRight;
+            $scope.titleFrontEndPopup = "";
+            $scope.titleAdminPopup = "";
+            $scope.selectedFrontEndData = {};
+            $scope.selectedAdminData = {};
+            $scope.frontEndDataSource = [];
+            $scope.adminDataSource = [];
+            $scope.accessRightDataSource = [];
+            $scope.isFrontEndMenuOpened = false;
+            $scope.isAdminMenuOpened = false;
+            $scope.isAccessRightOpened = false;
+
+            getFrontEndMenu();
+            getAdminMenu();
+
+            $scope.delete = function (row) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/admin/menu-item/${row.id}`).then((res) => {
+                        if (row.menuType == 1) {
+                            getFrontEndMenu();
+                        } else if (row.menuType == 2) {
+                            getAdminMenu();
+                        }
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+
+            /********** Frontend Menu **************/
+
+            const syncFrontEndViewSelection = function (e) {
+                if (!e) {
+                    return;
+                }
+                if (!$scope.selectedData.parentId) {
+                    e.unselectAll();
+                } else {
+                    e.selectItem($scope.selectedData.parentId);
+                }
+            };
+
+            function getFrontEndMenu() {
+                $http.get("/admin/menu/frontend-menu").then((res) => {
+                    $scope.frontEndDataSource = res.data;
+                });
+            }
+
+            $scope.frontEndMenuOptions = {
+                bindingOptions: {
+                    dataSource: 'frontEndDataSource',
+                },
+                itemsExpr: 'items',
+                keyExpr: 'id',
+                displayExpr: 'title',
+                itemTemplate: 'itemTemplate',
+                dataStructure: 'plain',
+                parentIdExpr: 'parentId',
+            };
+
+            $scope.frontEndTreeOptions = {
+                bindingOptions: {
+                    value: 'selectedFrontEndData.parentId',
+                    opened: 'isFrontEndMenuOpened',
+                    dataSource: 'frontEndDataSource'
+                },
+                valueExpr: 'id',
+                displayExpr: 'title',
+                placeholder: 'Üst menü seçiniz.',
+                showClearButton: true,
+                label: 'Üst Menü',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                onValueChanged() {
+                    syncFrontEndViewSelection(treeViewFrondEndMenu);
+                },
+                treeView: {
+                    bindingOptions: {
+                        dataSource: 'frontEndDataSource',
+                    },
+                    keyExpr: 'id',
+                    displayExpr: 'title',
+                    dataStructure: 'plain',
+                    parentIdExpr: 'parentId',
+                    selectByClick: true,
+                    selectNodesRecursive: false,
+                    selectionMode: 'single',
+                    onContentReady(e) {
+                        treeViewFrondEndMenu = e.component;
+                        syncFrontEndViewSelection(treeViewFrondEndMenu);
+                    },
+                    onItemSelectionChanged(args) {
+                        $scope.selectedFrontEndData.parentId = args.component.getSelectedNodeKeys();
+                    },
+                    onItemClick() {
+                        $scope.isFrontEndMenuOpened = false;
+                    }
+                }
+            };
+
+            $scope.addFrontendMenu = function () {
+                $scope.titleFrontEndPopup = "Ön Arayüz Menü Elemanı Ekle";
+                $("#modalFrontEndForm").modal("show");
+                $scope.selectedFrontEndData = {};
+                $scope.selectedFrontEndData.isActive = true;
+                $scope.selectedFrontEndData.menuType = 1;
+            }
+
+            $scope.editFrontendMenu = function (e) {
+                $scope.titleFrontEndPopup = "Ön Arayüz Menü Elemanı Düzenle";
+                $("#modalFrontEndForm").modal("show");
+
+                $http.get(`/admin/menu-item/${e.id}`).then((res) => {
+                    $scope.selectedFrontEndData = res.data;
+                });
+            }
+
+            $scope.saveFrontendMenu = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    if ($scope.selectedFrontEndData.id) {
+                        $http.put(`/admin/menu-item`, $scope.selectedFrontEndData)
+                            .then((res) => {
+                                getFrontEndMenu();
+                                $("#modalFrontEndForm").modal('hide');
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    } else {
+                        $http.post(`/admin/menu-item`, $scope.selectedFrontEndData)
+                            .then((res) => {
+                                getFrontEndMenu();
+                                $("#modalFrontEndForm").modal('hide');
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    }
+                }
+            }
+
+            /********* Admin Menu *****************/
+
+            const syncAdminViewSelection = function (e) {
+                if (!e) {
+                    return;
+                }
+                if (!$scope.selectedAdminData.parentId) {
+                    e.unselectAll();
+                } else {
+                    e.selectItem($scope.selectedAdminData.parentId);
+                }
+            };
+
+            const syncAccessRightSelection = function (e) {
+                if (!e) return;
+
+                if (!$scope.accessRightIds) {
+                    e.unselectAll();
+                    return;
+                }
+
+                $scope.accessRightIds.forEach((key) => {
+                    e.selectItem(key);
+                });
+            }
+
+            function getAdminMenu() {
+                $http.get("/admin/menu/admin-menu").then((res) => {
+                    $scope.adminDataSource = res.data;
+                });
+            }           
+
+            function getAccessRights() {
+                $http.get("/admin/access-right/list").then((res) => {
+                    $scope.accessRightDataSource = res.data;
+                });
+            }
+
+            $scope.adminMenuOptions = {
+                bindingOptions: {
+                    dataSource: 'adminDataSource',
+                },
+                itemsExpr: 'items',
+                keyExpr: 'id',
+                displayExpr: 'title',
+                itemTemplate: 'itemTemplate',
+                dataStructure: 'plain',
+                parentIdExpr: 'parentId',
+            };
+
+            $scope.adminTreeOptions = {
+                bindingOptions: {
+                    value: 'selectedAdminData.parentId',
+                    opened: 'isAdminMenuOpened',
+                    dataSource: 'adminDataSource'
+                },
+                valueExpr: 'id',
+                displayExpr: 'title',
+                placeholder: 'Üst menü seçiniz.',
+                showClearButton: true,
+                label: 'Üst Menü',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                onValueChanged() {
+                    syncAdminViewSelection(treeViewAdminMenu);
+                },
+                treeView: {
+                    bindingOptions: {
+                        dataSource: 'adminDataSource',
+                    },
+                    keyExpr: 'id',
+                    displayExpr: 'title',
+                    dataStructure: 'plain',
+                    parentIdExpr: 'parentId',
+                    selectByClick: true,
+                    selectNodesRecursive: false,
+                    selectionMode: 'single',
+                    onContentReady(e) {
+                        treeViewAdminMenu = e.component;
+                        syncAdminViewSelection(treeViewAdminMenu);
+                    },
+                    onItemSelectionChanged(args) {
+                        $scope.selectedAdminData.parentId = args.component.getSelectedNodeKeys();
+                    },
+                    onItemClick() {
+                        $scope.isAdminMenuOpened = false;
+                    }
+                }
+            };
+
+            $scope.accessRightTreeOptions = {
+                bindingOptions: {
+                    value: 'selectedAdminData.accessRightIds',
+                    opened: 'isAccessRightOpened',
+                    dataSource: 'accessRightDataSource'
+                },
+                valueExpr: 'id',
+                displayExpr: 'name',
+                placeholder: 'Erişim hakları seçiniz.',
+                showClearButton: true,
+                label: 'Erişim Hakları',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                onValueChanged() {
+                    syncAccessRightSelection(treeViewAdminMenu);
+                },
+                treeView: {
+                    bindingOptions: {
+                        dataSource: 'accessRightDataSource',
+                    },
+                    keyExpr: 'id',
+                    displayExpr: 'name',
+                    dataStructure: 'plain',
+                    parentIdExpr: 'parentId',
+                    selectByClick: true,
+                    selectNodesRecursive: true,
+                    showCheckBoxesMode: 'normal',
+                    onContentReady(e) {
+                        treeAcessRight = e.component;
+                        syncAdminViewSelection(treeViewAdminMenu);
+                    },
+                    onItemSelectionChanged(args) {
+                        $scope.selectedAdminData.accessRightIds = args.component.getSelectedNodeKeys();
+                    },
+                    onItemClick() {
+                        $scope.isAccessRightOpened = false;
+                    }
+                }
+            };
+
+            $scope.addAdminMenu = function () {
+                $scope.titleAdminPopup = "Admin Menü Elemanı Ekle";
+                $("#modalAdminForm").modal("show");
+                $scope.selectedAdminData = {};
+                $scope.selectedAdminData.isActive = true;
+                $scope.selectedAdminData.menuType = 2;
+                getAccessRights();
+            }
+
+            $scope.editAdminMenu = function (row) {
+                $scope.titleAdminPopup = "Admin Menü Elemanı Düzenle";
+                $("#modalAdminForm").modal("show");
+                $http.get("/admin/access-right/list").then((accessRightResult) => {
+                    $scope.accessRightDataSource = accessRightResult.data;
+
+                    $http.get(`/admin/menu-item/${row.id}`).then((menuItemResult) => {
+                        $scope.selectedAdminData = menuItemResult.data;
+                        let accessRights = [];
+                        $scope.accessRightDataSource.map((accessRight) => {
+                            var selectItem = menuItemResult.data.accessRightIds.find(x => x == accessRight.id);
+                            if (selectItem) {
+                                accessRights.push({
+                                    ...accessRight,
+                                    selected: true
+                                });
+                            } else {
+                                accessRights.push(accessRight);
+                            }
+                        });
+                        $scope.accessRightDataSource = accessRights;
+                    });
+                });
+            }
+
+            $scope.saveAdminMenu = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    if ($scope.selectedAdminData.id) {
+                        $http.put(`/admin/menu-item`, $scope.selectedAdminData)
+                            .then((res) => {
+                                getAdminMenu();
+                                $("#modalAdminForm").modal('hide');
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    } else {
+                        $http.post(`/admin/menu-item`, $scope.selectedAdminData)
+                            .then((res) => {
+                                getAdminMenu();
+                                $("#modalAdminForm").modal('hide');
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+

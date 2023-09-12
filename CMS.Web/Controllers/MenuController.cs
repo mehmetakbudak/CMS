@@ -1,7 +1,9 @@
-﻿using CMS.Storage.Dto;
-using CMS.Service;
+﻿using CMS.Service;
+using CMS.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
@@ -20,7 +22,7 @@ namespace CMS.Web.Controllers
         #endregion
 
         #region APIs
-        [HttpGet("api/menu/frontend")]
+        [HttpGet("menu/frontend")]
         [ProducesResponseType(typeof(List<MenuModel>), 200)] //OK
         public async Task<IActionResult> GetFrontendMenu()
         {
@@ -31,7 +33,7 @@ namespace CMS.Web.Controllers
                 return Ok(menus);
             }
 
-            menus = await _menuService.GetFrontendMenu();
+            menus = await _menuService.GetFrontendTreeMenu();
             _memoryCache.Set(key, menus, new MemoryCacheEntryOptions
             {
                 Priority = CacheItemPriority.Normal

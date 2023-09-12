@@ -1,11 +1,10 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Service.Exceptions;
 using CMS.Storage.Consts;
 using CMS.Storage.Entity;
 using CMS.Storage.Enum;
 using CMS.Storage.Model;
-using CMS.Service.Exceptions;
-using CMS.Service.Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -18,13 +17,10 @@ namespace CMS.Service
 {
     public interface IAccessRightService
     {
-        Task<AccessRightGetModel> Get();
-        Task<AccessRightModel> Get(int id);
-        Task<List<TreeMenuModel>> GetUserMenu();
-        Task<ServiceResult> PostMenu(AccessRightModel model);
-        Task<ServiceResult> PutMenu(AccessRightModel model);
-        Task<ServiceResult> PostOperation(AccessRightModel model);
-        Task<ServiceResult> PutOperation(AccessRightModel model);
+        Task<List<AccessRightGetModel>> Get();
+        Task<AccessRightModel> GetById(int id);
+        Task<ServiceResult> Post(AccessRightModel model);
+        Task<ServiceResult> Put(AccessRightModel model);
         Task<ServiceResult> Delete(int id);
     }
 
@@ -32,55 +28,33 @@ namespace CMS.Service
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
         private readonly IMemoryCache _memoryCache;
-        private readonly IHttpContextAccessor _httpContext;
 
         public AccessRightService(
             IUnitOfWork<CMSContext> unitOfWork,
-            IMemoryCache memoryCache,
-            IHttpContextAccessor httpContext)
+            IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
-            _httpContext = httpContext;
         }
 
-        public async Task<AccessRightGetModel> Get()
+        public async Task<List<AccessRightGetModel>> Get()
         {
-            var model = new AccessRightGetModel();
-
-            var accessRights = await _unitOfWork.Repository<AccessRight>()
-                .Where(x => !x.Deleted).ToListAsync();
-
-            if (accessRights != null && accessRights.Any())
-            {
-                var operationAccessRights = accessRights
-                    .Where(x => x.Type == AccessRightType.Operation && x.ParentId == null).ToList();
-
-                if (operationAccessRights != null && operationAccessRights.Any())
+            var list = await _unitOfWork.Repository<AccessRight>()
+                .Where(x => !x.Deleted)
+                .Select(x => new AccessRightGetModel
                 {
-                    model.OperationAccessRights = operationAccessRights.Select(x => new TreeModel
-                    {
-                        Label = x.Name,
-                        Children = GetSubAccessRights(x.Id, accessRights)
-                    }).ToList();
-                }
-
-                var menuAccessRights = accessRights
-                    .Where(x => x.Type == AccessRightType.Menu && x.ParentId == null).ToList();
-
-                if (menuAccessRights != null || menuAccessRights.Any())
-                {
-                    model.MenuAccessRights = menuAccessRights.Select(x => new TreeModel
-                    {
-                        Label = x.Name,
-                        Children = GetSubAccessRights(x.Id, accessRights)
-                    }).ToList();
-                }
-            }
-            return model;
+                    Id = x.Id,
+                    DisplayOrder = x.DisplayOrder,
+                    IsActive = x.IsActive,
+                    Name = x.Name,
+                    ParentId = x.ParentId
+                })
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+            return list;
         }
 
-        public async Task<AccessRightModel> Get(int id)
+        public async Task<AccessRightModel> GetById(int id)
         {
             var accessRight = await _unitOfWork.Repository<AccessRight>()
                 .Where(x => x.Id == id && !x.Deleted)
@@ -97,99 +71,13 @@ namespace CMS.Service
                 DisplayOrder = accessRight.DisplayOrder,
                 IsActive = accessRight.IsActive,
                 Id = id,
-                IsShowMenu = accessRight.IsShowMenu,
                 Name = accessRight.Name,
-                ParentId = accessRight.ParentId
+                ParentId = accessRight.ParentId.HasValue ? new List<int> { accessRight.ParentId.Value } : null
             };
-
-            if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
-            {
-                var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-                model.Method = accessRightEndpoint.Method;
-                model.Endpoint = accessRightEndpoint.Endpoint;
-            }
             return model;
         }
 
-        private List<TreeModel> GetSubAccessRights(int parentId, List<AccessRight> menuItems)
-        {
-            List<TreeModel> list = null;
-            var items = menuItems.Where(x => x.ParentId != null &&
-                        x.ParentId == parentId)
-                        .OrderBy(x => x.DisplayOrder).ToList();
-
-            if (items != null && items.Any())
-            {
-                list = items.Select(x => new TreeModel
-                {
-                    Label = x.Name,
-                    Children = x.ParentId.HasValue ? GetSubAccessRights(x.Id, menuItems) : null
-                }).ToList();
-            }
-            return list;
-        }
-
-        public async Task<List<TreeMenuModel>> GetUserMenu()
-        {
-            var list = new List<TreeMenuModel>();
-            var accessRights = new List<AccessRight>();
-
-            var loginUser = _httpContext.HttpContext.User.Parse();
-
-            if (loginUser.UserType == (int)UserType.SuperAdmin)
-            {
-                accessRights = await _unitOfWork.Repository<AccessRight>()
-                    .Where(x => x.Type == AccessRightType.Menu)
-                    .Include(x => x.AccessRightEndpoints).ToListAsync();
-            }
-            else
-            {
-                var userAccessRights = await _unitOfWork.Repository<UserAccessRight>()
-                    .Where(x => x.UserId == loginUser.UserId)
-                    .Include(x => x.AccessRight)
-                    .ThenInclude(x => x.AccessRightEndpoints).ToListAsync();
-
-                if (userAccessRights != null && userAccessRights.Any())
-                {
-                    accessRights = userAccessRights.Select(x => x.AccessRight).ToList();
-                }
-            }
-
-            if (accessRights.Any())
-            {
-                list = GetAdminMenu(accessRights);
-            }
-            return list;
-        }
-
-        private List<TreeMenuModel> GetAdminMenu(List<AccessRight> accessRights, int? parentId = null, List<TreeMenuModel> children = null)
-        {
-            var list = new List<TreeMenuModel>();
-
-            var menuItems = accessRights
-                        .Where(x => x.IsActive && !x.Deleted && x.ParentId == parentId)
-                        .OrderBy(x => x.DisplayOrder)
-                        .Select(x => new TreeMenuModel()
-                        {
-                            Key = x.Id,
-                            Label = x.Name,
-                            To = x.AccessRightEndpoints.Select(x => x.Endpoint).FirstOrDefault()
-                        }).ToList();
-
-            list.AddRange(menuItems);
-
-            foreach (var menuItem in menuItems)
-            {
-                var items = GetAdminMenu(accessRights, menuItem.Key, menuItem.Children);
-                if (items != null && items.Count > 0)
-                {
-                    menuItem.Children = items;
-                }
-            }
-            return list;
-        }
-
-        public async Task<ServiceResult> PostMenu(AccessRightModel model)
+        public async Task<ServiceResult> Post(AccessRightModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
@@ -197,27 +85,12 @@ namespace CMS.Service
             {
                 Deleted = false,
                 DisplayOrder = model.DisplayOrder,
-                ParentId = model.ParentId,
+                ParentId = model.ParentId != null ? model.ParentId.First() : null,
                 IsActive = model.IsActive,
-                IsShowMenu = model.IsShowMenu,
-                Name = model.Name,
-                Type = AccessRightType.Menu
+                Name = model.Name
             };
 
-            if (!string.IsNullOrEmpty(model.Endpoint))
-            {
-                var accessRightEndpoint = new AccessRightEndpoint()
-                {
-                    AccessRight = accessRight,
-                    Endpoint = model.Endpoint
-                };
-
-                await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
-            }
-            else
-            {
-                await _unitOfWork.Repository<AccessRight>().Add(accessRight);
-            }
+            await _unitOfWork.Repository<AccessRight>().Add(accessRight);
 
             await _unitOfWork.Save();
 
@@ -228,54 +101,23 @@ namespace CMS.Service
             return result;
         }
 
-        public async Task<ServiceResult> PutMenu(AccessRightModel model)
+        public async Task<ServiceResult> Put(AccessRightModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var accessRight = await _unitOfWork.Repository<AccessRight>()
-               .Where(x => x.Id == model.Id && !x.Deleted && x.Type == AccessRightType.Menu)
-               .Include(x => x.AccessRightEndpoints)
-               .FirstOrDefaultAsync();
+               .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
 
             if (accessRight == null)
             {
                 throw new NotFoundException(AlertMessages.NotFound);
             }
 
-            accessRight.ParentId = model.ParentId;
+            accessRight.ParentId = model.ParentId != null ? model.ParentId.First() : null;
             accessRight.IsActive = model.IsActive;
-            accessRight.IsShowMenu = model.IsShowMenu;
             accessRight.Name = model.Name;
             accessRight.DisplayOrder = model.DisplayOrder;
 
-            if (!string.IsNullOrEmpty(model.Endpoint))
-            {
-                if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
-                {
-                    var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-
-                    accessRightEndpoint.Endpoint = model.Endpoint;
-                }
-                else
-                {
-                    var accessRightEndpoint = new AccessRightEndpoint()
-                    {
-                        AccessRightId = accessRight.Id,
-                        Endpoint = model.Endpoint
-                    };
-
-                    await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
-                }
-            }
-            else
-            {
-                if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
-                {
-                    var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-
-                    await _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
-                }
-            }
             await _unitOfWork.Save();
 
             result.Message = AlertMessages.Put;
@@ -328,104 +170,6 @@ namespace CMS.Service
                 string key = $"userMenu_{userId}";
                 _memoryCache.Remove(key);
             }
-        }
-
-        public async Task<ServiceResult> PostOperation(AccessRightModel model)
-        {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-
-            var accessRight = new AccessRight()
-            {
-                Deleted = false,
-                DisplayOrder = model.DisplayOrder,
-                ParentId = model.ParentId,
-                IsActive = model.IsActive,
-                IsShowMenu = false,
-                Name = model.Name,
-                Type = AccessRightType.Operation
-            };
-
-            if (!string.IsNullOrEmpty(model.Endpoint))
-            {
-                var accessRightEndpoint = new AccessRightEndpoint()
-                {
-                    AccessRight = accessRight,
-                    Endpoint = model.Endpoint,
-                    Method = model.Method
-                };
-
-                await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
-            }
-            else
-            {
-                await _unitOfWork.Repository<AccessRight>().Add(accessRight);
-            }
-
-            await _unitOfWork.Save();
-
-            result.Message = AlertMessages.Post;
-
-            await ClearUserCache();
-
-            return result;
-        }
-
-        public async Task<ServiceResult> PutOperation(AccessRightModel model)
-        {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-
-            var accessRight = await _unitOfWork.Repository<AccessRight>()
-               .Where(x => x.Id == model.Id && !x.Deleted && x.Type == AccessRightType.Operation)
-               .Include(x => x.AccessRightEndpoints)
-               .FirstOrDefaultAsync();
-
-            if (accessRight == null)
-            {
-                throw new NotFoundException(AlertMessages.NotFound);
-            }
-
-            accessRight.ParentId = model.ParentId;
-            accessRight.IsActive = model.IsActive;
-            accessRight.IsShowMenu = false;
-            accessRight.Name = model.Name;
-            accessRight.DisplayOrder = model.DisplayOrder;
-
-            if (!string.IsNullOrEmpty(model.Endpoint))
-            {
-                if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
-                {
-                    var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-                    accessRightEndpoint.Endpoint = model.Endpoint;
-                    accessRightEndpoint.Method = model.Method;
-                }
-                else
-                {
-                    var accessRightEndpoint = new AccessRightEndpoint()
-                    {
-                        AccessRightId = accessRight.Id,
-                        Endpoint = model.Endpoint,
-                        Method = model.Method
-                    };
-
-                    await _unitOfWork.Repository<AccessRightEndpoint>().Add(accessRightEndpoint);
-                }
-            }
-            else
-            {
-                if (accessRight.AccessRightEndpoints != null && accessRight.AccessRightEndpoints.Count > 0)
-                {
-                    var accessRightEndpoint = accessRight.AccessRightEndpoints.FirstOrDefault();
-
-                    await _unitOfWork.Repository<AccessRightEndpoint>().Delete(accessRightEndpoint);
-                }
-            }
-            await _unitOfWork.Save();
-
-            result.Message = AlertMessages.Put;
-
-            await ClearUserCache();
-
-            return result;
         }
     }
 }

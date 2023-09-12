@@ -20,7 +20,7 @@ namespace CMS.Service
 {
     public interface IUserService
     {
-        PagedResponse<List<UserModel>> GetByFilter(UserFilterModel model);
+        Task<List<UserGetModel>> Get();
         Task<UserModel> GetById(int id);
         Task<LoginResponseModel> Authenticate(LoginModel model);
         Task<User> GetTokenInfo(int userId, string token);
@@ -35,6 +35,7 @@ namespace CMS.Service
         Task<ServiceResult> EmailVerified(string code);
         Task<ResetPasswordInfoModel> GetUserByCode(string code);
         Task<ServiceResult> ResetPassword(ResetPasswordModel model);
+        Task<ServiceResult> Authorize(AuthorizeModel model);
     }
 
     public class UserService : IUserService
@@ -58,63 +59,46 @@ namespace CMS.Service
             _memoryCache = memoryCache;
         }
 
-        public PagedResponse<List<UserModel>> GetByFilter(UserFilterModel model)
+        public async Task<List<UserGetModel>> Get()
         {
-            var list = _unitOfWork.Repository<User>()
+            var list = await _unitOfWork.Repository<User>()
                 .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
                 .AsQueryable()
-                .Select(x => new UserModel
+                .Select(x => new UserGetModel
                 {
-                    UserType = (int)x.UserType,
-                    UserTypeName = EnumHelper.GetDescription<UserType>(x.UserType),
-                    EmailAddress = x.EmailAddress,
                     Id = x.Id,
                     Name = x.Name,
+                    Phone = x.Phone,
+                    Status = x.Status,
                     Surname = x.Surname,
                     IsActive = x.IsActive,
-                    Phone = x.Phone,
-                    Status = EnumHelper.GetDescription<UserStatus>(x.Status),
+                    UserType = x.UserType,
+                    UpdatedDate = x.UpdatedDate,
+                    EmailAddress = x.EmailAddress,
                     InsertedDate = x.InsertedDate,
-                    UpdatedDate = x.UpdatedDate
-                }).AsQueryable();
-
-            if (!string.IsNullOrEmpty(model.Name))
-            {
-                list = list.Where(x => x.Name.ToLower().Contains(model.Name.ToLower()));
-            }
-            if (!string.IsNullOrEmpty(model.Surname))
-            {
-                list = list.Where(x => x.Surname.ToLower().Contains(model.Surname.ToLower()));
-            }
-            if (!string.IsNullOrEmpty(model.EmailAddress))
-            {
-                list = list.Where(x => x.EmailAddress.ToLower().Contains(model.EmailAddress.ToLower()));
-            }
-            if (model.UserType != null)
-            {
-                list = list.Where(x => x.UserType == model.UserType);
-            }
-            var result = PaginationHelper.CreatePagedReponse<UserModel>(list, model);
-
-            return result;
+                    StatusName = EnumHelper.GetDescription(x.Status),
+                    UserTypeName = EnumHelper.GetDescription(x.UserType),
+                }).ToListAsync();
+            return list;
         }
 
         public Task<UserModel> GetById(int id)
         {
             return _unitOfWork.Repository<User>()
                 .Where(x => x.Id == id && !x.Deleted)
+                .Include(x => x.UserRoles)
                 .Select(x => new UserModel
                 {
-                    EmailAddress = x.EmailAddress,
-                    Phone = x.Phone,
                     Id = x.Id,
-                    IsActive = x.IsActive,
                     Name = x.Name,
-                    Status = EnumHelper.GetDescription<UserStatus>(x.Status),
+                    Phone = x.Phone,
+                    Status = x.Status,
                     Surname = x.Surname,
-                    UserType = (int)x.UserType,
-                    UserTypeName = EnumHelper.GetDescription<UserType>(x.UserType)
+                    IsActive = x.IsActive,
+                    UserType = x.UserType,
+                    EmailAddress = x.EmailAddress,
+                    RoleIds = x.UserRoles.Select(x => x.RoleId).ToList()
                 }).FirstOrDefaultAsync();
         }
 
@@ -123,10 +107,8 @@ namespace CMS.Service
             var hassPassword = Security.MD5Crypt(model.Password);
 
             var user = await _unitOfWork.Repository<User>()
-                .Where(x => x.EmailAddress == model.EmailAddress && x.Password == hassPassword && !x.Deleted)
-                .Include(x => x.UserAccessRights)
-                .ThenInclude(x => x.AccessRight)
-                .ThenInclude(x => x.AccessRightEndpoints).FirstOrDefaultAsync();
+                .FirstOrDefault(x => x.EmailAddress == model.EmailAddress &&
+                                     x.Password == hassPassword && !x.Deleted);
 
             if (user == null)
             {
@@ -172,53 +154,74 @@ namespace CMS.Service
         public Task<User> GetTokenInfo(int userId, string token)
         {
             var user = _unitOfWork.Repository<User>()
-                .Where(x => !x.Deleted && x.IsActive && x.Id == userId)
-                .Include(x => x.UserAccessRights)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault(x => !x.Deleted && x.IsActive && x.Id == userId);
             return user;
         }
 
         public async Task<ServiceResult> Post(UserModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-
-            var checkEmail = await _unitOfWork.Repository<User>()
-                .Any(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted);
-
-            if (checkEmail)
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            try
             {
-                throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
+
+                var checkEmail = await _unitOfWork.Repository<User>()
+                    .Any(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted);
+
+                if (checkEmail)
+                {
+                    throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
+                }
+
+                await _unitOfWork.CreateTransaction();
+
+                var user = new User
+                {
+                    Deleted = false,
+                    EmailAddress = model.EmailAddress,
+                    IsActive = model.IsActive,
+                    Name = model.Name,
+                    Surname = model.Surname,
+                    UserType = (UserType)model.UserType,
+                    InsertedDate = DateTime.Now,
+                    HashCode = Security.RandomBase64(),
+                    Status = UserStatus.NotSetPassword,
+                    Phone = model.Phone
+                };
+
+                await _unitOfWork.Repository<User>().Add(user);
+
+                await _unitOfWork.Save();
+
+                // kullanıcıya email gönderiliyor                
+                result = await SendMailResetPassword(user);
+
+                if (model.UserType == UserType.Admin)
+                {
+                    foreach (var roleId in model.RoleIds)
+                    {
+                        await _unitOfWork.Repository<UserRole>().Add(new UserRole
+                        {
+                            RoleId = roleId,
+                            UserId = user.Id
+                        });
+                    }
+                    await _unitOfWork.Save();
+                }
+
+                await _unitOfWork.Commit();
+
+                result.Message = AlertMessages.Post;
             }
-
-            var user = new User
+            catch
             {
-                Deleted = false,
-                EmailAddress = model.EmailAddress,
-                IsActive = model.IsActive,
-                Name = model.Name,
-                Surname = model.Surname,
-                UserType = (UserType)model.UserType,
-                InsertedDate = DateTime.Now,
-                HashCode = Security.RandomBase64(),
-                Status = UserStatus.NotSetPassword,
-                Phone = model.Phone
-            };
-
-            await _unitOfWork.Repository<User>().Add(user);
-
-            await _unitOfWork.Save();
-
-            // kullanıcıya email gönderiliyor                
-            result = await SendMailResetPassword(user);
-
-            result.Message = AlertMessages.Post;
-
+                await _unitOfWork.Rollback();
+            }
             return result;
         }
 
         public async Task<ServiceResult> Put(UserModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var loginUser = _httpContext.HttpContext.User.Parse();
 
@@ -231,7 +234,9 @@ namespace CMS.Service
             }
 
             var user = await _unitOfWork.Repository<User>()
-                .FirstOrDefault(x => x.Id == model.Id && !x.Deleted);
+                .Where(x => x.Id == model.Id && !x.Deleted)
+                .Include(x => x.UserRoles)
+                .FirstOrDefaultAsync();
 
             if (user == null)
             {
@@ -242,8 +247,43 @@ namespace CMS.Service
             user.IsActive = model.IsActive;
             user.Name = model.Name;
             user.Surname = model.Surname;
-            user.UserType = (UserType)model.UserType;
+            user.UserType = model.UserType;
             user.Phone = model.Phone;
+
+            await _unitOfWork.Save();
+
+            if (model.UserType == UserType.Admin)
+            {
+                var addingList = model.RoleIds
+                                .Where(x => !user.UserRoles.Select(x => x.RoleId).Contains(x)).ToList();
+
+                if (addingList != null && addingList != null)
+                {
+                    foreach (var roleId in addingList)
+                    {
+                        await _unitOfWork.Repository<UserRole>().Add(
+                                new UserRole
+                                {
+                                    RoleId = roleId,
+                                    UserId = user.Id
+                                });
+                    }
+                }
+
+                var deletingList = user.UserRoles.Where(x => !model.RoleIds.Contains(x.RoleId)).ToList();
+
+                if (deletingList != null && deletingList.Any())
+                {
+                    foreach (var userRole in deletingList)
+                    {
+                        await _unitOfWork.Repository<UserRole>().Delete(userRole);
+                    }
+                }
+            }
+            else
+            {
+                _unitOfWork.Repository<UserRole>().DeleteRange(user.UserRoles);
+            }
 
             await _unitOfWork.Save();
 
@@ -310,7 +350,7 @@ namespace CMS.Service
 
         public async Task<ServiceResult> UpdateProfile(UserProfileModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var loginUser = _httpContext.HttpContext.User.Parse();
 
@@ -336,7 +376,7 @@ namespace CMS.Service
 
         public async Task<ServiceResult> Register(RegisterModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             if (model.Password != model.RePassword)
             {
@@ -392,7 +432,7 @@ namespace CMS.Service
 
         public async Task<ServiceResult> ForgotPassword(ForgotPasswordModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var user = await _unitOfWork.Repository<User>()
                 .FirstOrDefault(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
@@ -416,7 +456,7 @@ namespace CMS.Service
 
         public async Task<ServiceResult> ChangePassword(ChangePasswordModel model)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             if (model.NewPassword != model.ReNewPassword)
             {
@@ -535,6 +575,60 @@ namespace CMS.Service
                 };
             }
             return model;
+        }
+
+        public async Task<ServiceResult> Authorize(AuthorizeModel model)
+        {
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+
+            int accessRightId = 0;
+
+            if (model.IsView)
+            {
+                var menuItemAccessRight = await _unitOfWork.Repository<MenuItemAccessRight>()
+                     .FirstOrDefault(x => x.MenuItem.Url.ToLower() == model.Endpoint.ToLower());
+
+                if (menuItemAccessRight == null)
+                {
+                    return result;
+                }
+                accessRightId = menuItemAccessRight.AccessRightId;
+
+            }
+            else
+            {
+                Enum.TryParse(model.Method, out MethodType method);
+
+                var accessRightEndpoint = await _unitOfWork.Repository<AccessRightEndpoint>()
+                    .FirstOrDefault(x => x.Endpoint.ToLower() == model.Endpoint && x.RouteLevel == model.RouteLevel && x.Method == method);
+
+                if (accessRightEndpoint == null)
+                {
+                    result.StatusCode = HttpStatusCode.NotFound;
+                    return result;
+                }
+                accessRightId = accessRightEndpoint.AccessRightId;
+            }
+
+            var userRoles = await _unitOfWork.Repository<UserRole>()
+                        .Where(x => x.UserId == model.UserId)
+                        .Select(x => x.RoleId).ToListAsync();
+
+            if (userRoles.Count == 0)
+            {
+                result.StatusCode = HttpStatusCode.NotFound;
+                return result;
+            }
+
+            var isCheck = await _unitOfWork.Repository<RoleAccessRight>()
+                .Any(x => userRoles.Contains(x.RoleId) && x.AccessRightId == accessRightId);
+
+            if (!isCheck)
+            {
+                result.StatusCode = HttpStatusCode.NotFound;
+                return result;
+            }
+            return result;
         }
     }
 }

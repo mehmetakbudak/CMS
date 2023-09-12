@@ -11,6 +11,8 @@ namespace CMS.Storage.Enum
         [Description("Foto Galeri")]
         PhotoGallery,
         [Description("Video Galeri")]
-        VideoGallery
+        VideoGallery,
+        [Description("Kariyer Fırsatları")]
+        Job
     }
 }

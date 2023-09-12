@@ -2,6 +2,11 @@
 using CMS.Service;
 using CMS.Service.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using CMS.Service.Helper;
+using System.Threading.Tasks;
+using CMS.Web.Models;
+using DevExtreme.AspNet.Data;
+using System.Collections.Generic;
 
 namespace CMS.Web.Controllers
 {
@@ -29,19 +34,20 @@ namespace CMS.Web.Controllers
             return Ok(result);
         }
 
-        [HttpGet("api/comment/user-comments")]
+        [HttpGet("comment/user-comments")]
         [CMSAuthorize(CheckAccessRight = false)]
-        public async Task<IActionResult> GetUserComments(int? type)
+        public async Task<IActionResult> GetUserComments(DataSourceLoadOptions loadOptions)
         {
-            var result = await _commentService.GetUserComments(type);
-            return Ok(result);
+            var list = await _commentService.GetUserComments();
+            return Json(DataSourceLoader.Load(list, loadOptions));
         }
 
-        [HttpDelete("api/comment/{id}")]
+        [HttpDelete("comment/{id}")]
         [CMSAuthorize(CheckAccessRight = false)]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _commentService.Delete(id);
+            var user = User.Parse();
+            var result = await _commentService.Delete(id, user.UserId);
             return Ok(result);
         }
     }

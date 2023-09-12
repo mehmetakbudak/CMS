@@ -1,15 +1,15 @@
 ﻿@{
-    ViewData["Title"] = "Hesabım";
+    ViewData["Title"] = "Kullanıcı Bilgileri";
 }
 
-<main id="main">
+<main id="main" ng-app="app" ng-controller="appController" ng-cloak>
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <h2>Hesabım</h2>
+                <h2>Kullanıcı Bilgileri</h2>
                 <ol>
                     <li><a href="/">Anasayfa</a></li>
-                    <li>Hesabım</li>
+                    <li>Kullanıcı Bilgileri</li>
                 </ol>
             </div>
         </div>
@@ -20,72 +20,122 @@
                 @await Html.PartialAsync("_ProfileMenu")
             </div>
             <div class="col-md-9">
-                <div class="card box-shadow">
-                    <div class="card-body">
-                        <div class="my-3">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <form id="profileForm">
-                                        <div class="m-3">
-                                            <label class="form-label">Email Adresi</label>
-                                            <input type="email"
-                                                   id="txtEmailAddress"
-                                                   name="txtEmailAddress"
-                                                   class="form-control w-100" />
-                                        </div>
+                <div class="card box-shadow mb-5">
+                    <div class="card-body p-4">
+                        <h5 class="card-title">Kullanıcı Bilgileri</h5>
+                        <div class="row my-3">
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Adı',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'profile.name'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Adı giriniz.'
+                                        }]
+                                    }">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Soyadı',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'profile.surname'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Soyadı giriniz.'
+                                        }]
+                                    }">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Email Adresi',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            readOnly: true,
+                                            bindingOptions: {
+                                                value: 'profile.emailAddress'
+                                            }
+                                        }">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Telefon',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            mask: '(000) 000-0000',
+                                            bindingOptions: {
+                                                value: 'profile.phone'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Telefon giriniz.'
+                                        }]
+                                    }">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-4">
+                                    <div class="text-end">
+                                        <button dx-button="{
+                                                text: 'Kaydet',
+                                                onClick: save,
+                                                type: 'default'
+                                            }" class="bg-green text-white float-start border-0"></button>
 
-                                        <div class="m-3">
-                                            <label class="form-label">Adı</label>
-                                            <input type="text"
-                                                   id="txtName"
-                                                   name="txtName"
-                                                   class="form-control w-100"
-                                                   required
-                                                   data-required-msg="Adı giriniz." />
-                                            <span class="k-invalid-msg" data-for="txtName"></span>
-                                        </div>
-
-                                        <div class="m-3">
-                                            <label class="form-label">Soyadı</label>
-                                            <input type="text"
-                                                   id="txtSurname"
-                                                   name="txtSurname"
-                                                   class="form-control w-100"
-                                                   required
-                                                   data-required-msg="Soyadı giriniz." />
-                                            <span class="k-invalid-msg" data-for="txtSurname"></span>
-                                        </div>
-
-                                        <div class="m-3">
-                                            <label class="form-label">Telefon</label>
-                                            <input type="text"
-                                                   id="txtPhone"
-                                                   name="txtPhone"
-                                                   class="form-control w-100"
-                                                   required
-                                                   data-required-msg="Telefon giriniz." />
-                                            <span class="k-invalid-msg" data-for="txtPhone"></span>
-                                        </div>
-
-                                        <div class="m-3">
-                                            <button id="btnProfile"
-                                                    type="submit"
-                                                    class="btn bg-green text-white float-start">
-                                                Kaydet
-                                            </button>
-                                        </div>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 </main>
 
 @section Scripts{
-    <script src="~/js/pages/frontend/account/profile.js"></script>
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+
+            getProfile();
+
+            function getProfile() {
+                $http.get("/account/profile").then((res) => {
+                    $scope.profile = res.data;
+                });
+            }
+
+            $scope.save = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    $http.put("/account/profile", $scope.profile).then((res) => {
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+
+
+
+        });
+    </script>
 }

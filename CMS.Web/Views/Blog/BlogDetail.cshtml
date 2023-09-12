@@ -10,7 +10,7 @@
 
 <main id="main">
     <input id="blogId" type="hidden" value="@ViewBag.Id" />
-    <input id="sourceType" type="hidden" value="@sourceId" />
+    <input id="sourceType" type="hidden" value="@sourceId" />    
 
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
@@ -123,7 +123,7 @@
                                         <div class="alert alert-info">
                                             <h6>Yorum yapabilmek için giriş yapınız!</h6>
                                         </div>
-                                        <a class="btn bg-green text-white" href="/login">
+                                        <a class="btn bg-green text-white" onclick="app.login()">
                                             Giriş Yap <i class="fa fa-arrow-right"></i>
                                         </a>
                                     }
@@ -223,7 +223,7 @@
                                     <div class="alert alert-info">
                                         <h6>Yorumu cevaplayabilmek için giriş yapınız!</h6>
                                     </div>
-                                    <a class="btn bg-green text-white" href="/login">
+                                    <a class="btn bg-green text-white" onclick="app.login()">
                                         Giriş Yap <i class="fa fa-arrow-right"></i>
                                     </a>
                                 }
@@ -232,7 +232,7 @@
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
                                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                                 {
-                                    <button id="btnCommentReply" type="button" class="btn btn-primary bg-green text-white">
+                                    <button id="btnCommentReply" type="button" class="btn bg-green text-white">
                                         Cevapla
                                     </button>
                                 }

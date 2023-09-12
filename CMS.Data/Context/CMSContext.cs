@@ -35,7 +35,7 @@ namespace CMS.Data.Context
 
         public virtual DbSet<TaskStatusDmo> TaskStatuses { get; set; }
 
-        public virtual DbSet<UserAccessRight> UserAccessRights { get; set; }
+        public virtual DbSet<RoleAccessRight> RoleAccessRights { get; set; }
 
         public virtual DbSet<Menu> Menus { get; set; }
 
@@ -66,6 +66,22 @@ namespace CMS.Data.Context
         public virtual DbSet<Tag> Tags { get; set; }
 
         public virtual DbSet<SourceTag> SourceTags { get; set; }
+
+        public virtual DbSet<Company> Companies { get; set; }
+
+        public virtual DbSet<Job> Jobs { get; set; }
+
+        public virtual DbSet<JobLocation> JobLocations { get; set; }
+
+        public virtual DbSet<UserJob> UserJobs { get; set; }
+
+        public virtual DbSet<MenuItemAccessRight> MenuItemAccessRights { get; set; }
+
+        public virtual DbSet<Role> Roles { get; set; }
+
+        public virtual DbSet<UserRole> UserRoles { get; set; }
+
+        public virtual DbSet<UserFile> UserFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

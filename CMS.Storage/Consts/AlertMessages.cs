@@ -9,5 +9,6 @@
         public const string UserNotFound = "Kullanıcı bulunamadı";
         public const string UrlAlreadyExist = "Url ile daha önce kayıt mevcuttur.";
         public const string SuccessResetPassword = "Şifreniz başarıyla güncellendi. Tekrar giriş yapabilirsiniz.";
+        public const string SuccessApplyJob = "Başvuru işlemi başarıyla gerçekleşti";
     }
 }

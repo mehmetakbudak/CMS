@@ -1,60 +1,58 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Service.Exceptions;
+using CMS.Service.Helper;
 using CMS.Storage.Consts;
 using CMS.Storage.Entity;
 using CMS.Storage.Enum;
 using CMS.Storage.Model;
 using CMS.Storage.Model.ViewModel;
-using CMS.Service.Exceptions;
-using CMS.Service.Infrastructure;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Http;
-using CMS.Service.Helper;
-using Microsoft.Extensions.Hosting;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
 
 namespace CMS.Service
 {
     public interface IBlogService
     {
-        IQueryable<Blog> GetAll();
+        Task<List<Blog>> GetAll();
         Task<BlogDetailModel> GetById(int id);
         Task<List<BlogModel>> GetBlogs(string text = null, int? top = null);
         Task<List<BlogModel>> GetBlogsByCategoryUrl(string blogCategoryUrl);
-        Task<ServiceResult> Post(BlogPostModel model);
-        Task<ServiceResult> Put(BlogPutModel model);
         Task<BlogDetailViewModel> GetDetailById(int id);
-        Task<ServiceResult> Seen(int id);
+        Task<ServiceResult> Post(BlogPostModel model);
         Task<List<MostReadBlogViewModel>> MostRead(string blogCategoryUrl = null);
+        Task<ServiceResult> Put(BlogPutModel model);
+        Task<ServiceResult> Seen(int id);
+        Task<ServiceResult> Delete(int id);
     }
 
     public class BlogService : IBlogService
     {
         private readonly IUnitOfWork<CMSContext> _unitOfWork;
-        private readonly IHttpContextAccessor _httpContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebHostEnvironment _environment;
 
         public BlogService(
             IUnitOfWork<CMSContext> unitOfWork,
-            IHttpContextAccessor httpContext,
+            IHttpContextAccessor httpContextAccessor,
             IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
-            _httpContext = httpContext;
+            _httpContextAccessor = httpContextAccessor;
             _environment = environment;
         }
 
-        public IQueryable<Blog> GetAll()
+        public async Task<List<Blog>> GetAll()
         {
-            var list = _unitOfWork.Repository<Blog>().Where(x => !x.Deleted);
-            return list;
+            return await _unitOfWork.Repository<Blog>()
+                .Where(x => !x.Deleted).ToListAsync();
         }
 
         public async Task<List<BlogModel>> GetBlogs(string text = null, int? top = null)
@@ -131,10 +129,11 @@ namespace CMS.Service
         public async Task<BlogDetailModel> GetById(int id)
         {
             BlogDetailModel model = null;
-            var blog = await GetAll()
+            var blog = await _unitOfWork.Repository<Blog>()
+                .Where(x => !x.Deleted && x.Id == id)
                 .Include(x => x.SelectedBlogCategories)
                 .ThenInclude(x => x.BlogCategory)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync();
 
             if (blog != null)
             {
@@ -184,6 +183,7 @@ namespace CMS.Service
                 ImageUrl = blog.ImageUrl,
                 UserName = $"{blog.User.Name} {blog.User.Surname}",
                 CommentCount = commentCount,
+                Url = blog.Url,
                 BlogCategories = blog.SelectedBlogCategories
                                      .Select(x => x.BlogCategory)
                                      .Select(x => new BlogDetailCategoryModel()
@@ -250,7 +250,7 @@ namespace CMS.Service
                     var fileUploadUrl = $"{_environment.WebRootPath}{imageUrl}";
                     model.Image.CopyTo(new FileStream(fileUploadUrl, FileMode.Create));
 
-                    var loginUser = _httpContext.HttpContext.User.Parse();
+                    var loginUser = _httpContextAccessor.HttpContext.User.Parse();
 
                     await _unitOfWork.CreateTransaction();
 
@@ -381,7 +381,7 @@ namespace CMS.Service
 
         public async Task<ServiceResult> Seen(int id)
         {
-            ServiceResult result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
 
             var blog = await _unitOfWork.Repository<Blog>()
                 .FirstOrDefault(x => !x.Deleted && x.Published && x.IsActive && x.Id == id);
@@ -392,6 +392,32 @@ namespace CMS.Service
 
                 await _unitOfWork.Save();
             }
+            return result;
+        }
+
+        public async Task<ServiceResult> Delete(int id)
+        {
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
+
+            var blog = await _unitOfWork.Repository<Blog>()
+                      .FirstOrDefault(x => x.Id == id && !x.Deleted);
+
+            if (blog == null)
+            {
+                throw new NotFoundException("Kayıt bulunamadı.");
+            }
+
+            blog.Deleted = true;
+
+            await _unitOfWork.Save();
+
+            var currentFileUrl = Path.Combine(_environment.WebRootPath, blog.ImageUrl);
+
+            if (File.Exists(currentFileUrl))
+            {
+                File.Delete(currentFileUrl);
+            }
+
             return result;
         }
     }

@@ -13,18 +13,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace CMS.Service
 {
     public interface ICommentService
     {
+        Task<List<CommentModel>> Get();
         Task<List<CommentGetModel>> GetSourceComments(SourceCommentModel model, int? parentId = null, List<CommentGetModel> children = null);
         Task<IQueryable<UserCommentModel>> GetUserComments(int? type = null);
         Task<List<CommentModel>> GetAllByStatus(int status);
         Task<CommentDetailModel> GetDetail(int id);
         Task<ServiceResult> Post(CommentPostModel model);
         Task<ServiceResult> Put(CommentPutModel model);
-        Task<ServiceResult> Delete(int id);
+        Task<ServiceResult> Delete(int id, int? userId= null);
     }
 
     public class CommentService : ICommentService
@@ -206,7 +208,7 @@ namespace CMS.Service
 
         public async Task<ServiceResult> Put(CommentPutModel model)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Put };
 
             var comment = await _unitOfWork.Repository<Comment>()
                 .FirstOrDefault(x => !x.Deleted && x.Id == model.Id);
@@ -224,14 +226,19 @@ namespace CMS.Service
             return result;
         }
 
-        public async Task<ServiceResult> Delete(int id)
+        public async Task<ServiceResult> Delete(int id, int? userId = null)
         {
-            var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
+            var result = new ServiceResult { StatusCode = HttpStatusCode.OK, Message = AlertMessages.Delete };
 
-            var loginUser = _httpContext.HttpContext.User.Parse();
+            var query = _unitOfWork.Repository<Comment>()
+                .Where(x => !x.Deleted && x.Id == id);
 
-            var comment = await _unitOfWork.Repository<Comment>()
-                .FirstOrDefault(x => !x.Deleted && x.Id == id && x.UserId == loginUser.UserId);
+            if (userId != null)
+            {
+                query = query.Where(x => x.UserId == userId);
+            }
+
+            var comment = query.FirstOrDefault();
 
             if (comment == null)
             {
@@ -239,12 +246,29 @@ namespace CMS.Service
             }
 
             comment.Deleted = true;
-
             await _unitOfWork.Save();
 
-            result.Message = AlertMessages.Delete;
-
             return result;
+        }
+
+        public async Task<List<CommentModel>> Get()
+        {
+            return await _unitOfWork.Repository<Comment>().Where(x => !x.Deleted)
+                 .Include(x => x.User)
+                 .Select(x => new CommentModel()
+                 {
+                     Description = x.Description,
+                     Id = x.Id,
+                     StatusId = (int)x.Status,
+                     SourceType = x.SourceType,
+                     InsertedDate = x.InsertedDate,
+                     ParentId = x.ParentId,
+                     SourceId = x.SourceId,
+                     Source = EnumHelper.GetDescription(x.SourceType),
+                     Status = EnumHelper.GetDescription(x.Status),
+                     UpdatedDate = x.UpdatedDate,
+                     UserFullName = x.User.FullName
+                 }).ToListAsync();
         }
     }
 }

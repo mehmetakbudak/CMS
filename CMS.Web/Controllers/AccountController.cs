@@ -4,23 +4,34 @@ using CMS.Storage.Model;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Permissions;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
     public class AccountController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IUserFileService _userFileService;
 
-        public AccountController(IUserService userService)
+        public AccountController(
+            IUserService userService,
+            IUserFileService userFileService)
         {
             _userService = userService;
+            _userFileService = userFileService;
         }
 
         #region Views
         [Route("login")]
-        public IActionResult Login() => View();
+        public IActionResult Login(string returnUrl)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
 
         [Route("register")]
         public IActionResult Register() => View();
@@ -31,15 +42,15 @@ namespace CMS.Web.Controllers
 
 
         [Route("change-password")]
-        [CMSAuthorize(CheckAccessRight = false)]
+        [CMSAuthorize(CheckAccessRight = false, IsView = true)]
         public IActionResult ChangePassword() => View();
 
         [Route("profile")]
-        [CMSAuthorize(CheckAccessRight = false)]
+        [CMSAuthorize(CheckAccessRight = false, IsView = true)]
         public IActionResult Profile() => View();
 
         [Route("comments")]
-        [CMSAuthorize(CheckAccessRight = false)]
+        [CMSAuthorize(CheckAccessRight = false, IsView = true)]
         public IActionResult Comments() => View();
 
         [Route("logout")]
@@ -70,9 +81,17 @@ namespace CMS.Web.Controllers
             var user = await _userService.GetUserByCode(code);
             return View(user);
         }
+
+        [Route("cv")]
+        [CMSAuthorize(CheckAccessRight = false, IsView = true)]
+        public IActionResult Cv() => View();
+
+        [Route("applied-jobs")]
+        [CMSAuthorize(CheckAccessRight = false, IsView = true)]
+        public IActionResult AppliedJobs() => View();
         #endregion
 
-        #region APIs
+
         [HttpPost("api/account/login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -101,7 +120,7 @@ namespace CMS.Web.Controllers
             return Ok(user);
         }
 
-        [HttpGet("api/account/profile")]
+        [HttpGet("account/profile")]
         [CMSAuthorize(CheckAccessRight = false)]
         public async Task<IActionResult> GetProfile()
         {
@@ -109,7 +128,7 @@ namespace CMS.Web.Controllers
             return Ok(result);
         }
 
-        [HttpPut("api/account/profile")]
+        [HttpPut("account/profile")]
         [CMSAuthorize(CheckAccessRight = false)]
         public async Task<IActionResult> UpdateProfile([FromBody] UserProfileModel model)
         {
@@ -138,7 +157,7 @@ namespace CMS.Web.Controllers
             return Ok(result);
         }
 
-        [HttpPut("api/account/change-password")]
+        [HttpPut("account/change-password")]
         [CMSAuthorize(CheckAccessRight = false)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
         {
@@ -152,6 +171,39 @@ namespace CMS.Web.Controllers
             var result = await _userService.EmailVerified(code);
             return Ok(result);
         }
-        #endregion
+
+        [HttpGet("/account/user-files/{type}")]
+        [CMSAuthorize(CheckAccessRight = false)]
+        public async Task<IActionResult> GetUserFiles(int type)
+        {
+            var result = await _userFileService.GetByType(type);
+            return Ok(result);
+        }
+
+        [HttpPost("/account/user-files")]
+        [CMSAuthorize(CheckAccessRight = false)]
+        public async Task<IActionResult> PostUserFiles(UserFilePostModel model)
+        {
+            var result = await _userFileService.Post(model);
+            return Ok(result);
+        }
+
+        [HttpPut("/account/user-files/set-default/{id}")]
+        [CMSAuthorize(CheckAccessRight = false)]
+        public async Task<IActionResult> SetDefaultUserFiles(int id)
+        {
+            var result = await _userFileService.SetDefault(id);
+            return Ok(result);
+        }
+
+        [HttpDelete("/account/user-files/{id}")]
+        [CMSAuthorize(CheckAccessRight = false)]
+        public async Task<IActionResult> DeleteUserFiles(int id)
+        {
+            var result = await _userFileService.Delete(id);
+            return Ok(result);
+        }
+
+
     }
 }

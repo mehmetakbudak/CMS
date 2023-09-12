@@ -1,7 +1,9 @@
 ﻿using CMS.Service;
+using CMS.Service.Attributes;
 using CMS.Service.Helper;
 using CMS.Storage.Enum;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Areas.Admin.Controllers
 {
@@ -15,46 +17,75 @@ namespace CMS.Web.Areas.Admin.Controllers
             _lookupService = lookupService;
         }
 
-        [HttpGet("api/Admin/Lookup/UserTypes")]
+        [HttpGet("admin/lookup/user-types")]
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
         public IActionResult GetUserTypes()
         {
             var list = EnumHelper.GetEnumLookup(typeof(UserType));
             return Json(list);
         }
 
-        [HttpGet("api/Admin/Lookup/CommentStatuses")]
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/comment-statuses")]
         public IActionResult GetCommentStatuses()
         {
             var list = EnumHelper.GetEnumLookup(typeof(CommentStatus));
             return Json(list);
         }
 
-        [HttpGet("api/Admin/Lookup/BlogCategories")]
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/blog-categories")]
         public async Task<IActionResult> GetBlogCategories()
         {
             var list = await _lookupService.BlogCategories();
             return Json(list);
         }
 
-        [HttpGet("api/Admin/Lookup/TaskCategories")]
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/task-categories")]
         public async Task<IActionResult> GetTaskCategories()
         {
             var list = await _lookupService.TaskCategories();
             return Json(list);
         }
 
-        [HttpGet("api/Admin/Lookup/TaskStatuses/{id}")]
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/task-statuses/{id}")]
         public async Task<IActionResult> GetTaskStatuses(int id)
         {
             var list = await _lookupService.TaskStatuses(id);
             return Json(list);
         }
 
-
-        [HttpGet("api/Admin/Lookup/Users")]
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/users")]
         public async Task<IActionResult> GetUsers()
         {
             var list = await _lookupService.Users();
+            return Json(list);
+        }
+
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/user-statuses")]
+        public IActionResult GetUserStatuses()
+        {
+            var list = EnumHelper.GetEnumLookup(typeof(UserStatus));
+            return Json(list);
+        }
+
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/method-types")]
+        public IActionResult GetMethodTypes()
+        {
+            var list = EnumHelper.GetEnumLookup(typeof(MethodType));
+            return Json(list);
+        }
+
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/roles")]
+        public async Task<IActionResult> GetRoles()
+        {
+            var list = await _lookupService.Roles();
             return Json(list);
         }
     }

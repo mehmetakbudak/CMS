@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Yorumlarım";
 }
-<main id="main">
+<main id="main" ng-app="app" ng-controller="appController" ng-cloak>
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
@@ -13,74 +13,29 @@
             </div>
         </div>
     </section>
-    <div class="container my-3">
+    <div class="container my-4">
         <div class="row">
             <div class="col-md-3">
                 @await Html.PartialAsync("_ProfileMenu")
             </div>
             <div class="col-md-9">
-                <div class="card box-shadow" style="min-height: 500px;">
-                    <div class="card-body mt-3 w-100">
-                        @await Component.InvokeAsync("Loading")
-
-                        <div class="table-responsive" id="content">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th width="50"></th>
-                                        <th width="100">
-                                            Türü
-                                        </th>
-                                        <th width="200">
-                                            Başlık
-                                        </th>
-                                        <th width="100">
-                                            Durumu
-                                        </th>
-                                        <th width="300">
-                                            Yorum
-                                        </th>
-                                        <th width="200">
-                                            Ekleme Tarihi
-                                        </th>
-                                        <th width="200">
-                                            Güncelleme Tarihi
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="content-body"></tbody>
-                            </table>
-                            <div id="pager"></div>
+                <div class="card box-shadow">
+                    <div class="card-body p-4">
+                        <h5 class="card-title">Yorumlarım</h5>
+                        <div class="my-3">
+                            <div ng-cloak dx-data-grid="dataGridOptions" dx-item-alias="row">
+                                <div data-options="dxTemplate:{ name:'cellTemplate' }">
+                                    <button class="btn btn-outline-danger btn-sm" ng-click="delete(row)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div data-options="dxTemplate: {name: 'detail'}">
+                                    <div class="mb-3 fw-bold">Yorum :</div>
+                                    <div>{{row.data.description}}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <script id="template" type="text/x-kendo-tmpl">
-                        <tr data-uid="#: id #">
-                            <td width="50">
-                                <a onclick="app.commentDelete(#:id#)"
-                                    class="btn btn-danger btn-sm text-white">
-                                    <i class="fa fa-trash"></i>
-                                </a>
-                            </td>
-                            <td width="100">
-                                #: sourceTypeName #
-                            </td>
-                            <td width="200">
-                                <a class="text-primary" href="#: url #">#: title #</a>
-                            </td>
-                            <td width="100">
-                                #: status #
-                            </td>
-                            <td width="300">
-                               #: description #
-                            </td>
-                            <td width="200">
-                                #: dateTimeFormat(insertedDate) #
-                            </td>
-                            <td width="200">
-                                #: dateTimeFormat(updatedDate) #
-                            </td>
-                        </tr>
-                    </script>
                 </div>
             </div>
         </div>
@@ -88,5 +43,100 @@
 </main>
 
 @section Scripts{
-    <script src="/js/pages/frontend/account/comment.js"></script>
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            $scope.dataGrid = {};
+
+            $scope.dataGridOptions = {
+                dataSource: DevExpress.data.AspNet.createStore({
+                    key: 'id',
+                    loadUrl: '/comment/user-comments',
+                }),
+                remoteOperations: true,
+                paging: {
+                    pageSize: 5,
+                },
+                pager: {
+                    visible: true,
+                    allowedPageSizes: [10, 20, 50, 'all'],
+                    showPageSizeSelector: true,
+                    showInfo: true,
+                    showNavigationButtons: true,
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: 'auto',
+                },
+                headerFilter: {
+                    visible: true,
+                    search: {
+                        enabled: true,
+                    },
+                },
+                wordWrapEnabled: true,
+                showBorders: true,
+                showColumnLines: true,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                allowColumnResizing: true,
+                // columnAutoWidth: false,
+                columns: [{
+                    caption: "",
+                    width: 65,
+                    allowHeaderFiltering: false,
+                    allowFiltering: false,
+                    cellTemplate: 'cellTemplate'
+                },
+                {
+                    dataField: 'id',
+                    sortOrder: "desc",
+                    visible: false
+                },
+                {
+                    caption: "Türü",
+                    dataField: "sourceTypeName",
+                    width: 150
+                },
+                {
+                    caption: 'Başlık',
+                    dataField: 'title',
+                    width: 150
+                },
+                {
+                    caption: 'Durumu',
+                    dataField: 'status'
+                },
+                {
+                    caption: 'Kayıt Tarihi',
+                    dataField: 'insertedDate',
+                    dataType: 'date',
+                    format: 'dd.MM.yyyy HH:mm',
+                    width: 150
+                },
+                {
+                    caption: 'Güncelleme Tarihi',
+                    dataField: 'updatedDate',
+                    dataType: 'date',
+                    format: 'dd.MM.yyyy HH:mm',
+                    width: 150
+                }],
+                masterDetail: {
+                    enabled: true,
+                    template: 'detail',
+                },
+                onInitialized(e) {
+                    $scope.dataGrid = e.component;
+                }
+            };
+
+            $scope.delete = function (row) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/comment/${row.data.id}`).then((res) => {
+                        $scope.dataGrid.refresh();
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+        });
+    </script>
 }

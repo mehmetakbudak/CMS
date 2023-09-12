@@ -21,6 +21,9 @@ namespace CMS.Service
         Task<List<LookupModel>> BlogCategories();
         List<LookupModel> MethodTypes();
         List<LookupModel> UserTypes();
+        List<LookupModel> WorkTypes();
+        Task<List<LookupModel>> Roles();
+        Task<List<LookupModel>> JobLocations();
     }
 
     public class LookupService : ILookupService
@@ -110,6 +113,36 @@ namespace CMS.Service
         public List<LookupModel> UserTypes()
         {
             var list = EnumHelper.GetEnumLookup((typeof(UserType)));
+            return list;
+        }
+
+        public List<LookupModel> WorkTypes()
+        {
+            var list = EnumHelper.GetEnumLookup((typeof(WorkType)));
+            return list;
+        }
+
+        public async Task<List<LookupModel>> Roles()
+        {
+            var list = await _unitOfWork.Repository<Role>()
+                .Where(x => !x.Deleted && x.IsActive)
+                .Select(x => new LookupModel
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToListAsync();
+            return list;
+        }
+
+        public async Task<List<LookupModel>> JobLocations()
+        {
+            var list = await _unitOfWork.Repository<JobLocation>()
+                .Where(x => !x.Deleted && x.IsActive)
+                .Select(x => new LookupModel
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToListAsync();
             return list;
         }
     }

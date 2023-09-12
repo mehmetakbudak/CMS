@@ -1,5 +1,5 @@
 ﻿$(() => {   
-    var blogTemplate = kendo.template($("#blogTemplate").html());
+    //var blogTemplate = kendo.template($("#blogTemplate").html());
     var blogCategoryTemplate = kendo.template($("#blogCategoryTemplate").html());
     var blogMostReadTemplate = kendo.template($("#blogMostReadTemplate").html());
 
@@ -27,7 +27,7 @@
         },
         pageSize: 5,
         change: function () {
-            $("#blogList").html(kendo.render(blogTemplate, this.view()));
+            //$("#blogList").html(kendo.render(blogTemplate, this.view()));
         },
         requestEnd: function () {
             $("#loading").hide();

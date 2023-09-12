@@ -1,8 +1,496 @@
-﻿
-@{
-    ViewData["Title"] = "Yapılacak Tanımları";
+﻿@{
+    ViewData["Title"] = "Görev Tanımları";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
+<div ng-app="app" ng-controller="appController">
+    <div class="card shadow mb-3">
+        <div class="card-header bg-white pt-3">
+            <div class="row">
+                <div class="col-9">
+                    <nav aria-label="breadcrumb" class="pt-2">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/admin/dashboard" class="text-decoration-none text-dark">
+                                    <i class="fa fa-home"></i>  Anasayfa
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a>
+                                    Tanımlar
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Görev Tanımları
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="btn-group float-end">
+                        <button type="button" class="btn bg-white dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a ng-click="addTaskCategory()"
+                                   class="dropdown-item text-dark cursor-pointer">
+                                    Görev Kategorisi Ekle
+                                </a>
+                            </li>
+                            <li>
+                                <a ng-click="addTaskStatus()"
+                                   class="dropdown-item text-dark cursor-pointer">
+                                    Görev Durumu Ekle
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-tabs mb-4" id="pills-tab" role="tablist">
+                <li class="nav-item cursor-pointer" role="presentation">
+                    <span class="nav-link active p-3" id="step1-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step1-tab-pane' aria-controls="step1-tab-pane" aria-selected="true"><span>Görev Kategorileri</span></span>
+                </li>
+                <li class="nav-item cursor-pointer" role="presentation">
+                    <span class="nav-link p-3" id="step2-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step2-tab-pane' aria-controls="step2-tab-pane" aria-selected="false"><span>Görev Durumları</span></span>
+                </li>
+            </ul>
+            <div class="tab-content" id="formTabsContent">
+                <div class="tab-pane fade active show" id="step1-tab-pane" role="tabpanel" aria-labelledby="step1-tab" tabindex="0">
+                    <div ng-cloak dx-data-grid="dataGridTaskCategoryOptions" dx-item-alias="data">
+                        <div data-options="dxTemplate:{ name:'cellTemplate' }">
+                            <button class="btn btn-outline-secondary btn-sm me-1"
+                                    ng-click="editTaskCategory(data)">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm"
+                                    ng-click="deleteTaskCategory(data)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade show" id="step2-tab-pane" role="tabpanel" aria-labelledby="step2-tab" tabindex="0">
+                    <div ng-cloak dx-data-grid="dataGridTaskStatusOptions" dx-item-alias="data">
+                        <div data-options="dxTemplate:{ name:'cellTemplate' }">
+                            <button class="btn btn-outline-secondary btn-sm me-1"
+                                    ng-click="editTaskStatus(data)">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm"
+                                    ng-click="deleteTaskStatus(data)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h1>Index</h1>
+    <div class="modal fade" id="modalFormTaskCategory" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{titleTaskCategoryPopup}}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formTaskCategory">
+                        <div class="mb-3">
+                            <div class="w-100"
+                                 dx-text-box="taskCategoryNameOptions"
+                                 dx-validator="taskCategoryNameValidatorOptions">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label w-100">Aktif</label>
+                            <div dx-switch="{ bindingOptions: {
+                                                value: 'taskCategoryData.isActive'
+                                            }
+                                        }">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button dx-button="{
+                            text: 'Kaydet',
+                            onClick: saveTaskCategory,
+                            validationGroup: 'categoryValidateGroup',
+                            type: 'default'
+                        }" class="btn"></button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
+                            KAPAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="modal fade" id="modalFormTaskStatus" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{titleTaskStatusPopup}}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formTaskStatus">
+                        <div class="mb-3">
+                            <div class="w-100"
+                                 dx-select-box="taskCategoryIdOptions"
+                                 dx-validator="taskCategoryIdValidatorOptions">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="w-100"
+                                 dx-text-box="taskStatusNameOptions"
+                                 dx-validator="taskStatusNameValidatorOptions">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="w-100"
+                                 dx-number-box="displayOrderOptions"
+                                 dx-validator="displayOrderValidatorOptions">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label w-100">Aktif</label>
+                            <div dx-switch="{ bindingOptions: {
+                                                value: 'taskStatusData.isActive'
+                                            }
+                                        }">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button dx-button="{
+                            text: 'Kaydet',
+                            onClick: saveTaskStatus,
+                            validationGroup: 'statusValidateGroup',
+                            type: 'default'
+                        }" class="btn"></button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
+                            KAPAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            $scope.taskCategoryData = {};
+            $scope.taskStatusData = {};
+            $scope.dataGridTaskCategory = {};
+            $scope.dataGridTaskStatus = {};
+            $scope.titleTaskCategoryPopup = "";
+            $scope.titleTaskStatusPopup = "";
+
+            /* Görev Kategorileri *********/
+            $scope.taskCategoryNameOptions = {
+                label: 'Adı',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'taskCategoryData.name'
+                }
+            };
+
+            $scope.taskCategoryNameValidatorOptions = {
+                validationGroup: 'categoryValidateGroup',
+                validationRules: [{
+                    type: 'required',
+                    message: 'Adı giriniz.'
+                }]
+            };
+
+            $scope.dataGridTaskCategoryOptions = {
+                dataSource: DevExpress.data.AspNet.createStore({
+                    key: 'id',
+                    loadUrl: '/admin/task-category/list',
+                }),
+                remoteOperations: true,
+                paging: {
+                    pageSize: 5,
+                },
+                pager: {
+                    visible: true,
+                    allowedPageSizes: [10, 20, 50, 'all'],
+                    showPageSizeSelector: true,
+                    showInfo: true,
+                    showNavigationButtons: true,
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: 'auto',
+                },
+                headerFilter: {
+                    visible: true,
+                    search: {
+                        enabled: true,
+                    },
+                },
+                wordWrapEnabled: true,
+                showBorders: true,
+                showColumnLines: true,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                allowColumnResizing: true,
+                columns: [{
+                    caption: "",
+                    width: 105,
+                    allowHeaderFiltering: false,
+                    allowFiltering: false,
+                    cellTemplate: 'cellTemplate'
+                },
+                {
+                    dataField: 'id',
+                    sortOrder: "desc",
+                    visible: false
+                },
+                {
+                    caption: 'Adı',
+                    dataField: 'name'
+                },
+                {
+                    caption: 'Aktif',
+                    dataField: 'isActive',
+                    width: 100
+                }],
+                onInitialized(e) {
+                    $scope.dataGridTaskCategory = e.component;
+                }
+            };
+
+            $scope.addTaskCategory = function () {
+                $scope.titleTaskCategoryPopup = "Görev Kategorisi Ekle";
+                $("#modalFormTaskCategory").modal("show");
+                $scope.taskCategoryData = {};
+                $scope.taskCategoryData.isActive = true;
+            };
+
+            $scope.editTaskCategory = function (row) {
+                $scope.titleTaskCategoryPopup = "Görev Kategorisi Düzenle";
+                $("#modalFormTaskCategory").modal("show");
+                $http.get(`/admin/task-category/${row.data.id}`).then((res) => {
+                    $scope.taskCategoryData = res.data;
+                });
+            }
+
+            $scope.saveTaskCategory = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    if ($scope.taskCategoryData.id) {
+                        $http.put("/admin/task-category", $scope.taskCategoryData)
+                            .then((res) => {
+                                $scope.dataGridTaskCategory.refresh();
+                                $("#modalFormTaskCategory").modal("hide");
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    } else {
+                        $http.post("/admin/task-category", $scope.taskCategoryData)
+                            .then((res) => {
+                                $scope.dataGridTaskCategory.refresh();
+                                $("#modalFormTaskCategory").modal("hide");
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    }
+                }
+            }
+
+            $scope.deleteTaskCategory = function (row) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/admin/task-category/${row.data.id}`).then((res) => {
+                        $scope.dataGridTaskCategory.refresh();
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+
+            /* Görev Durumları *********/
+
+            function getTaskCategories() {
+                $http.get(`/admin/lookup/task-categories`).then((res) => {
+                    $scope.taskCategories = res.data;
+                });
+            }
+
+            $scope.taskCategoryIdOptions = {
+                label: 'Kategori Adı',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                displayExpr: 'name',
+                valueExpr: 'id',
+                bindingOptions: {
+                    dataSource: 'taskCategories',
+                    value: 'taskStatusData.taskCategoryId',
+                }
+            }
+
+            $scope.taskStatusNameOptions = {
+                label: 'Adı',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'taskStatusData.name'
+                }
+            };
+
+            $scope.displayOrderOptions = {
+                label: 'Sırası',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                min: 1,
+                bindingOptions: {
+                    value: 'taskStatusData.displayOrder'
+                }
+            }
+
+            $scope.taskCategoryIdValidatorOptions ={
+                validationGroup: 'statusValidateGroup',
+                validationRules: [{
+                    type: 'required',
+                    message: 'Kategori seçiniz.'
+                }]
+            }
+
+            $scope.taskStatusNameValidatorOptions = {
+                validationGroup: 'statusValidateGroup',
+                validationRules: [{
+                    type: 'required',
+                    message: 'Adı giriniz.'
+                }]
+            };
+
+            $scope.displayOrderValidatorOptions = {
+                validationGroup: 'statusValidateGroup',
+                validationRules: [{
+                    type: 'required',
+                    message: 'Sıra giriniz.'
+                }]
+            }
+
+            $scope.dataGridTaskStatusOptions = {
+                dataSource: DevExpress.data.AspNet.createStore({
+                    key: 'id',
+                    loadUrl: '/admin/task-status/list',
+                }),
+                remoteOperations: true,
+                paging: {
+                    pageSize: 5,
+                },
+                pager: {
+                    visible: true,
+                    allowedPageSizes: [10, 20, 50, 'all'],
+                    showPageSizeSelector: true,
+                    showInfo: true,
+                    showNavigationButtons: true,
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: 'auto',
+                },
+                headerFilter: {
+                    visible: true,
+                    search: {
+                        enabled: true,
+                    },
+                },
+                wordWrapEnabled: true,
+                showBorders: true,
+                showColumnLines: true,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                allowColumnResizing: true,
+                columns: [{
+                    caption: "",
+                    width: 105,
+                    allowHeaderFiltering: false,
+                    allowFiltering: false,
+                    cellTemplate: 'cellTemplate'
+                },
+                {
+                    dataField: 'id',
+                    sortOrder: "desc",
+                    visible: false
+                },
+                {
+                    caption: 'Kategori Adı',
+                    dataField: 'taskCategory.name'
+                },
+                {
+                    caption: 'Durum Adı',
+                    dataField: 'name'
+                },
+                {
+                    caption: 'Aktif',
+                    dataField: 'isActive',
+                    width: 100
+                }],
+                onInitialized(e) {
+                    $scope.dataGridTaskStatus = e.component;
+                }
+            };
+
+            $scope.addTaskStatus = function () {
+                $scope.titleTaskStatusPopup = "Görev Durumu Ekle";
+                $("#modalFormTaskStatus").modal("show");
+                $scope.taskStatusData = {};
+                $scope.taskStatusData.isActive = true;
+                getTaskCategories();
+            };
+
+            $scope.editTaskStatus = function (row) {
+                $scope.titleTaskStatusPopup = "Görev Durumu Düzenle";
+                $("#modalFormTaskStatus").modal("show");
+                getTaskCategories();
+
+                $http.get(`/admin/task-status/${row.data.id}`).then((res) => {
+                    $scope.taskStatusData = res.data;
+                });
+            }
+
+            $scope.saveTaskStatus = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    if ($scope.taskStatusData.id) {
+                        $http.put("/admin/task-status", $scope.taskStatusData)
+                            .then((res) => {
+                                $scope.dataGridTaskStatus.refresh();
+                                $("#modalFormTaskStatus").modal("hide");
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    } else {
+                        $http.post("/admin/task-status", $scope.taskStatusData)
+                            .then((res) => {
+                                $scope.dataGridTaskStatus.refresh();
+                                $("#modalFormTaskStatus").modal("hide");
+                                DevExpress.ui.notify(res.data.message, 'success');
+                            });
+                    }
+                }
+            }
+
+            $scope.deleteTaskStatus = function (row) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/admin/task-status/${row.data.id}`).then((res) => {
+                        $scope.dataGridTaskStatus.refresh();
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+
+        });
+    </script>
+}

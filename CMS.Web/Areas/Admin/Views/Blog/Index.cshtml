@@ -2,105 +2,444 @@
     ViewData["Title"] = "Blog";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-
-<div class="card shadow mb-3">
-    <div class="card-header bg-white pt-3">
-        <div class="row">
-            <div class="col-9">
-                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a class="text-decoration-none text-dark" href="/Admin">Anasayfa</a>
-                        </li>
-                        <li class="breadcrumb-item">Blog</li>
-                    </ol>
-                </nav>
+<div ng-app="app" ng-controller="appController">
+    <div class="card shadow mb-3">
+        <div class="card-header bg-white pt-3">
+            <div class="row">
+                <div class="col-9">
+                    <nav aria-label="breadcrumb" class="pt-2">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/admin/dashboard" class="text-decoration-none text-dark">
+                                    <i class="fa fa-home"></i>  Anasayfa
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a>
+                                    İçerik Yönetimi
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Blog
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="btn-group float-end">
+                        <button type="button" class="btn bg-white dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a ng-click="add()" class="dropdown-item text-dark cursor-pointer">
+                                    Blog Ekle
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="col-3">
-                <a class="btn btn-outline-primary btn-sm shadow float-end" href="/Admin/Blog/Add">
-                    <i class="fa fa-plus"></i>
-                </a>
+
+        </div>
+        <div class="card-body">
+            <div ng-cloak dx-data-grid="dataGridOptions" dx-item-alias="row">
+                <div data-options="dxTemplate:{ name:'cellTemplate' }">
+                    <button class="btn btn-outline-secondary btn-sm me-1" ng-click="edit(row)">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" ng-click="delete(row)">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+                <div data-options="dxTemplate:{ name:'imageTemplate' }">
+                    <img class="img-thumbnail" ng-src="{{row.data.imageUrl}}" />
+                </div>
             </div>
         </div>
     </div>
-    <div class="card-body">
-        @await Component.InvokeAsync("Loading")
-        <div class="table-responsive" id="content">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>
-                            Başlık
-                        </th>
-                        <th>
-                            Kısa Açıklama
-                        </th>
-                        <th>
-                            Görüntüleme Sayısı
-                        </th>
-                        <th>
-                            Aktif
-                        </th>
-                        <th>
-                            Yayında
-                        </th>
-                        <th>
-                            Ekleme Tarihi
-                        </th>
-                        <th>
-                            Güncelleme Tarihi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody id="content-body"></tbody>
-            </table>
-            <div id="pager"></div>
-        </div>
-        <script id="template" type="text/x-kendo-tmpl">
-            <tr data-uid="#: id #">
-                <td style="min-width:100px;">
-                    <a class="btn btn-secondary btn-sm text-white" href="/Admin/Blog/Edit/#:id#"><i class="fa fa-pencil"></i></a>
-                    <a onclick="app.delete(#:id#)" class="btn btn-danger btn-sm text-white">
-                        <i class="fa fa-trash"></i>
-                    </a>
-                </td>
-                <td style="min-width:200px;">
-                    #: title #
-                </td>
-                <td style="min-width:500px;">
-                    #: description #
-                </td>
-                <td style="min-width:100px;">
-                    #: numberOfView #
-                </td>
-                <td style="min-width:80px;">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" disabled # if(isActive) { # checked # } #>
-                    </div>
-                </td>
-                <td style="min-width:80px;">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" disabled # if(published) { # checked # } #>
-                    </div>
-                </td>
-                <td style="min-width:150px;">
-                    #: app.dateTimeFormat(insertedDate) #
-                </td>
-                <td style="min-width:150px;">
-                    #: app.dateTimeFormat(updatedDate) #
-                </td>
-            </tr>
-        </script>
 
+    <div class="modal fade" id="modalForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{titlePopup}}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="w-100"
+                                     dx-tag-box="{
+                                        label: 'Kategori Adı',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        displayExpr: 'name',
+                                        valueExpr: 'id',
+                                        bindingOptions: {
+                                            dataSource: 'blogCategories',
+                                            value: 'selectedData.blogCategories'
+                                        }
+                                     }"
+                                     dx-validator="{
+                                        validationRules: [{
+                                            type: 'required',
+                                            message: 'Kategori seçiniz.'
+                                        }]
+                                     }">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="w-100"
+                                     dx-text-box="{
+                                            label: 'Başlığı',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'selectedData.title'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Başlık giriniz.'
+                                        }]
+                                    }">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="w-100"
+                                     dx-text-box="{
+                                            label: 'Url',
+                                            readOnly: true,
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'selectedData.url'
+                                            }
+                                        }">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="w-100"
+                                     dx-text-area="{
+                                            label: 'Kısa Açıklama',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'selectedData.description'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Kısa açıklama giriniz.'
+                                        }]
+                                    }">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="w-100"
+                                     dx-number-box="{
+                                        label: 'Sırası',
+                                        stylingMode: 'outlined',
+                                        labelMode: 'floating',
+                                        min: 1,
+                                        bindingOptions: {
+                                            value: 'selectedData.displayOrder',
+                                        }
+                                    }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Kısa açıklama giriniz.'
+                                        }]
+                                    }">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="d-flex flex-row bd-highlight mb-3">
+                                    <div class="p-2 bd-highlight">
+                                        <label class="w-100 pb-2">Aktif</label>
+                                        <div dx-switch="{
+                                        bindingOptions: {
+                                            value: 'selectedData.isActive'
+                                        }
+                                    }">
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bd-highlight">
+                                        <label class="w-100 pb-2">Yayında</label>
+                                        <div dx-switch="{
+                                        bindingOptions: {
+                                            value: 'selectedData.published'
+                                        }
+                                    }">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3 border border-dark">
+                                <div class="p-3">
+                                    <h6 class="pb-3"> Dosya Ekle</h6>
+                                    <input type="file" class="form-control" id="fileImage" name="fileImage">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div dx-html-editor="htmlEditorOptions"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button dx-button="{
+                            text: 'Kaydet',
+                            onClick: save,
+                            type: 'default'
+                        }" class="btn"></button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
+                            KAPAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-@section Styles {
-    <link href="~/css/easyui.css" rel="stylesheet" />
-}
-
 @section Scripts {
-    <script src="~/js/lib/jquery.easyui.min.js"></script>
-    <script src="/js/pages/admin/blog/list.js"></script>
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            $scope.dataGrid = {};
+            $scope.titlePopup = "";
+            $scope.selectedData = {};
+
+            function getBlogCategories() {
+                $http.get("/admin/lookup/blog-categories").then((res) => {
+                    $scope.blogCategories = res.data;
+                });
+            };
+
+            $scope.dataGridOptions = {
+                dataSource: DevExpress.data.AspNet.createStore({
+                    key: 'id',
+                    loadUrl: '/admin/blog/list',
+                }),
+                remoteOperations: true,
+                paging: {
+                    pageSize: 5,
+                },
+                pager: {
+                    visible: true,
+                    allowedPageSizes: [10, 20, 50, 'all'],
+                    showPageSizeSelector: true,
+                    showInfo: true,
+                    showNavigationButtons: true,
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: 'auto',
+                },
+                headerFilter: {
+                    visible: true,
+                    search: {
+                        enabled: true,
+                    },
+                },
+                wordWrapEnabled: true,
+                showBorders: true,
+                showColumnLines: true,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                allowColumnResizing: true,
+                columns: [{
+                    caption: "",
+                    width: 105,
+                    allowHeaderFiltering: false,
+                    allowFiltering: false,
+                    cellTemplate: 'cellTemplate'
+                },
+                {
+                    dataField: 'id',
+                    sortOrder: "desc",
+                    visible: false
+                },
+                {
+                    caption: "",
+                    cellTemplate: 'imageTemplate',
+                    width: 200
+                },
+                {
+                    caption: 'Başlığı',
+                    dataField: 'title',
+                    width: 250,
+                },
+                {
+                    caption: 'Url',
+                    dataField: 'url',
+                    width: 250,
+                },
+                {
+                    caption: 'Kısa Açıklama',
+                    dataField: 'description',
+                    width: 350,
+                },
+                {
+                    caption: 'Görüntüleme Sayısı',
+                    dataField: 'numberOfView',
+                    width: 150
+                },
+                {
+                    caption: 'Yayında',
+                    dataField: 'published',
+                    width: 120
+                },
+                {
+                    caption: 'Aktif',
+                    dataField: 'isActive',
+                    width: 100
+                },
+                {
+                    caption: 'Kayıt Tarihi',
+                    dataField: 'insertedDate',
+                    dataType: 'date',
+                    format: 'dd.MM.yyyy HH:mm',
+                    width: 150
+                },
+                {
+                    caption: 'Güncelleme Tarihi',
+                    dataField: 'updatedDate',
+                    dataType: 'date',
+                    format: 'dd.MM.yyyy HH:mm',
+                    width: 150
+                },
+                ],
+                onInitialized(e) {
+                    $scope.dataGrid = e.component;
+                }
+            };
+
+            $scope.htmlEditorOptions = {
+                bindingOptions: {
+                    'toolbar.multiline': true,
+                    value: "selectedData.content"
+                },
+                toolbar: {
+                    items: [
+                        'undo', 'redo', 'separator',
+                        {
+                            name: 'size',
+                            acceptedValues: ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'],
+                            options: { inputAttr: { 'aria-label': 'Font size' } },
+                        },
+                        {
+                            name: 'font',
+                            acceptedValues: ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'],
+                            options: { inputAttr: { 'aria-label': 'Font family' } },
+                        },
+                        'separator', 'bold', 'italic', 'strike', 'underline', 'separator',
+                        'alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'separator',
+                        'orderedList', 'bulletList', 'separator',
+                        {
+                            name: 'header',
+                            acceptedValues: [false, 1, 2, 3, 4, 5],
+                            options: { inputAttr: { 'aria-label': 'Header' } },
+                        }, 'separator',
+                        'color', 'background', 'separator',
+                        'link', 'image', 'separator',
+                        'clear', 'codeBlock', 'blockquote', 'separator',
+                        'insertTable', 'deleteTable',
+                        'insertRowAbove', 'insertRowBelow', 'deleteRow',
+                        'insertColumnLeft', 'insertColumnRight', 'deleteColumn',
+                    ],
+                },
+                mediaResizing: {
+                    enabled: true,
+                },
+                imageUpload: {
+                    fileUploadMode: 'base64',
+                    tabs: ['file', 'url']
+                }
+            }
+
+            $scope.add = function () {
+                $scope.titlePopup = "Blog Ekle";
+                $("#modalForm").modal("show");
+                $scope.selectedData = {};
+                $scope.selectedData.isActive = true;
+                getBlogCategories();
+            };
+
+            $scope.edit = function (row) {
+                $scope.titlePopup = "Blog Düzenle";
+                $("#modalForm").modal("show");
+                getBlogCategories();
+
+                $http.get(`/admin/blog/${row.data.id}`).then((res) => {
+                    $scope.selectedData = res.data;
+                });
+            }
+
+            $scope.save = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    var file = $('#fileImage')[0].files[0];
+                    if ($scope.selectedData.id == undefined && !file) {
+                        DevExpress.ui.notify("Resim ekleyiniz!", 'error');
+                        return;
+                    }
+                    var data = new FormData();
+                    data.append("id", $scope.selectedData.id);
+                    data.append("image", file);
+                    data.append("title", $scope.selectedData.title);
+                    data.append("description", $scope.selectedData.description);
+                    data.append("blogCategories", $scope.selectedData.blogCategories);
+                    data.append("content", $scope.selectedData.content);
+                    data.append("displayOrder", $scope.selectedData.displayOrder);
+                    data.append("published", $scope.selectedData.published);
+                    data.append("isActive", $scope.selectedData.isActive);
+                    var requestType = "POST";
+
+                    if ($scope.selectedData.id) {
+                        requestType = "PUT";
+                    }
+                    $.ajax({
+                        type: requestType,
+                        url: "/admin/blog",
+                        contentType: false,
+                        processData: false,
+                        data: data
+                    }).done((res) => {
+                        $scope.dataGrid.refresh();
+                        $("#modalForm").modal("hide");
+                            DevExpress.ui.notify(res.message, 'success');
+                    });
+                }
+            }
+
+            $scope.delete = function (row) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/admin/blog/${row.data.id}`).then((res) => {
+                        $scope.dataGrid.refresh();
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+
+        });
+    </script>
 }

@@ -6,41 +6,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title - Admin Paneli</title>
-    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/kendo.bootstrap-main.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn3.devexpress.com/jslib/23.1.4/css/dx.material.blue.light.css" />
     @RenderSection("Styles", false)
     <link rel="stylesheet" href="~/css/style.css" />
     <script src="~/js/lib/jquery.js"></script>
-    @*<script src="~/lib/angular.js/angular.js"></script>*@
-    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
-    <script src="~/js/lib/kendo.ui.core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/lib/font-awesome.js"></script>
-    @RenderSection("Scripts", false)
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://unpkg.com/devextreme-quill@1.6.2/dist/dx-quill.min.js"></script>
+    <script src="https://cdn3.devexpress.com/jslib/23.1.4/js/dx.all.js"></script>
+    <script src="https://unpkg.com/devextreme-aspnet-data@2.9.2/js/dx.aspnet.data.js"></script>
     <script src="~/js/pages/admin/global.js"></script>
+    @RenderSection("Scripts", false)
 </head>
-<body>
-    <span id="notification" class="d-none"></span>
-    <script id="errorTemplate" type="text/x-kendo-template">
-        <div class="wrong-pass">
-            <h5>
-               <i class="k-icon k-i-warning k-icon-md"></i>
-               #= title #
-            </h5>
-            <p>#= message #</p>
-        </div>
-    </script>
-    <script id="successTemplate" type="text/x-kendo-template">
-        <div class="upload-success">
-            <h5>
-                <i class="k-icon k-i-success k-icon-md"></i>
-                 #= title #
-            </h5>
-            <p>#= message #</p>
-        </div>
-    </script>
-
-    <nav class="navbar navbar-expand navbar-light bg-light border-bottom shadow">
-        <a class="navbar-brand ps-3" href="/Admin/Dashboard">Admin Paneli</a>
+<body class="dx-viewport">
+    <nav class="navbar navbar-expand navbar-light bg-light border-bottom shadow fixed-top">
+        <a class="navbar-brand ps-3 text-dark" href="/Admin/Dashboard">Admin Paneli</a>
         <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
         </div>
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
@@ -55,13 +37,13 @@
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li>
-                        <a class="dropdown-item" href="/">
+                        <a class="dropdown-item text-dark" href="/">
                             Siteye Git
                         </a>
                     </li>
                     <li><hr class="dropdown-divider" /></li>
                     <li>
-                        <a class="dropdown-item" href="/logout">
+                        <a class="dropdown-item text-dark" href="/logout">
                             Çıkış Yap
                         </a>
                     </li>
@@ -69,91 +51,25 @@
             </li>
         </ul>
     </nav>
-    <div class="container-fluid" ng-app="app1" ng-controller="AppController">
-        <div class="row">
+    <div class="container-fluid" ng-app="app" >
+        <div class="row position-relative" style="top: 50px !important;">
             <div class="col-md-2 col-sm-3">
-                <div class="shadow mt-3">
-                    <ul id="leftMenu">
-                        <li>
-                            <a class="nav-link mt-2 text-dark cursor-pointer" href="/Admin/Dashboard">
-                                <i class="fas fa-dashboard pe-2"></i> Anasayfa
-                            </a>
-                        </li>
-                        <li>
-                            <span class="text-dark cursor-pointer"><i class="fas fa-address-book pe-2"></i>İçerik Yönetimi</span>
-                            <ul>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Blog">
-                                        Bloglar
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Service">
-                                        Hizmetler
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Testimonial">
-                                        Referanslar
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Contact">
-                                        İletişim Mesajları
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/HomepageSlider">
-                                        Anasayfa Slider
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Comment">
-                                        Yorumlar
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <span class="text-dark cursor-pointer">
-                                <i class="fas fa-info-circle pe-2"></i>Tanımlar
-                            </span>
-                            <ul>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/TaskDefinition">
-                                        Yapılacak Tanımları
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/BlogCategory">
-                                        Blog Kategorileri
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-                            <span class="text-dark cursor-pointer">
-                                <i class="fas fa-cogs pe-2 cursor-pointer"></i>Ayarlar
-                            </span>
-                            <ul>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/Task">
-                                        Yapılacaklar
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-link text-dark cursor-pointer" href="/Admin/User">
-                                        Kullanıcılar
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
+                <div class="main card shadow mb-3">
+                    <div class="card-header bg-white py-3">
+                        <h5><i class="fa fa-bars me-2"></i> Menü</h5>
+                    </div>
+                    <div class="card-body p-1" ng-controller="menuController">
+                        <div ng-cloak dx-tree-view="adminMenuOptions" dx-item-alias="row">
+                            <div data-options="dxTemplate:{ name:'itemTemplate' }">
+                                <a href="{{row.url}}" class="ms-2 text-dark">{{row.title}}</a>
+                            </div>
+                        </div>                        
+                    </div>
                 </div>
             </div>
             <div class="col-md-10 col-sm-9">
                 <main>
-                    <div class="main mb-4">
+                    <div class="main mb-5">
                         @RenderBody()
                     </div>
                 </main>

@@ -1,8 +1,256 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Blog Kategorileri";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div ng-app="app" ng-controller="appController">
+    <div class="card shadow mb-3">
+        <div class="card-header bg-white pt-3">
+            <div class="row">
+                <div class="col-9">
+                    <nav aria-label="breadcrumb" class="pt-2">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/admin/dashboard" class="text-decoration-none text-dark">
+                                    <i class="fa fa-home"></i>  Anasayfa
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a>
+                                    Tanımlar
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Blog Kategorileri
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="btn-group float-end">
+                        <button type="button" class="btn bg-white dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a ng-click="add()" class="dropdown-item text-dark cursor-pointer">
+                                    Blog Kategorisi Ekle
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
+        </div>
+        <div class="card-body">
+            <div ng-cloak dx-data-grid="dataGridOptions" dx-item-alias="data">
+                <div data-options="dxTemplate:{ name:'cellTemplate' }">
+                    <button class="btn btn-outline-secondary btn-sm me-1" ng-click="edit(data)">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" ng-click="delete(data)">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalForm" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{titlePopup}}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form">
+                        <div class="mb-4">
+                            <div class="w-100"
+                                 dx-text-box="nameOptions"
+                                 dx-validator="nameValidatorOptions">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="w-100" dx-text-box="urlOptions">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label w-100">Aktif</label>
+                            <div dx-switch="{ bindingOptions: {
+                                                value: 'selectedData.isActive'
+                                            }
+                                        }">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label w-100">Anasayfada gösterilsin mi?</label>
+                            <div dx-switch="{ bindingOptions: {
+                                                value: 'selectedData.isShowHome'
+                                            }
+                                        }">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button dx-button="{
+                            text: 'Kaydet',
+                            onClick: save,
+                            type: 'default'
+                        }" class="btn"></button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
+                            KAPAT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            $scope.titlePopup = "";
+
+            $scope.nameOptions = {
+                label: 'Adı',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'selectedData.name'
+                }
+            };
+
+            $scope.urlOptions = {
+                label: 'Url',
+                readOnly: true,
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                bindingOptions: {
+                    value: 'selectedData.url'
+                }
+            };
+
+            $scope.nameValidatorOptions = {
+                validationRules: [{
+                    type: 'required',
+                    message: 'Adı giriniz.'
+                }]
+            };
+
+            $scope.dataGridOptions = {
+                dataSource: DevExpress.data.AspNet.createStore({
+                    key: 'id',
+                    loadUrl: '/admin/blog-category/list',
+                }),
+                remoteOperations: true,
+                paging: {
+                    pageSize: 5,
+                },
+                pager: {
+                    visible: true,
+                    allowedPageSizes: [10, 20, 50, 'all'],
+                    showPageSizeSelector: true,
+                    showInfo: true,
+                    showNavigationButtons: true,
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: 'auto',
+                },
+                headerFilter: {
+                    visible: true,
+                    search: {
+                        enabled: true,
+                    },
+                },
+                wordWrapEnabled: true,
+                showBorders: true,
+                showColumnLines: true,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                allowColumnResizing: true,
+                columns: [{
+                    caption: "",
+                    width: 105,
+                    allowHeaderFiltering: false,
+                    allowFiltering: false,
+                    cellTemplate: 'cellTemplate'
+                },
+                {
+                    dataField: 'id',
+                    sortOrder: "desc",
+                    visible: false
+                },
+                {
+                    caption: 'Adı',
+                    dataField: 'name',
+                },
+                {
+                    caption: 'Url',
+                    dataField: 'url',
+                    width: 250,
+                },
+                {
+                    caption: 'Anasayfada gösterilsin mi?',
+                    dataField: 'isShowHome',
+                    width: 200
+                },
+                {
+                    caption: 'Aktif',
+                    dataField: 'isActive',
+                    width: 100
+                }],
+                onInitialized(e) {
+                    $scope.dataGrid = e.component;
+                }
+            };
+
+            $scope.add = function () {
+                $scope.titlePopup = "Blog Kategorisi Ekle";
+                $("#modalForm").modal("show");
+                $scope.selectedData = {};
+                $scope.selectedData.isActive = true;
+            };
+
+            $scope.edit = function (row) {
+                $scope.titlePopup = "Blog Kategorisi Düzenle";
+                $("#modalForm").modal("show");
+                $http.get(`/admin/blog-category/${row.data.id}`).then((res) => {
+                    $scope.selectedData = res.data;
+                });
+            }
+
+            $scope.save = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {                   
+                    if ($scope.selectedData.id) {
+                        $http.put("/admin/blog-category", $scope.selectedData).then((res) => {
+                            $scope.dataGrid.refresh();
+                            $("#modalForm").modal("hide");
+                            DevExpress.ui.notify(res.data.message, 'success');
+                        });
+                    } else {
+                        $http.post("/admin/blog-category", $scope.selectedData).then((res) => {
+                            $scope.dataGrid.refresh();
+                            $("#modalForm").modal("hide");
+                            DevExpress.ui.notify(res.data.message, 'success');
+                        });
+                    }
+                }
+            }
+
+            $scope.delete = function (row) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/admin/blog-category/${row.data.id}`).then((res) => {
+                        $scope.dataGrid.refresh();
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    });
+                }
+            }
+
+        });
+    </script>
+}

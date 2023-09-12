@@ -7,7 +7,6 @@
     var validatorAddComment = $("#formAddComment").kendoValidator().data("kendoValidator");
     var validatorReplyComment = $("#formReplyComment").kendoValidator().data("kendoValidator");
 
-
     var txtComment = $("#txtComment").kendoTextArea({
         rows: 5,
         maxLength: 500
@@ -93,6 +92,11 @@
         viewModel.set("comment.description", description);
 
         $("#replyCommentModal").modal("show");
+    };
+
+    app.login = function () {
+        var blog = viewModel.get("blog");
+        window.location.href = `/login?returnUrl=/blog/${blog.url}/${blog.id}`;
     };
 
     $("#btnCommentReply").click((e) => {

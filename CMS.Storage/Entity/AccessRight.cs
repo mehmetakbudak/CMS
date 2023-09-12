@@ -1,6 +1,4 @@
-﻿using CMS.Storage.Enum;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
 
 namespace CMS.Storage.Entity
 {
@@ -10,18 +8,16 @@ namespace CMS.Storage.Entity
 
         public string Name { get; set; }
 
-        public bool IsShowMenu { get; set; }
-
-        public AccessRightType Type { get; set; }
-
         public int DisplayOrder { get; set; }
 
         public bool IsActive { get; set; }
 
         public bool Deleted { get; set; }
 
-        public virtual ICollection<UserAccessRight> UserAccessRights { get; set; }
+        public virtual List<RoleAccessRight> RoleAccessRights { get; set; }
 
-        public virtual ICollection<AccessRightEndpoint> AccessRightEndpoints { get; set; }
+        public virtual List<AccessRightEndpoint> AccessRightEndpoints { get; set; }
+
+        public virtual List<MenuItemAccessRight> MenuItemAccessRights{ get; set; }
     }
 }

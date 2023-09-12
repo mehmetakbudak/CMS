@@ -1,13 +1,12 @@
-﻿using CMS.Storage.Consts;
-using CMS.Service.Exceptions;
-using CMS.Service.Infrastructure;
+﻿using CMS.Service.Exceptions;
+using CMS.Service.Helper;
+using CMS.Storage.Enum;
+using CMS.Storage.Model;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.IdentityModel.Tokens;
 using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Text;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CMS.Service.Attributes
@@ -15,9 +14,14 @@ namespace CMS.Service.Attributes
     public class CMSAuthorize : Attribute, IAsyncAuthorizationFilter
     {
         public bool CheckAccessRight { get; set; }
+        public bool IsView { get; set; }
+        public int RouteLevel { get; set; }
+
         public CMSAuthorize()
         {
             CheckAccessRight = true;
+            IsView = false;
+            RouteLevel = 2;
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -27,87 +31,64 @@ namespace CMS.Service.Attributes
                 var userService = (IUserService)context.HttpContext.RequestServices.GetService(typeof(IUserService));
                 var httpContextAccessor = (IHttpContextAccessor)context.HttpContext.RequestServices.GetService(typeof(IHttpContextAccessor));
 
+                var isAuthenticated = httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
 
-                //var request = context.HttpContext.Request;
-                //var token = request.Headers["Authorization"].ToString();
+                if (!isAuthenticated)
+                {
+                    context.Result = new RedirectResult("/login");
+                    return;
+                }
+                //erişim hakkı kontrolü yoksa içeri al.
+                if (!CheckAccessRight)
+                {
+                    return;
+                }
 
-                //if (string.IsNullOrEmpty(token))
-                //{
-                //    throw new NotFoundException("Token bulunamadı.");
-                //}
+                var loginUser = httpContextAccessor.HttpContext.User.Parse();
 
-                //string tokenString = token.Split(' ')[1];
+                // süper admin kontrole takılmaz.
+                if (loginUser.UserType == (int)UserType.SuperAdmin)
+                {
+                    return;
+                }
 
-                //if (string.IsNullOrEmpty(tokenString))
-                //{
-                //    throw new BadRequestException("Token formatı uygun değil.");
-                //}
+                // üye admin paneline giremez.
+                if (loginUser.UserType == (int)UserType.Member)
+                {
+                    context.Result = new RedirectResult("/login");
+                    return;
+                }
 
-                //var key = Encoding.ASCII.GetBytes(Global.Secret);
+                if (loginUser.UserType == (int)UserType.Admin)
+                {
+                    var result = await userService.Authorize(new AuthorizeModel
+                    {
+                        IsView = IsView,
+                        RouteLevel = RouteLevel,
+                        UserId = loginUser.UserId,
+                        Endpoint = context.HttpContext.Request.Path,
+                        Method = context.HttpContext.Request.Method
+                    });
 
-                //var handler = new JwtSecurityTokenHandler();
-
-                //try
-                //{
-                //    handler.ValidateToken(tokenString, new TokenValidationParameters
-                //    {
-                //        ValidateIssuerSigningKey = true,
-                //        IssuerSigningKey = new SymmetricSecurityKey(key),
-                //        ValidateIssuer = false,
-                //        ValidateAudience = false
-                //    }, out SecurityToken securityToken);
-                //}
-                //catch
-                //{
-                //    throw new BadRequestException("Kimlik doğrulanamadı.");
-                //}
-
-                //var tokenDescrypt = handler.ReadJwtToken(tokenString);
-
-                //var strUserId = tokenDescrypt.Claims.FirstOrDefault(x => x.Type == JwtTokenPayload.UserId);
-
-                //if (strUserId == null || !Int32.TryParse(strUserId.Value, out int userId))
-                //{
-                //    throw new BadRequestException("Token hatalı.");
-                //}
-
-                //var user = await userService.GetById(userId);
-
-                //if (user == null)
-                //{
-                //    throw new NotFoundException("Kullanıcı bulunamadı.");
-                //}
-
-                //if (!string.IsNullOrEmpty(user.Token))
-                //{
-                //    if (user.Token.ToLower() != tokenString.ToLower())
-                //    {
-                //        throw new UnAuthorizedException("Token süresi dolmuş. Tekrar giriş yapınız.");
-                //    }
-                //}
-                //else
-                //{
-                //    throw new UnAuthorizedException("Lütfen giriş yapınız.");
-                //}
-
-                //if (!user.TokenExpireDate.HasValue)
-                //{
-                //    throw new UnAuthorizedException("Token süresi dolmuş. Tekrar giriş yapınız.");
-                //}
-
-                //var tokenStartDate = user.TokenExpireDate.Value.AddHours(-2);
-                //var tokenEndDate = user.TokenExpireDate.Value;
-
-                //if (!((tokenStartDate <= DateTime.Now) && (tokenEndDate >= DateTime.Now)))
-                //{
-                //    throw new UnAuthorizedException("Token süresi dolmuş. Tekrar giriş yapınız.");
-                //}
-
+                    if (result.StatusCode == HttpStatusCode.OK)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        context.Result = IsView ? new RedirectResult("/login") : new UnauthorizedObjectResult(new ServiceResult
+                        {
+                            StatusCode = HttpStatusCode.Unauthorized,
+                            Message = "Yetkisiz İşlem"
+                        });
+                        return;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 throw new UnAuthorizedException(ex.Message);
             }
-        }      
+        }
     }
 }

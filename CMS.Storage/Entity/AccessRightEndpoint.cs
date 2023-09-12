@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using CMS.Storage.Enum;
 
 namespace CMS.Storage.Entity
 {
@@ -10,6 +10,8 @@ namespace CMS.Storage.Entity
 
         public string Endpoint { get; set; }
 
-        public string Method { get; set; }
+        public MethodType Method { get; set; }
+
+        public int RouteLevel { get; set; }
     }
 }

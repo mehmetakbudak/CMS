@@ -1,4 +1,44 @@
-﻿var app = {};
+﻿const appModule = angular.module('app', ['dx']);
+appModule.controller('HeaderController', ($scope, $http) => {
+    $scope.languages = [{ name: "TR", value: "tr-TR" }, { name: "EN", value: "en-US" }];
+
+    getMenu();
+    getCurrentLanguage();
+
+    $scope.menuOptions = {
+        displayExpr: 'title',
+        itemsExpr: 'children',
+        orientation: 'horizontal',
+        itemTemplate: 'itemTemplate',
+        showFirstSubmenuMode: 'onHover',
+        hideSubmenuOnMouseLeave: true,
+        onItemClick(data) {
+            const item = data.itemData;
+
+        },
+        bindingOptions: {
+            dataSource: 'menuData',
+        },
+    };
+
+    function getMenu() {
+        $http.get("/menu/frontend").then((res) => {
+            $scope.menuData = res.data;
+        });
+    }
+
+    function getCurrentLanguage() {
+        $http.get("/language/currentlanguage").then((res) => {
+            $scope.item = $scope.languages.find(x => x.value == res.data);
+        });
+    }
+
+    $scope.selectLanguage = function () {
+        window.location.href = `/?culture=${$scope.item.value}`;
+    }
+});
+
+var app = {};
 
 $(() => {
     const select = (el, all = false) => {

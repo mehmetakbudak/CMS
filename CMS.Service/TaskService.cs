@@ -2,11 +2,11 @@
 using CMS.Data.Repository;
 using CMS.Service.Exceptions;
 using CMS.Storage.Consts;
-using CMS.Storage.Dto;
 using CMS.Storage.Entity;
 using CMS.Storage.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ namespace CMS.Service
 {
     public interface ITaskService
     {
-        IQueryable<TaskGetModel> GetAll(TaskFilterModel model);
+        Task<List<TaskGetModel>> Get();
         IQueryable<TaskGetModel> GetUserTasks(int userId);
         Task<TaskModel> GetById(int id);
         Task<ServiceResult> Post(TaskModel model);
@@ -32,45 +32,28 @@ namespace CMS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public IQueryable<TaskGetModel> GetAll(TaskFilterModel model)
+        public async Task<List<TaskGetModel>> Get()
         {
-            var data = _unitOfWork.Repository<TaskDmo>()
+            var list = await _unitOfWork.Repository<TaskDmo>()
                 .Where(x => !x.Deleted)
                 .Include(x => x.TaskCategory)
                 .Include(x => x.TaskStatus)
                 .Include(x => x.AssignUser)
-                .AsQueryable();
-
-            if (model.EndDate.HasValue)
-                data = data.Where(x => x.InsertedDate.Date <= model.EndDate.Value.Date);
-            if (model.StartDate.HasValue)
-                data = data.Where(x => x.InsertedDate.Date >= model.StartDate.Value.Date);
-            if (!string.IsNullOrEmpty(model.Title))
-                data = data.Where(x => x.Title.Contains(model.Title));
-            if (model.TaskCategoryId.HasValue)
-                data = data.Where(x => x.TaskCategoryId == model.TaskCategoryId.Value);
-            if (model.TaskStatusId.HasValue)
-                data = data.Where(x => x.TaskStatusId == model.TaskStatusId.Value);
-            if (model.AssignUserId.HasValue)
-                data = data.Where(x => x.AssignUserId == model.AssignUserId.Value);
-            if (model.IsActive.HasValue)
-                data = data.Where(x => x.IsActive == model.IsActive.Value);
-
-            var list = data.Select(x => new TaskGetModel
-            {
-                Description = x.Description,
-                Id = x.Id,
-                InsertedDate = x.InsertedDate,
-                IsActive = x.IsActive,
-                Title = x.Title,
-                TaskCategoryId = x.TaskCategoryId,
-                TaskCategoryName = x.TaskCategory.Name,
-                TaskStatusId = x.TaskStatusId,
-                TaskStatusName = x.TaskStatus.Name,
-                UpdatedDate = x.UpdatedDate,
-                AssignUserId = x.AssignUserId,
-                UserNameSurname = x.AssignUser.Name + " " + x.AssignUser.Surname
-            }).OrderByDescending(x => x.Id).AsQueryable();
+                .Select(x => new TaskGetModel
+                {
+                    Description = x.Description,
+                    Id = x.Id,
+                    InsertedDate = x.InsertedDate,
+                    IsActive = x.IsActive,
+                    Title = x.Title,
+                    TaskCategoryId = x.TaskCategoryId,
+                    TaskCategoryName = x.TaskCategory.Name,
+                    TaskStatusId = x.TaskStatusId,
+                    TaskStatusName =  $"{x.TaskStatus.Name} ({x.TaskCategory.Name})",
+                    UpdatedDate = x.UpdatedDate,
+                    AssignUserId = x.AssignUserId,
+                    UserNameSurname = x.AssignUser.Name + " " + x.AssignUser.Surname
+                }).ToListAsync();
 
             return list;
         }
@@ -185,6 +168,6 @@ namespace CMS.Service
             await _unitOfWork.Save();
 
             return serviceResult;
-        }        
+        }
     }
 }

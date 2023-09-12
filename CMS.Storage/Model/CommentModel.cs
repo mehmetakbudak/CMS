@@ -21,6 +21,8 @@ namespace CMS.Storage.Model
     {
         public string Source { get; set; }
 
+        public int StatusId { get; set; }
+
         public string Status { get; set; }
 
         public string UserFullName { get; set; }

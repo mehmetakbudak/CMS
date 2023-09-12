@@ -1,17 +1,24 @@
 using CMS.Data.Context;
 using CMS.Data.Repository;
-using CMS.Storage.Model;
 using CMS.Service;
+using CMS.Service.Extensions;
 using CMS.Service.Helper;
 using CMS.Service.Infrastructure;
 using CMS.Service.Middlewares;
+using CMS.Storage.Model;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using System;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +28,10 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<CMSContext>(options =>
-       options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnectionString"), 
+       options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnectionString"),
        options =>
        {
-           options.EnableRetryOnFailure();           
+           options.EnableRetryOnFailure();
        }));
 
 builder.Services.ConfigureApplicationCookie(s =>
@@ -54,7 +61,6 @@ builder.Services.AddScoped<IContactCategoryService, ContactCategoryService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IChatMessageService, ChatMessageService>();
-builder.Services.AddScoped<IUserAccessRightService, UserAccessRightService>();
 builder.Services.AddScoped<IAccessRightService, AccessRightService>();
 builder.Services.AddScoped<IPageService, PageService>();
 builder.Services.AddScoped<IBlogCategoryService, BlogCategoryService>();
@@ -75,6 +81,13 @@ builder.Services.AddScoped<IService_Service, Service_Service>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IHomepageSliderService, HomepageSliderService>();
 builder.Services.AddScoped<ITagService, TagService>();
+builder.Services.AddScoped<IJobService, JobService>();
+builder.Services.AddScoped<IUserJobService, UserJobService>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IAccessRightEndpointService, AccessRightEndpointService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<RequestLocalizationCookiesMiddleware>();
+builder.Services.AddScoped<IUserFileService, UserFileService>();
 
 builder.Services.AddMvc().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
     .ConfigureApiBehaviorOptions(options =>
@@ -112,8 +125,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     CultureInfo[] cultures = new CultureInfo[]
     {
         new("tr-TR"),
-        new("en-US"),
-        new("fr-FR")
+        new("en-US")
     };
 
     options.SupportedCultures = cultures;
@@ -136,6 +148,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseRequestLocalization();
+app.UseRequestLocalizationCookies();
 
 Global.Initialize(builder.Configuration);
 

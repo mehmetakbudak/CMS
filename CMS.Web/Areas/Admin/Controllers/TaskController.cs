@@ -1,6 +1,10 @@
 ﻿using CMS.Service;
-using CMS.Storage.Dto;
+using CMS.Service.Attributes;
+using CMS.Storage.Model;
+using CMS.Web.Models;
+using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Areas.Admin.Controllers
 {
@@ -14,60 +18,48 @@ namespace CMS.Web.Areas.Admin.Controllers
             _taskService = taskService;
         }
 
-        #region View
         [Route("admin/task")]
+        [CMSAuthorize(RouteLevel = 2, IsView = true)]
         public IActionResult Index() => View();
-
-        [Route("admin/task/add")]
-        public IActionResult Add()
+       
+        [HttpGet("admin/task/list")]
+        [CMSAuthorize(RouteLevel = 3)]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
         {
-            ViewBag.Id = 0;
-            return View("CreateOrUpdate");
+            var list = await _taskService.Get();
+            return Json(DataSourceLoader.Load(list, loadOptions));
         }
 
-        [Route("admin/task/edit/{id}")]
-        public IActionResult Edit(int id)
-        {
-            ViewBag.Id = id;
-            return View("CreateOrUpdate");
-        }
-        #endregion
-
-        #region API
-        [HttpPost("api/admin/task/getbyfilter")]
-        public IActionResult GetByFilter([FromBody] TaskFilterModel model)
-        {
-            var list = _taskService.GetAll(model);
-            return Ok(list);
-        }
-
-        [HttpGet("api/admin/task/{id}")]
+        [HttpGet("admin/task/{id}")]
+        [CMSAuthorize(RouteLevel = 2)]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _taskService.GetById(id);
             return Ok(result);
         }
 
-        [HttpPost("api/admin/task")]
+        [HttpPost("admin/task")]
+        [CMSAuthorize(RouteLevel = 2)]
         public async Task<IActionResult> Post([FromBody] TaskModel model)
         {
             var result = await _taskService.Post(model);
             return Ok(result);
         }
 
-        [HttpPut("api/admin/task")]
+        [HttpPut("admin/task")]
+        [CMSAuthorize(RouteLevel = 2)]
         public async Task<IActionResult> Put([FromBody] TaskModel model)
         {
             var result = await _taskService.Put(model);
             return Ok(result);
         }
 
-        [HttpDelete("api/admin/task/{id}")]
+        [HttpDelete("admin/task/{id}")]
+        [CMSAuthorize(RouteLevel = 2)]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _taskService.Delete(id);
             return Ok(result);
         }
-        #endregion
     }
 }

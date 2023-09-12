@@ -1,5 +1,4 @@
-﻿using CMS.Storage.Entity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 
 namespace CMS.Storage.Model
 {
@@ -7,11 +6,10 @@ namespace CMS.Storage.Model
     {
         public int Id { get; set; }
 
-        public int TotalCount { get; set; }
-        
-        [Required(ErrorMessage = "Role adı zorunludur.")]
         public string Name { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<int> AccessRightIds { get; set; }
     }
 }

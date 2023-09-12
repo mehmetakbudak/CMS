@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace CMS.Storage.Model.ViewModel
-{   
+{
     public class MostReadBlogViewModel
     {
         public int Id { get; set; }
@@ -22,6 +22,7 @@ namespace CMS.Storage.Model.ViewModel
         public DateTime InsertedDate { get; set; }
         public string ImageUrl { get; set; }
         public string UserName { get; set; }
+        public string Url { get; set; }
         public List<BlogDetailCategoryModel> BlogCategories { get; set; }
     }
 }

@@ -1,0 +1,194 @@
+﻿@{
+    ViewData["Title"] = "Özgeçmişlerim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<main id="main" ng-app="app" ng-controller="appController" ng-cloak>
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Özgeçmişlerim</h2>
+                <ol>
+                    <li><a href="/">Anasayfa</a></li>
+                    <li>Özgeçmişlerim</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-md-3">
+                @await Html.PartialAsync("_ProfileMenu")
+            </div>
+            <div class="col-md-9">
+                <div class="card box-shadow">
+                    <div class="card-body p-4">
+                        <div class="d-flex bd-highlight mb-2">
+                            <h5 class="card-title flex-grow-1 bd-highlight">Özgeçmişlerim</h5>
+                            <a ng-click="add()" class="btn btn-outline-secondary bd-highlight text-dark">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-info mt-4" ng-if="userFiles.length == 0">
+                                    Kayıt bulunamadı.
+                                </div>
+                                <div class="table-responsive" ng-if="userFiles.length>0">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th class="p-3">Dosya Adı</th>
+                                                <th class="p-3">Varsayılan</th>
+                                                <th class="p-3">Ekleme Tarihi</th>
+                                                <th class="p-3">İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="item in userFiles">
+                                                <td class="p-3">
+                                                    <a target="_blank" href="{{item.fileUrl}}">{{item.fileName}}</a>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div dx-check-box="{
+                                                         readOnly: true,
+                                                         bindingOptions: {
+                                                              value: 'item.isDefault',
+                                                            },
+                                                        }">
+                                                    </div>
+                                                </td>
+                                                <td class="p-3">{{item.insertedDate | date:'dd.MM.yyyy HH:mm'}}</td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm bg-white border border-dark dropdown-toggle"
+                                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fa fa-cog"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li>
+                                                                <a class="dropdown-item text-dark"
+                                                                   target="_blank" href="{{item.fileUrl}}">Görüntüle</a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item text-dark cursor-pointer"
+                                                                   ng-click="deleteFile(item.id)">Sil</a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item text-dark cursor-pointer"
+                                                                   ng-click="setFileDefault(item.id)">Varsayılan Yap</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="fileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fs-5" id="staticBackdropLabel">Dosya Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="my-4">
+                                <div class="mb-3 text-secondary">Sadece PDF dosyası ekleyiniz!</div>
+                                <input type="file" class="form-control" id="fileCV" name="fileCV" accept="application/pdf">
+                            </div>
+                            <div class="my-2">
+                                <div class="form-label">Varsayılan mı?</div>
+                                <div dx-switch="{
+                                 bindingOptions: {
+                                      value: 'userFile.isDefault',
+                                    },
+                                }">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn bg-green text-white" ng-click="saveFile()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+@section Scripts{
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            $scope.userFile = {
+                isDefault: true
+            }
+
+            getUserFiles();
+
+            function getUserFiles() {
+                $http.get("/account/user-files/1").then((res) => {
+                    $scope.userFiles = res.data;
+                });
+            }
+
+            $scope.add = function () {
+                $("#fileModal").modal("show");
+            }
+
+            $scope.deleteFile = function (id) {
+                if (confirm("Silmek istediğinize emin misiniz?")) {
+                    $http.delete(`/account/user-files/${id}`).then((res) => {
+                        getUserFiles();
+                        DevExpress.ui.notify(res.data.message, 'success');
+                    }, (err) => {
+                        DevExpress.ui.notify(err.data.message, 'error');
+                    });
+                }
+            }
+
+            $scope.setFileDefault = function (id) {
+                $http.put(`/account/user-files/set-default/${id}`).then((res) => {
+                    getUserFiles();
+                    DevExpress.ui.notify(res.data.message, 'success');
+                });
+            }
+
+            $scope.saveFile = function () {
+                var file = $('#fileCV')[0].files[0];
+                if (!file) {
+                    DevExpress.ui.notify("Dosya ekleyiniz!", 'error');
+                    return;
+                }
+                var data = new FormData();
+                data.append("file", file);
+                data.append("isDefault", $scope.userFile.isDefault);
+                data.append("fileType", 1);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/account/user-files",
+                    contentType: false,
+                    processData: false,
+                    data: data
+                }).done((res) => {
+                    getUserFiles();
+                    $("#fileModal").modal("hide");
+                    DevExpress.ui.notify(res.message, 'success');
+                });
+            }
+
+        });
+    </script>
+}

@@ -1,7 +1,10 @@
 ﻿using CMS.Service;
+using CMS.Service.Attributes;
 using CMS.Storage.Model;
+using CMS.Web.Models;
+using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Areas.Admin.Controllers
 {
@@ -15,55 +18,48 @@ namespace CMS.Web.Areas.Admin.Controllers
             _blogService = blogService;
         }
 
-        #region Views
         [Route("admin/blog")]
+        [CMSAuthorize(RouteLevel = 2, IsView = true)]
         public IActionResult Index() => View();
 
-        [Route("admin/blog/add")]
-        public IActionResult Add()
+        [CMSAuthorize(RouteLevel = 3)]
+        [HttpGet("admin/blog/list")]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
         {
-            ViewBag.Id = 0;
-            return View("CreateOrUpdate");
+            var list = await _blogService.GetAll();
+            return Json(DataSourceLoader.Load(list, loadOptions));
         }
 
-        [Route("admin/blog/edit/{id}")]
-        public IActionResult Edit(int id)
-        {
-            ViewBag.Id = id;
-            return View("CreateOrUpdate");
-        }
-        #endregion
-
-        #region APIs
-
-        [HttpGet("api/admin/blog")]
-        public IActionResult Get()
-        {
-            var list = _blogService.GetAll();
-            return Ok(list);
-        }
-
-        [HttpGet("api/admin/blog/{id}")]
+        [CMSAuthorize(RouteLevel = 2)]
+        [HttpGet("admin/blog/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _blogService.GetById(id);
             return Ok(result);
         }
 
-        [HttpPost("api/admin/blog")]
+        [CMSAuthorize(RouteLevel = 2)]
+        [HttpPost("admin/blog")]
         public async Task<IActionResult> Post(BlogPostModel model)
         {
             var result = await _blogService.Post(model);
             return Ok(result);
         }
 
-        [HttpPut("api/admin/blog")]
+        [CMSAuthorize(RouteLevel = 2)]
+        [HttpPut("admin/blog")]
         public async Task<IActionResult> Put(BlogPutModel model)
         {
             var result = await _blogService.Put(model);
             return Ok(result);
         }
 
-        #endregion
+        [CMSAuthorize(RouteLevel = 2)]
+        [HttpDelete("admin/blog/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _blogService.Delete(id);
+            return Ok(result);
+        }
     }
 }
