@@ -1,4 +1,6 @@
 ﻿using CMS.Service;
+using CMS.Web.Models;
+using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -20,13 +22,11 @@ namespace CMS.Web.Controllers
         
         #endregion
 
-        #region APIs
-        [HttpGet("api/testimonial")]
-        public async Task<IActionResult> Get(int? top)
+        [HttpGet("testimonial/list")]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions, int top)
         {
-            var list = await _testimonialService.GetAllActive(top);
-            return Ok(list);
+            var list = await _testimonialService.GetAllActive();
+            return Json(DataSourceLoader.Load(list, loadOptions));
         }
-        #endregion
     }
 }

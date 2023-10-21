@@ -1,6 +1,7 @@
-﻿const appModule = angular.module('app', ['dx']);
+﻿const appModule = angular.module('app', ['dx', 'ngSanitize']);
 appModule.controller('HeaderController', ($scope, $http) => {
     $scope.languages = [{ name: "TR", value: "tr-TR" }, { name: "EN", value: "en-US" }];
+    $scope.menuData = [];
 
     getMenu();
     getCurrentLanguage();
@@ -12,15 +13,18 @@ appModule.controller('HeaderController', ($scope, $http) => {
         itemTemplate: 'itemTemplate',
         showFirstSubmenuMode: 'onHover',
         hideSubmenuOnMouseLeave: true,
-        onItemClick(data) {
-            const item = data.itemData;
-
-        },
         bindingOptions: {
             dataSource: 'menuData',
-        },
+        }
     };
 
+    $scope.treeMenuOptions = {
+        itemsExpr: 'children',
+        itemTemplate: 'itemTemplate',
+        bindingOptions: {
+            dataSource: 'menuData',
+        }
+    };
     function getMenu() {
         $http.get("/menu/frontend").then((res) => {
             $scope.menuData = res.data;
@@ -37,8 +41,6 @@ appModule.controller('HeaderController', ($scope, $http) => {
         window.location.href = `/?culture=${$scope.item.value}`;
     }
 });
-
-var app = {};
 
 $(() => {
     const select = (el, all = false) => {
@@ -99,120 +101,4 @@ $(() => {
             heroCarouselIndicators.innerHTML += "<li data-bs-target='#heroCarousel' data-bs-slide-to='" + index + "' class='active'></li>" :
             heroCarouselIndicators.innerHTML += "<li data-bs-target='#heroCarousel' data-bs-slide-to='" + index + "'></li>"
     });
-
-    var menuDataSource = new kendo.data.HierarchicalDataSource({
-        transport: {
-            read: {
-                url: "/api/menu/frontend",
-                dataType: "json"
-            }
-        },
-        schema: {
-            model: {
-                children: "items"
-            }
-        }
-    });
-
-    $("#topMenu").kendoMenu({
-        dataSource: menuDataSource,
-        dataUrlField: "url",
-        dataTextField: "title"
-    });
-
-    $("#profileMenu").kendoPanelBar({});
-
-    var validatorNewsletter = $("#formNewsletter").kendoValidator().data("kendoValidator");
-
-    $("#btnNewsletter").click((e) => {
-        e.preventDefault();
-        if (validatorNewsletter.validate()) {
-            var data = {
-                emailAddress: $("#txtEmailAddress").val()
-            };
-
-        }
-    });
-
-    var notification = $("#notification").kendoNotification({
-        position: {
-            pinned: true,
-            top: 30,
-            right: 30
-        },
-        autoHideAfter: 5000,
-        stacking: "down",
-        templates: [{
-            type: "error",
-            template: $("#errorTemplate").html()
-        },
-        {
-            type: "success",
-            template: $("#successTemplate").html()
-        }]
-    }).data("kendoNotification");
-
-    app.successNotification = function successNotification(title, message) {
-        notification.show({
-            title: title,
-            message: message
-        }, "success");
-    }
-
-    app.errorNotification = function errorNotification(title, message) {
-        notification.show({
-            title: title,
-            message: message
-        }, "error");
-    }
-
-})
-
-function dateFormat(value) {
-    if (value) {
-        var formattedDate = new Date(value);
-        var year = formattedDate.getFullYear();
-        var month = formattedDate.getMonth() + 1;
-        var day = formattedDate.getDate();
-        if (day < 10) {
-            day = "0" + day;
-        }
-        if (month < 10) {
-            month = "0" + month;
-        }
-        return (day + "." + month + "." + year);
-    } else {
-        return '';
-    }
-}
-
-function dateTimeFormat(value) {
-    if (value) {
-        var formattedDate = new Date(value);
-        var year = formattedDate.getFullYear();
-        var month = formattedDate.getMonth() + 1;
-        var day = formattedDate.getDate();
-        var hour = formattedDate.getHours();
-        var minute = formattedDate.getMinutes();
-        var second = formattedDate.getSeconds();
-
-        if (day < 10) {
-            day = "0" + day;
-        }
-        if (month < 10) {
-            month = "0" + month;
-        }
-        if (hour < 10) {
-            hour = "0" + hour;
-        }
-        if (minute < 10) {
-            minute = "0" + minute;
-        }
-        if (second < 10) {
-            second = "0" + second;
-        }
-        return (day + "." + month + "." + year + " " + hour + ":" + minute + ":" + second);
-    } else {
-        return '';
-    }
-}
+});

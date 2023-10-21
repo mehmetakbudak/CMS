@@ -2,9 +2,37 @@
     ViewData["Title"] = "Referanslar";
 }
 
+@section Styles {
+    <style>
+        .dx-list-item:first-of-type {
+            margin-top: 0 !important;
+        }
 
-<main id="main">
+        .dx-scrollview-content {
+            display: flex !important;
+            flex-wrap: wrap;
+        }
 
+        .dx-list-item {
+            width: 50% !important;
+        }
+
+        @@media only screen and (max-width: 768px) {
+            .dx-list-item {
+                width: 100% !important;
+            }
+        }
+
+        @@media only screen and (min-width: 768px) {
+            .dx-list-item {
+                width: 50% !important;
+            }
+        }
+    </style>
+}
+
+
+<main id="main" ng-app="app" ng-controller="appController">
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
@@ -19,23 +47,15 @@
 
     <section id="testimonials" class="testimonials section-bg">
         <div class="container">
-            @await Component.InvokeAsync("Loading")
-
-            <div id="content">
-                <div id="testimonialList" class="row"></div>
-                <script id="template" type="text/x-kendo-template">
-                    <div class="col-lg-6 p-3">
-                        <div class="testimonial-item">
-                            <img src="#:imageUrl#" class="testimonial-img" alt="">
-                            <h3>#:name# #:surname#</h3>
-                            <h4>#:corporateName# - #:title#</h4>
-                            <p>
-                               #: description #
-                            </p>
-                        </div>
+            <div dx-list="listOptions" dx-item-alias="item">
+                <div data-options="dxTemplate: {name: 'item'}">
+                    <div class="testimonial-item">
+                        <img ng-cloak ng-src="{{item.imageUrl}}" class="testimonial-img" alt="">
+                        <h3 ng-cloak>{{item.name}} {{item.surname}}</h3>
+                        <h4 ng-cloak>{{item.corporateName}} - {{item.title}}</h4>
+                        <p style="white-space: normal;" ng-bind-html="item.description"></p>
                     </div>
-                </script>
-                <div class="my-3" id="pager"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -43,5 +63,30 @@
 </main>
 
 @section Scripts {
-    <script src="/js/pages/frontend/testimonial.js"></script>
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            var store = DevExpress.data.AspNet.createStore({
+                key: 'id',
+                loadUrl: `/testimonial/list`
+            });
+
+            var ds = new DevExpress.data.DataSource({
+                store,
+                paginate: true,
+                pageSize: 4,
+                sort: 'id',
+            });
+
+            $scope.listOptions = {
+                dataSource: ds,
+                pageLoadMode: 'scrollBottom',
+                selectByClick: false,
+                hoverStateEnabled: false,
+                activeStateEnabled: false,
+                noDataText: "Kayıt bulunamadı",
+                showScrollbar: 'onHover',
+                height: window.screen.height
+            };
+        });
+    </script>
 }

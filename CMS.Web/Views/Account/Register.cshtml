@@ -2,7 +2,7 @@
     ViewData["Title"] = "Üye Ol";
 }
 
-<main id="main">
+<main id="main" ng-app="app" ng-controller="appController" ng-cloak>
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
@@ -15,75 +15,142 @@
         </div>
     </section>
     <div class="container my-3">
-        <div class="card box-shadow">
+        <div class="card shadow">
             <div class="card-body">
-                <div class="col-md-4 offset-md-4">
-                    <div class="card my-3">
-                        <div class="card-header py-3 bg-white">
-                            <h4>Üye Ol</h4>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <div class="card-title py-2">
+                            <h5>Üye Ol</h5>
                         </div>
-                        <div class="card-body">
-                            <form id="registerForm">
-                                <div class="mb-3">
-                                    <label class="form-label">Adı</label>
-                                    <input id="txtName"
-                                           name="txtName"
-                                           class="form-control w-100"
-                                           required data-required-msg="Adı giriniz." />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Adı',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'formData.name'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Adı giriniz.'
+                                        }]
+                                    }">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Soyadı</label>
-                                    <input id="txtSurname"
-                                           name="txtSurname"
-                                           class="form-control w-100"
-                                           required data-required-msg="Soyadı giriniz." />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Soyadı',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'formData.surname'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Soyadı giriniz.'
+                                        }]
+                                    }">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Email Adresi</label>
-                                    <input id="txtEmailAddress"
-                                           name="txtEmailAddress"
-                                           type="email"
-                                           class="form-control w-100"
-                                           required data-required-msg="Email adresi giriniz."
-                                           data-email-msg="Email formatı geçersiz." />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Email Adresi',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'formData.emailAddress'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                            validationRules: [{
+                                            type: 'required' ,
+                                            message: 'Email adresi giriniz.'
+                                            },
+                                            {
+                                              type: 'email',
+                                              message: 'Email adresi geçersiz.',
+                                            }]
+                                         }">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Şifre</label>
-                                    <input id="txtPassword"
-                                           name="txtPassword"
-                                           type="password"
-                                           class="form-control w-100"
-                                           required data-required-msg="Şifre giriniz." />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Telefon',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            mask: '(000) 000-0000',
+                                            bindingOptions: {
+                                                value: 'formData.phone'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Telefon giriniz.'
+                                        }]
+                                    }">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Şifre Yeniden</label>
-                                    <input id="txtRePassword"
-                                           name="txtRePassword"
-                                           type="password"
-                                           class="form-control w-100"
-                                           required data-required-msg="Şifre Yeniden giriniz." />
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Yeni Şifre',
+                                            stylingMode: 'outlined',
+                                            mode: 'password',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'formData.password'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Yeni şifreyi giriniz.'
+                                        }]
+                                    }"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="w-100 mb-4"
+                                     dx-text-box="{
+                                            label: 'Yeni Şifre Yeniden',
+                                            mode: 'password',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'formData.rePassword'
+                                            }
+                                        }"
+                                     dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Yeni şifreyi yeniden giriniz.'
+                                        }]
+                                    }"></div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-4">
+                                    <div class="text-end">
+                                        <button dx-button="{
+                                                text: 'Kaydet',
+                                                onClick: save,
+                                                type: 'default'
+                                            }" class="bg-green text-white float-start border-0"></button>
+                                    </div>
+                                    <div style="margin-left: 100px; padding-top: 10px;">
+                                        Zaten üye misiniz?
+                                        <a class="text-dark cursor-pointer text-decoration-underline" href="/login">Giriş Yap</a>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Telefon</label>
-                                    <input type="text"
-                                           id="txtPhone"
-                                           name="txtPhone"
-                                           class="form-control w-100"
-                                           required data-required-msg="Telefon giriniz." />
-                                </div>
-
-                                <div class="mb-3">
-                                    <button id="btnRegister"
-                                            class="btn bg-green text-white w-100"
-                                            type="submit">
-                                        Kaydet
-                                    </button>
-                                </div>
-                                <div class="text-center">
-                                    Zaten üye misiniz?
-                                    <a class="text-decoration-none cursor-pointer" href="/login">Giriş Yap</a>
-                                </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -93,5 +160,22 @@
 </main>
 
 @section Scripts {
-    <script src="/js/pages/frontend/account/register.js"></script>
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+
+            $scope.save = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    $http.post("/account/register", $scope.formData).then((res) => {
+                        DevExpress.ui.notify(res.data.message, 'success');
+                        setTimeout(() => {
+                            window.location.href = "/login";
+                        }, 2000);
+                    }, (err) => {
+                        DevExpress.ui.notify(err.data.message, 'error');
+                    });
+                }
+            }
+        });
+    </script>
 }

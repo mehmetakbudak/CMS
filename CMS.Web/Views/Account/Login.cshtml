@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Giriş Yap";
 }
-<main id="main">
+<main id="main" ng-app="app" ng-controller="appController" ng-cloak>
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
@@ -19,51 +19,70 @@
             <div class="card-body">
                 <div class="col-md-4 offset-md-4 my-5">
                     <div class="card">
-                        <div class="card-header py-3 bg-white">
-                            <h4>Giriş Yap</h4>
+                        <div class="card-header py-3">
+                            <h5>Giriş Yap</h5>
                         </div>
                         <div class="card-body">
-                            <form id="loginForm">
-                                <div class="mb-3">
-                                    <label class="form-label">Email Adresi</label>
-                                    <input class="w-100 form-control"
-                                           id="txtEmailAddress"
-                                           name="txtEmailAddress"
-                                           type="email"
-                                           required data-required-msg="Email adresi giriniz."
-                                           data-email-msg="Email formatı geçersiz." />
+                            <div class="w-100 mb-4"
+                                 dx-text-box="{
+                                            label: 'Email Adresi',
+                                            stylingMode: 'outlined',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'loginForm.emailAddress'
+                                            }
+                                        }"
+                                 dx-validator="{
+                                            validationRules: [{
+                                            type: 'required' ,
+                                            message: 'Email adresi giriniz.'
+                                            },
+                                            {
+                                              type: 'email',
+                                              message: 'Email adresi geçersiz.',
+                                            }]
+                                         }">
+                            </div>
+                            <div class="w-100 mb-4"
+                                 dx-text-box="{
+                                            label: 'Şifre',
+                                            stylingMode: 'outlined',
+                                            mode: 'password',
+                                            labelMode: 'floating',
+                                            bindingOptions: {
+                                                value: 'loginForm.password'
+                                            }
+                                        }"
+                                 dx-validator="{
+                                         validationRules: [{
+                                            type: 'required',
+                                            message: 'Şifre giriniz.'
+                                        }]
+                                    }"></div>
+
+                            <div class="row">
+                                <div class="col-6">
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Şifre</label>
-                                    <input class="w-100 form-control"
-                                           id="txtPassword"
-                                           name="txtPassword"
-                                           type="password"
-                                           required data-required-msg="Şifre giriniz." />
+                                <div class="col-6">
+                                    <a class="float-end pb-3 text-decoration-underline cursor-pointer text-dark"
+                                       href="/forgot-password">
+                                        Şifremi Unuttum
+                                    </a>
                                 </div>
-                                <div class="row">
-                                    <div class="col-6">
-                                    </div>
-                                    <div class="col-6">
-                                        <a class="float-end pb-3 text-decoration-none cursor-pointer"
-                                           href="/forgot-password">
-                                            Şifremi Unuttum
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <button id="btnLogin"
-                                            class="btn bg-green text-white w-100"
-                                            type="submit">
-                                        Giriş Yap
-                                    </button>
-                                </div>
-                                <div class="text-center">
-                                    Üye değil misiniz?
-                                    <a class="text-decoration-none cursor-pointer"
-                                       href="/register">Üye Ol</a>
-                                </div>
-                            </form>
+                            </div>
+                            <div class="mb-3">
+                                <button dx-button="{
+                                                text: 'Giriş Yap',
+                                                onClick: login,
+                                                type: 'default'
+                                            }" class="bg-green text-white float-start border-0 w-100">
+                                </button>
+                            </div>
+                            <div class="text-center mt-5">
+                                Üye değil misiniz?
+                                <a class="ps-2 cursor-pointer text-dark text-decoration-underline"
+                                   href="/register">Üye Ol</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -73,5 +92,24 @@
 </main>
 
 @section Scripts{
-    <script src="/js/pages/frontend/account/login.js"></script>
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+
+            $scope.login = function (e) {
+                const result = e.validationGroup.validate();
+                if (result.isValid) {
+                    $http.post("/account/login", $scope.loginForm).then((res) => {
+                        var returnUrl = $("#txtReturnUrl").val();
+                        if (returnUrl) {
+                            window.location.href = returnUrl;
+                        } else {
+                            window.location.href = "/";
+                        }
+                    }, (err) => {
+                        DevExpress.ui.notify(err.data.message, 'error');
+                    });
+                }
+            }
+        });
+    </script>
 }

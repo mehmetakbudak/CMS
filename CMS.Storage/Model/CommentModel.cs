@@ -68,11 +68,11 @@ namespace CMS.Storage.Model
 
     public class CommentGetModel : CommentBaseModel
     {
-        public int Key { get; set; }
-
         public string UserFullName { get; set; }
 
         public DateTime InsertedDate { get; set; }
+
+        public bool Expanded { get; set; }
 
         public List<CommentGetModel> Items { get; set; }
     }

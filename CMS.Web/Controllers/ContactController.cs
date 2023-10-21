@@ -21,13 +21,11 @@ namespace CMS.Web.Controllers
 
         #endregion
 
-        #region APIs
-        [HttpPost("api/contact")]
+        [HttpPost("contact")]
         public async Task<IActionResult> Post([FromBody] ContactModel model)
         {
             var result = await _contactService.Post(model);
             return StatusCode((int)result.StatusCode, result);
         }
-        #endregion
     }
 }

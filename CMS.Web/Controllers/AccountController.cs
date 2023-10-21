@@ -92,7 +92,7 @@ namespace CMS.Web.Controllers
         #endregion
 
 
-        [HttpPost("api/account/login")]
+        [HttpPost("account/login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await _userService.Authenticate(model);
@@ -136,21 +136,21 @@ namespace CMS.Web.Controllers
             return Ok(result);
         }
 
-        [HttpPost("api/account/forgot-password")]
+        [HttpPost("account/forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
         {
             var result = await _userService.ForgotPassword(model);
             return Ok(result);
         }
 
-        [HttpPut("api/account/reset-password")]
+        [HttpPut("account/reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
         {
             var result = await _userService.ResetPassword(model);
             return Ok(result);
         }
 
-        [HttpPost("api/account/register")]
+        [HttpPost("account/register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var result = await _userService.Register(model);
@@ -165,7 +165,7 @@ namespace CMS.Web.Controllers
             return Ok(result);
         }
 
-        [HttpPut("api/account/email-verified/{code}")]
+        [HttpPut("account/email-verified/{code}")]
         public async Task<IActionResult> EmailVerified(string code)
         {
             var result = await _userService.EmailVerified(code);

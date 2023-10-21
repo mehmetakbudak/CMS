@@ -19,14 +19,14 @@ namespace CMS.Web.Controllers
             _commentService = commentService;
         }
 
-        [HttpGet("api/comment")]
+        [HttpGet("comment")]
         public async Task<IActionResult> Get(SourceCommentModel model)
         {
             var result = await _commentService.GetSourceComments(model);
             return Ok(result);
         }
 
-        [HttpPost("api/comment")]
+        [HttpPost("comment")]
         [CMSAuthorize(CheckAccessRight = false)]
         public async Task<IActionResult> Post([FromBody] CommentPostModel model)
         {

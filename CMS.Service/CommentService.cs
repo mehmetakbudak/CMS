@@ -26,7 +26,7 @@ namespace CMS.Service
         Task<CommentDetailModel> GetDetail(int id);
         Task<ServiceResult> Post(CommentPostModel model);
         Task<ServiceResult> Put(CommentPutModel model);
-        Task<ServiceResult> Delete(int id, int? userId= null);
+        Task<ServiceResult> Delete(int id, int? userId = null);
     }
 
     public class CommentService : ICommentService
@@ -52,14 +52,14 @@ namespace CMS.Service
                 .OrderByDescending(x => x.InsertedDate)
                 .Select(x => new CommentGetModel()
                 {
-                    Key = x.Id,
                     Id = x.Id,
                     Description = x.Description,
                     SourceId = x.SourceId,
                     ParentId = x.ParentId,
                     SourceType = x.SourceType,
                     UserFullName = x.User.FullName,
-                    InsertedDate = x.InsertedDate
+                    InsertedDate = x.InsertedDate,
+                    Expanded = true
                 }).ToListAsync();
 
             comments.AddRange(list);

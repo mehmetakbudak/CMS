@@ -4,6 +4,10 @@
 
 @section Styles {
     <style>
+        .blog .entry .entry-title {
+            text-wrap: wrap;
+        }
+
         .blog .entry .entry-content p {
             text-wrap: wrap;
         }
@@ -87,58 +91,37 @@
 
                 <div class="col-lg-4">
                     <div class="sidebar shadow border">
-                        <h3 class="sidebar-title">Ara</h3>
-                        <div class="sidebar-item search-form">
-                            <form action="">
-                                <input type="text" id="txtSearch">
-                                <button type="button" id="btnSearch">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </form>
-                        </div>
-
                         <h3 class="sidebar-title pb-2">Kategoriler</h3>
                         <div class="sidebar-item categories">
-                            <ul id="blogCategoryList">
+                            <ul>
+                                <li class="my-3" ng-repeat="item in blogCategories" ng-cloak>
+                                    <a href="/blog/{{item.url}}">
+                                        <i class="fa fa-chevron-right me-2"></i>
+                                        {{item.name}} <span>({{item.blogCount}})</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
-                        <script type="text/x-kendo-template" id="blogCategoryTemplate">
-                            <li class="my-3">
-                                <a href="/blog/#:url#">
-                                    <i class='fa fa-chevron-right me-2'></i>
-                                    #:name# <span>(#:blogCount#)</span>
-                                </a>
-                            </li>
-                        </script>
-
                         <h3 class="sidebar-title pb-2">Çok Okunanlar</h3>
 
-                        <div class="sidebar-item recent-posts" id="blogMostReadList"></div>
-
-                        <script type="text/x-kendo-template" id="blogMostReadTemplate">
-                            <div class="post-item mb-4 clearfix">
-                                <img src="#:imageUrl#" alt="">
-                                <h4><a href="/blog/#:url#/#:id#">#:title#</a></h4>
-                                <time>#:dateFormat(insertedDate)#</time>
+                        <div class="sidebar-item recent-posts">
+                            <div class="post-item mb-4 clearfix" ng-repeat="item in mostReads" ng-cloak>
+                                <img ng-src="{{item.imageUrl}}" alt="">
+                                <h4>
+                                    <a href="/blog/{{item.url}}/{{item.id}}">{{item.title}}</a>
+                                </h4>
+                                <time>{{item.insertedDate | date: 'dd.MM.yyyy'}}</time>
                             </div>
-                        </script>
+                        </div>
 
                         <h3 class="sidebar-title">Etiketler</h3>
 
                         <div class="sidebar-item tags">
                             <ul>
-                                <li><a href="#">App</a></li>
-                                <li><a href="#">IT</a></li>
-                                <li><a href="#">Business</a></li>
-                                <li><a href="#">Mac</a></li>
-                                <li><a href="#">Design</a></li>
-                                <li><a href="#">Office</a></li>
-                                <li><a href="#">Creative</a></li>
-                                <li><a href="#">Studio</a></li>
-                                <li><a href="#">Smart</a></li>
-                                <li><a href="#">Tips</a></li>
-                                <li><a href="#">Marketing</a></li>
+                                <li ng-repeat="item in tags">
+                                    <a ng-cloak ng-bind="item.name" href="/blog/tag/{{item.url}}"></a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -151,11 +134,36 @@
 @section Scripts {
     <script>
         appModule.controller('appController', ($scope, $http) => {
+            $scope.blogCategories = [];
+            $scope.mostReads = [];
+            $scope.tags = [];
+
+            getBlogCategories();
+            getMostReads();
+            getBlogTags();
+
+            function getBlogCategories() {
+                $http.get("/blog-category/list").then((res) => {
+                    $scope.blogCategories = res.data;
+                });
+            }
+
+            function getMostReads() {
+                $http.get("/blog/most-read").then((res) => {
+                    $scope.mostReads = res.data;
+                });
+            }
+
+            function getBlogTags() {
+                $http.get("/blog/tag/list").then((res) => {
+                    $scope.tags = res.data;
+                });
+            }
+
             const store = DevExpress.data.AspNet.createStore({
                 key: 'id',
                 loadUrl: '/blog/list'
             });
-
 
             $scope.listOptions = {
                 dataSource: new DevExpress.data.DataSource({
@@ -165,14 +173,13 @@
                     sort: 'id',
                 }),
                 remoteOperations: true,
-                pageLoadMode: 'nextButton',
-                nextButtonText: 'Daha Fazla',
+                pageLoadMode: 'scrollBottom',
                 selectByClick: false,
                 hoverStateEnabled: false,
-                activeStateEnabled: false
+                activeStateEnabled: false,
+                noDataText: "Kayıt bulunamadı",
+                height: window.screen.height
             };
-
         });
     </script>
-    <script src="/js/pages/frontend/blog/blog-list.js"></script>
 }

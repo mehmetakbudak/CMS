@@ -1,25 +1,183 @@
 ﻿@{
     ViewData["Title"] = "Etiketler";
 }
+@section Styles {
+    <style>
+        .blog .entry .entry-title {
+            text-wrap: wrap;
+        }
 
-<main id="main">
-    <input id="name" type="hidden" value="@ViewBag.Name" />
+        .blog .entry .entry-content p {
+            text-wrap: wrap;
+        }
+
+        .dx-list-item {
+            cursor: unset !important;
+        }
+
+            .dx-list-item:first-of-type {
+                margin-top: 0px !important;
+            }
+
+        .dx-list-item-content {
+            padding: unset !important;
+        }
+
+        .dx-list .dx-empty-message {
+            background-color: aliceblue;
+            padding: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.175);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+    </style>
+}
+<main id="main" ng-app="app" ng-controller="appController">
+    <input id="tagUrl" type="hidden" value="@ViewBag.Url" />
 
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <h2>Blog</h2>
+                <h2 ng-cloak>Etiket : {{tag.name}}</h2>
                 <ol>
                     <li><a href="/">Anasayfa</a></li>
                     <li><a href="/blog">Blog</a></li>
-                    <li></li>
+                    <li ng-cloak>Etiket : {{tag.name}}</li>
                 </ol>
             </div>
         </div>
     </section>
 
-    <section>
+    <section id="blog" class="blog">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 entries">
+                    <div ng-cloak dx-list="listOptions" dx-item-alias="blog">
+                        <div data-options="dxTemplate: {name: 'item'}">
+                            <article class="entry shadow border pt-0" ng-cloak>
+                                <div class="entry-img">
+                                    <img ng-src="{{blog.imageUrl}}" alt="" class="img-fluid">
+                                </div>
 
+                                <h2 class="entry-title">
+                                    <a href="/blog/{{blog.url}}/{{blog.id}}">{{blog.title}}</a>
+                                </h2>
+
+                                <div class="entry-meta">
+                                    <ul>
+                                        <li class="d-flex align-items-center">
+                                            <i class="fa fa-user me-1"></i>
+                                            <a>{{blog.userName}}</a>
+                                        </li>
+                                        <li class="d-flex align-items-center">
+                                            <i class="fa fa-clock me-1"></i>
+                                            <a>
+                                                <time>{{blog.insertedDate | date:'dd.MM.yyyy'}}</time>
+                                            </a>
+                                        </li>
+                                        <li class="d-flex align-items-center">
+                                            <i class="fa fa-comments me-1"></i>
+                                            <a>{{blog.commentCount}} Yorum</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="entry-content">
+                                    <p ng-bind="blog.description"></p>
+                                    <div class="read-more">
+                                        <a href="/blog/{{blog.url}}/{{blog.id}}">
+                                            Detaylar
+                                            <i class="fa fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="sidebar">
+                        <h3 class="sidebar-title pb-2">Kategoriler</h3>
+                        <div class="sidebar-item categories">
+                            <ul>
+                                <li class="my-3" ng-repeat="item in blogCategories" ng-cloak>
+                                    <a href="/blog/{{item.url}}">
+                                        <i class="fa fa-chevron-right me-2"></i>
+                                        {{item.name}} <span>({{item.blogCount}})</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <h3 class="sidebar-title pb-2">Çok Okunanlar</h3>
+
+                        <div class="sidebar-item recent-posts">
+                            <div class="post-item mb-4 clearfix" ng-repeat="item in mostReads" ng-cloak>
+                                <img ng-src="{{item.imageUrl}}" alt="">
+                                <h4>
+                                    <a href="/blog/{{item.url}}/{{item.id}}">{{item.title}}</a>
+                                </h4>
+                                <time>{{item.insertedDate | date: 'dd.MM.yyyy'}}</time>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </main>
 
+
+@section Scripts {
+    <script>
+        appModule.controller('appController', ($scope, $http) => {
+            var tagUrl = $("#tagUrl").val();
+            $scope.mostReads = [];
+            $scope.tag = {};
+
+            getBlogCategories();
+            getMostReads();
+            getTagByUrl();
+
+            function getTagByUrl() {
+                $http.get(`/tag/by-url/${tagUrl}`).then((res) => {
+                    $scope.tag = res.data;
+                });
+            }
+
+            function getBlogCategories() {
+                $http.get("/blog-category/list").then((res) => {
+                    $scope.blogCategories = res.data;
+                });
+            }
+
+            function getMostReads() {
+                $http.get(`/blog/most-read`).then((res) => {
+                    $scope.mostReads = res.data;
+                });
+            }                      
+
+            const store = DevExpress.data.AspNet.createStore({
+                key: 'id',
+                loadUrl: `/blog/list-by-tag-url?url=${tagUrl}`
+            });
+
+            $scope.listOptions = {
+                dataSource: new DevExpress.data.DataSource({
+                    store,
+                    paginate: true,
+                    pageSize: 5,
+                    sort: 'id',
+                }),
+                remoteOperations: true,
+                pageLoadMode: 'scrollBottom',
+                selectByClick: false,
+                hoverStateEnabled: false,
+                activeStateEnabled: false,
+                noDataText: "Kayıt bulunamadı",
+                height: window.screen.height
+            };
+        });
+    </script>
+}

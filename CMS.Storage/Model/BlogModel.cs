@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.Security.Principal;
 
 namespace CMS.Storage.Model
 {
@@ -17,6 +16,7 @@ namespace CMS.Storage.Model
         public int DisplayOrder { get; set; }
         public string ImageUrl { get; set; }
         public List<int> BlogCategories { get; set; }
+        public List<string> SelectedTags { get; set; }
     }
 
     public class BlogModel
@@ -39,6 +39,19 @@ namespace CMS.Storage.Model
         public string Url { get; set; }
     }
 
+    public class BlogDetailTagModel
+    {
+        public string Name { get; set; }
+        public string Url { get; set; }
+    }
+
+    public class BlogTagCountModel
+    {
+        public int Count { get; set; }
+        public string Name { get; set; }
+        public string Url { get; set; }
+    }
+
     public class BlogPostModel : BlogDetailModel
     {
         public IFormFile Image { get; set; }
@@ -47,5 +60,5 @@ namespace CMS.Storage.Model
     public class BlogPutModel : BlogDetailModel
     {
         public IFormFile Image { get; set; }
-    }
+    }    
 }

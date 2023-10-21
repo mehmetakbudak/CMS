@@ -17,5 +17,6 @@ namespace CMS.Storage.Model
         public DateTime LastUpdatedDate { get; set; }
         public bool IsActive { get; set; }
         public bool IsApplyUser { get; set; }
+        public DateTime InsertedDate { get; set; }
     }
 }

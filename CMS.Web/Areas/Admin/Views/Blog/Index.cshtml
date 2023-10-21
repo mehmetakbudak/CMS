@@ -64,7 +64,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h6 class="modal-title">{{titlePopup}}</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
@@ -146,6 +149,11 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div dx-tag-box="tagOptions"></div>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <div class="w-100"
@@ -212,7 +220,7 @@
                             type: 'default'
                         }" class="btn"></button>
                         <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
-                            KAPAT
+                            Kapat
                         </button>
                     </div>
                 </div>
@@ -227,12 +235,19 @@
             $scope.dataGrid = {};
             $scope.titlePopup = "";
             $scope.selectedData = {};
+            $scope.tags = [];
 
             function getBlogCategories() {
                 $http.get("/admin/lookup/blog-categories").then((res) => {
                     $scope.blogCategories = res.data;
                 });
             };
+
+            function getTags() {
+                $http.get("/admin/lookup/tags").then((res) => {
+                    $scope.tags = res.data;
+                });
+            }
 
             $scope.dataGridOptions = {
                 dataSource: DevExpress.data.AspNet.createStore({
@@ -376,19 +391,36 @@
                 }
             }
 
+            $scope.tagOptions = {
+                label: 'Etiketler',
+                stylingMode: 'outlined',
+                labelMode: 'floating',
+                acceptCustomValue: true,
+                bindingOptions: {
+                    dataSource: 'tags',
+                    value: 'selectedData.selectedTags'
+                },
+                onCustomItemCreating(args) {
+                    const newValue = args.text;
+                    $scope.tags.unshift(newValue);
+                    args.customItem = newValue;
+                }
+            };
+
             $scope.add = function () {
                 $scope.titlePopup = "Blog Ekle";
                 $("#modalForm").modal("show");
                 $scope.selectedData = {};
                 $scope.selectedData.isActive = true;
                 getBlogCategories();
+                getTags();
             };
 
             $scope.edit = function (row) {
                 $scope.titlePopup = "Blog Düzenle";
                 $("#modalForm").modal("show");
                 getBlogCategories();
-
+                getTags();
                 $http.get(`/admin/blog/${row.data.id}`).then((res) => {
                     $scope.selectedData = res.data;
                 });
@@ -402,16 +434,28 @@
                         DevExpress.ui.notify("Resim ekleyiniz!", 'error');
                         return;
                     }
+
                     var data = new FormData();
                     data.append("id", $scope.selectedData.id);
                     data.append("image", file);
                     data.append("title", $scope.selectedData.title);
                     data.append("description", $scope.selectedData.description);
-                    data.append("blogCategories", $scope.selectedData.blogCategories);
                     data.append("content", $scope.selectedData.content);
                     data.append("displayOrder", $scope.selectedData.displayOrder);
                     data.append("published", $scope.selectedData.published);
                     data.append("isActive", $scope.selectedData.isActive);
+
+                    if ($scope.selectedData.blogCategories.length > 0) {
+                        $scope.selectedData.blogCategories.forEach(x => {
+                            data.append("blogCategories[]", x);
+                        });
+                    }
+                    if ($scope.selectedData.selectedTags.length > 0) {
+                        $scope.selectedData.selectedTags.forEach(x => {
+                            data.append("selectedTags[]", x);
+                        });
+                    }
+
                     var requestType = "POST";
 
                     if ($scope.selectedData.id) {
@@ -426,7 +470,7 @@
                     }).done((res) => {
                         $scope.dataGrid.refresh();
                         $("#modalForm").modal("hide");
-                            DevExpress.ui.notify(res.message, 'success');
+                        DevExpress.ui.notify(res.message, 'success');
                     });
                 }
             }

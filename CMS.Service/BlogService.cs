@@ -31,6 +31,7 @@ namespace CMS.Service
         Task<ServiceResult> Put(BlogPutModel model);
         Task<ServiceResult> Seen(int id);
         Task<ServiceResult> Delete(int id);
+        Task<List<BlogModel>> GetTagBlogsByUrl(string url);
     }
 
     public class BlogService : IBlogService
@@ -85,7 +86,7 @@ namespace CMS.Service
                   Description = x.Description,
                   InsertedDate = x.InsertedDate,
                   UserName = $"{x.User.Name} {x.User.Surname}",
-                  CommentCount = comments.Count(x => x.SourceId == x.Id)
+                  CommentCount = comments.Count(a => a.SourceId == x.Id)
               }).ToListAsync();
 
             return list;
@@ -120,7 +121,7 @@ namespace CMS.Service
                      Description = x.Description,
                      InsertedDate = x.InsertedDate,
                      UserName = $"{x.User.Name} {x.User.Surname}",
-                     CommentCount = comments.Count(x => x.SourceId == x.Id)
+                     CommentCount = comments.Count(a => a.SourceId == x.Id)
                  }).ToListAsync();
 
             return blogs;
@@ -135,22 +136,30 @@ namespace CMS.Service
                 .ThenInclude(x => x.BlogCategory)
                 .FirstOrDefaultAsync();
 
-            if (blog != null)
+            if (blog is null)
             {
-                model = new BlogDetailModel()
-                {
-                    Content = blog.Content,
-                    Id = blog.Id,
-                    Description = blog.Description,
-                    Title = blog.Title,
-                    Url = blog.Url,
-                    IsActive = blog.IsActive,
-                    Published = blog.Published,
-                    DisplayOrder = blog.DisplayOrder,
-                    ImageUrl = blog.ImageUrl,
-                    BlogCategories = blog.SelectedBlogCategories.Select(x => x.BlogCategory.Id).ToList()
-                };
+                throw new NotFoundException("Kayıt bulunamadı.");
             }
+
+            var blogTags = await _unitOfWork.Repository<SourceTag>()
+                .Where(x => x.SourceId == blog.Id && x.SourceType == SourceType.Blog)
+                .Include(x => x.Tag)
+                .ToListAsync();
+
+            model = new BlogDetailModel()
+            {
+                Content = blog.Content,
+                Id = blog.Id,
+                Description = blog.Description,
+                Title = blog.Title,
+                Url = blog.Url,
+                IsActive = blog.IsActive,
+                Published = blog.Published,
+                DisplayOrder = blog.DisplayOrder,
+                ImageUrl = blog.ImageUrl,
+                BlogCategories = blog.SelectedBlogCategories.Select(x => x.BlogCategory.Id).ToList(),
+                SelectedTags = blogTags.Select(x => x.Tag.Name).ToList()
+            };
             return model;
         }
 
@@ -173,6 +182,11 @@ namespace CMS.Service
             var commentCount = await _unitOfWork.Repository<Comment>()
                 .Where(x => x.SourceType == SourceType.Blog && x.SourceId == id && !x.Deleted && x.Status == CommentStatus.Approved).CountAsync();
 
+            var blogTags = await _unitOfWork.Repository<SourceTag>()
+                .Where(x => x.SourceType == SourceType.Blog && x.SourceId == id)
+                .Include(x => x.Tag)
+                .Select(x => x.Tag).ToListAsync();
+
             model = new BlogDetailViewModel
             {
                 Content = blog.Content,
@@ -191,7 +205,12 @@ namespace CMS.Service
                                          Id = x.Id,
                                          Name = x.Name,
                                          Url = x.Url
-                                     }).ToList()
+                                     }).ToList(),
+                BlogTags = blogTags.Select(x => new BlogDetailTagModel
+                {
+                    Name = x.Name,
+                    Url = x.Url
+                }).ToList()
             };
             return model;
         }
@@ -245,15 +264,18 @@ namespace CMS.Service
                         throw new BadRequestException("Resim ekleyiniz.");
                     }
 
+                    #region Add File
                     var extension = Path.GetExtension(model.Image.FileName);
                     string imageUrl = $"/images/blogs/{Guid.NewGuid()}{extension}";
                     var fileUploadUrl = $"{_environment.WebRootPath}{imageUrl}";
                     model.Image.CopyTo(new FileStream(fileUploadUrl, FileMode.Create));
+                    #endregion
 
                     var loginUser = _httpContextAccessor.HttpContext.User.Parse();
 
                     await _unitOfWork.CreateTransaction();
 
+                    #region Add Blog 
                     var blog = new Blog
                     {
                         Content = model.Content,
@@ -272,7 +294,9 @@ namespace CMS.Service
 
                     await _unitOfWork.Repository<Blog>().Add(blog);
                     await _unitOfWork.Save();
+                    #endregion
 
+                    #region Add SelectedBlogCategory
                     foreach (var blogCategoryId in model.BlogCategories)
                     {
                         await _unitOfWork.Repository<SelectedBlogCategory>()
@@ -282,6 +306,24 @@ namespace CMS.Service
                                 BlogId = blog.Id
                             });
                     }
+                    #endregion
+
+                    await AddNewTags(model.SelectedTags);
+
+                    #region Add SourceTag
+                    var tags = await _unitOfWork.Repository<Tag>()
+                    .Where(x => model.SelectedTags.Contains(x.Name)).ToListAsync();
+
+                    foreach (var tag in tags)
+                    {
+                        await _unitOfWork.Repository<SourceTag>().Add(new SourceTag
+                        {
+                            SourceId = blog.Id,
+                            TagId = tag.Id,
+                            SourceType = SourceType.Blog
+                        });
+                    }
+                    #endregion
 
                     await _unitOfWork.Save();
 
@@ -298,6 +340,27 @@ namespace CMS.Service
                 }
             });
             return result;
+        }
+
+        private async Task AddNewTags(List<string> tags)
+        {
+            var tagNames = await _unitOfWork.Repository<Tag>().Where()
+                    .Select(x => x.Name).ToListAsync();
+
+            var addingTagList = tags.Where(x => !string.IsNullOrEmpty(x) && !tagNames.Contains(x)).ToList();
+
+            if (addingTagList != null && addingTagList.Count > 0)
+            {
+                foreach (var tagName in addingTagList)
+                {
+                    await _unitOfWork.Repository<Tag>().Add(new Tag
+                    {
+                        Name = tagName,
+                        Url = UrlHelper.FriendlyUrl(tagName)
+                    });
+                }
+                await _unitOfWork.Save();
+            }
         }
 
         public async Task<ServiceResult> Put(BlogPutModel model)
@@ -319,6 +382,7 @@ namespace CMS.Service
 
                     await _unitOfWork.CreateTransaction();
 
+                    #region Update File
                     if (model.Image != null)
                     {
                         var currentFileUrl = Path.Combine(_environment.WebRootPath, blog.ImageUrl);
@@ -334,7 +398,9 @@ namespace CMS.Service
 
                         blog.ImageUrl = imageUrl;
                     }
+                    #endregion
 
+                    #region Update Blog
                     blog.Content = model.Content;
                     blog.Published = model.Published;
                     blog.IsActive = model.IsActive;
@@ -343,24 +409,77 @@ namespace CMS.Service
                     blog.Title = model.Title;
                     blog.DisplayOrder = model.DisplayOrder;
                     blog.Url = UrlHelper.FriendlyUrl(model.Title);
+                    #endregion
 
+                    #region Update SelectedBlogCategory
                     var selectedBlogCategories = await _unitOfWork.Repository<SelectedBlogCategory>()
                         .Where(x => x.BlogId == model.Id).ToListAsync();
 
-                    _unitOfWork.Repository<SelectedBlogCategory>().DeleteRange(selectedBlogCategories);
+                    var addingBlogCategoryList = model.BlogCategories
+                               .Where(x => !selectedBlogCategories.Select(x => x.BlogCategoryId).Contains(x)).ToList();
 
-                    if (model.BlogCategories != null)
+                    if (addingBlogCategoryList != null && addingBlogCategoryList != null)
                     {
-                        foreach (var blogCategoryId in model.BlogCategories)
+                        foreach (var blogCategoryId in addingBlogCategoryList)
                         {
                             await _unitOfWork.Repository<SelectedBlogCategory>()
-                                .Add(new SelectedBlogCategory()
-                                {
-                                    BlogCategoryId = blogCategoryId,
-                                    BlogId = blog.Id
-                                });
+                                 .Add(new SelectedBlogCategory()
+                                 {
+                                     BlogCategoryId = blogCategoryId,
+                                     BlogId = blog.Id
+                                 });
                         }
                     }
+
+                    var deletingBlogCategoryList = selectedBlogCategories.Where(x => !model.BlogCategories.Contains(x.BlogCategoryId)).ToList();
+
+                    if (deletingBlogCategoryList != null && deletingBlogCategoryList.Any())
+                    {
+                        foreach (var selectedBlogCategory in deletingBlogCategoryList)
+                        {
+                            await _unitOfWork.Repository<SelectedBlogCategory>().Delete(selectedBlogCategory);
+                        }
+                    }
+                    #endregion
+
+                    await AddNewTags(model.SelectedTags);
+
+                    #region Update SourceTags
+                    var sourceTags = await _unitOfWork.Repository<SourceTag>()
+                    .Where(x => x.SourceId == model.Id && x.SourceType == SourceType.Blog)
+                    .Include(x => x.Tag)
+                    .ToListAsync();
+
+                    var addingTagNameList = model.SelectedTags
+                               .Where(x => !sourceTags.Select(x => x.Tag.Name).Contains(x)).ToList();
+
+                    var addingTagList = await _unitOfWork.Repository<Tag>()
+                    .Where(x => addingTagNameList.Contains(x.Name)).ToListAsync();
+
+                    if (addingTagList != null && addingTagList != null)
+                    {
+                        foreach (var tag in addingTagList)
+                        {
+                            await _unitOfWork.Repository<SourceTag>().Add(
+                                    new SourceTag
+                                    {
+                                        SourceId = blog.Id,
+                                        TagId = tag.Id,
+                                        SourceType = SourceType.Blog
+                                    });
+                        }
+                    }
+
+                    var deletingSourceTagList = sourceTags.Where(x => !model.SelectedTags.Contains(x.Tag.Name)).ToList();
+
+                    if (deletingSourceTagList != null && deletingSourceTagList.Any())
+                    {
+                        foreach (var sourceTag in deletingSourceTagList)
+                        {
+                            await _unitOfWork.Repository<SourceTag>().Delete(sourceTag);
+                        }
+                    }
+                    #endregion
 
                     await _unitOfWork.Save();
 
@@ -419,6 +538,35 @@ namespace CMS.Service
             }
 
             return result;
+        }
+
+        public async Task<List<BlogModel>> GetTagBlogsByUrl(string url)
+        {
+            var sourceTags = await _unitOfWork.Repository<SourceTag>()
+                .Where(x => x.Tag.Url == url && x.SourceType == SourceType.Blog)
+                .Include(x => x.Tag)
+                .ToListAsync();
+
+            var comments = _unitOfWork.Repository<Comment>()
+                .Where(x => !x.Deleted && x.Status == CommentStatus.Approved && x.SourceType == SourceType.Blog).AsQueryable();
+
+            var blogs = await _unitOfWork.Repository<Blog>()
+                .Where(x => sourceTags.Select(a => a.SourceId).Contains(x.Id) && x.Published && !x.Deleted && x.IsActive)
+                .OrderBy(x => x.DisplayOrder)
+              .Select(x => new BlogModel()
+              {
+                  Id = x.Id,
+                  Url = x.Url,
+                  Title = x.Title,
+                  Content = x.Content,
+                  ImageUrl = x.ImageUrl,
+                  Description = x.Description,
+                  InsertedDate = x.InsertedDate,
+                  UserName = $"{x.User.Name} {x.User.Surname}",
+                  CommentCount = comments.Count(a => a.SourceId == x.Id)
+              }).ToListAsync();
+
+            return blogs;
         }
     }
 }

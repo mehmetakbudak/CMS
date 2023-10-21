@@ -36,7 +36,5 @@ namespace CMS.Storage.Entity
         public bool Deleted { get; set; }
 
         public List<SelectedBlogCategory> SelectedBlogCategories { get; set; }
-
-        public List<SourceTag> SourceTags { get; set; }
     }
 }

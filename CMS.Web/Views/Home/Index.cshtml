@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 
+
 @{
     ViewData["Title"] = Localizer["HomePage"];
     int count = 0;
@@ -101,25 +102,25 @@
             <div class="row mb-5">
                 <div class="col-md-12">
                     <div class="card box-shadow">
-                        <div class="card-header bg-white my-2">
-                            <div class="row">
+                        <div class="card-body">
+                            <div class="row p-3">
                                 <div class="col-10">
-                                    <h5>@Localizer["Services"]</h5>
+                                    <h5 class="card-title">
+                                        <i class="fa fa-gear me-1"></i> @Localizer["Services"]
+                                    </h5>
                                 </div>
                                 <div class="col-2">
                                     <a class="btn bg-green float-end btn-sm text-white"
                                        href="/service">@Localizer["All"]</a>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="home-carousel">
+                            <div class="home-carousel p-2">
                                 @foreach (var service in Model.Services)
                                 {
                                     <div class="mb-3 m-2">
                                         <img class="scroll-list-img" src="@service.ImageUrl" />
                                         <a class="text-dark" href="/service/@service.Url">
-                                            <h5 class="my-3">@service.Name</h5>
+                                            <h6 class="my-3">@service.Name</h6>
                                         </a>
                                     </div>
                                 }
@@ -132,24 +133,24 @@
             <div class="row mb-5">
                 <div class="col-md-12">
                     <div class="card box-shadow">
-                        <div class="card-header bg-white my-2">
-                            <div class="row">
+                        <div class="card-body">
+                            <div class="row p-3">
                                 <div class="col-10">
-                                    <h5>@Localizer["Blog"]</h5>
+                                    <h5 class="card-title">
+                                        <i class="fa fa-pencil me-1"></i> @Localizer["Blog"]
+                                    </h5>
                                 </div>
                                 <div class="col-2">
                                     <a class="btn bg-green float-end btn-sm text-white" href="/blog">@Localizer["All"]</a>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="home-carousel">
+                            <div class="home-carousel p-2">
                                 @foreach (var blog in Model.Blogs)
                                 {
                                     <div class="m-2">
                                         <img class="scroll-list-img" src="@blog.ImageUrl" />
                                         <a class="text-dark" href="/blog/@blog.Url/@blog.Id">
-                                            <h5 class="my-3">@blog.Title</h5>
+                                            <h6 class="my-3">@blog.Title</h6>
                                         </a>
                                     </div>
                                 }
@@ -162,19 +163,19 @@
             <div class="row mb-5">
                 <div class="col-md-12">
                     <div class="card box-shadow">
-                        <div class="card-header bg-white my-2">
-                            <div class="row">
+                        <div class="card-body">
+                            <div class="row p-3">
                                 <div class="col-10">
-                                    <h5>@Localizer["Testimonials"]</h5>
+                                    <h5 class="card-title">
+                                        <i class="fa-regular fa-message me-1"></i> @Localizer["Testimonials"]
+                                    </h5>
                                 </div>
                                 <div class="col-2">
                                     <a class="btn bg-green float-end btn-sm text-white"
                                        href="/testimonial">@Localizer["All"]</a>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="border-0 w-100 testimonials">
+                            <div class="border-0 w-100 testimonials p-2">
                                 @foreach (var testimonial in Model.Testimonials)
                                 {
                                     <div class="testimonial-scroll-item">
@@ -184,7 +185,7 @@
                                             @testimonial.CorporateName - @testimonial.Title
                                         </div>
                                         <div class="testimonial-scroll-text">
-                                            @testimonial.Description
+                                            @Html.Raw(@testimonial.Description)
                                         </div>
                                     </div>
                                 }
@@ -197,10 +198,10 @@
             <div class="row mb-5">
                 <div class="col-md-12">
                     <div class="card shadow clients">
-                        <div class="card-header bg-white my-2">
-                            <h5>@Localizer["Customers"]</h5>
-                        </div>
-                        <div class="card-body py-5">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3 p-3">
+                                <i class="fa fa-briefcase me-1"></i> @Localizer["Customers"]
+                            </h5>
                             <div class="client">
                                 @foreach (var client in Model.Clients)
                                 {

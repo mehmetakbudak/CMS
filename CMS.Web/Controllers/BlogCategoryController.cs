@@ -14,21 +14,19 @@ namespace CMS.Web.Controllers
             _blogCategoryService = blogCategoryService;
         }
         #endregion
-
-        #region APIs
-        [HttpGet("api/blog-category")]
+        
+        [HttpGet("blog-category/list")]
         public async Task<IActionResult> Get()
         {
             var list = await _blogCategoryService.GetAllActive();
             return Ok(list);
         }
 
-        [HttpGet("api/blog-category/{url}")]
+        [HttpGet("blog-category/{url}")]
         public async Task<IActionResult> GetByUrl(string url)
         {
             var result = await _blogCategoryService.GetByUrl(url);
             return Ok(result);
         }
-        #endregion
     }
 }

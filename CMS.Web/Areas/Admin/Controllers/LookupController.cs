@@ -88,5 +88,13 @@ namespace CMS.Web.Areas.Admin.Controllers
             var list = await _lookupService.Roles();
             return Json(list);
         }
+
+        [CMSAuthorize(CheckAccessRight = false, RouteLevel = 3)]
+        [HttpGet("admin/lookup/tags")]
+        public async Task<IActionResult> GetTags()
+        {
+            var list = await _lookupService.Tags();
+            return Json(list);
+        }
     }
 }

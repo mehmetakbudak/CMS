@@ -24,6 +24,7 @@ namespace CMS.Service
         List<LookupModel> WorkTypes();
         Task<List<LookupModel>> Roles();
         Task<List<LookupModel>> JobLocations();
+        Task<List<string>> Tags();
     }
 
     public class LookupService : ILookupService
@@ -143,6 +144,14 @@ namespace CMS.Service
                     Id = x.Id,
                     Name = x.Name
                 }).ToListAsync();
+            return list;
+        }
+
+        public async Task<List<string>> Tags()
+        {
+            var list = await _unitOfWork.Repository<Tag>()
+                            .Where()
+                            .Select(x => x.Name).ToListAsync();
             return list;
         }
     }

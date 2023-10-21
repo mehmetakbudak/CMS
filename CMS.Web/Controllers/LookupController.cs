@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
-    [Route("[controller]")]    
+    [Route("[controller]")]
     public class LookupController : Controller
     {
         private readonly ILookupService _lookupService;
@@ -14,24 +14,31 @@ namespace CMS.Web.Controllers
             _lookupService = lookupService;
         }
 
-        [HttpGet("ContactCategory")]
+        [HttpGet("contact-category")]
         public async Task<IActionResult> ContactCategory()
         {
             var result = await _lookupService.ContactCategories();
             return Ok(result);
         }
 
-        [HttpGet("WorkTypes")]
+        [HttpGet("work-types")]
         public IActionResult WorkTypes()
         {
             var result = _lookupService.WorkTypes();
             return Ok(result);
         }
 
-        [HttpGet("JobLocations")]
+        [HttpGet("job-locations")]
         public async Task<IActionResult> GetJobLocations()
         {
             var result = await _lookupService.JobLocations();
+            return Ok(result);
+        }
+
+        [HttpGet("blog-categories")]
+        public async Task<IActionResult> GetBlogCategories()
+        {
+            var result = await _lookupService.BlogCategories();
             return Ok(result);
         }
     }

@@ -8,6 +8,12 @@ appModule.controller('menuController', ($scope, $http) => {
         bindingOptions: {
             dataSource: 'adminDataSource',
         },
+        searchEnabled: true,
+        searchMode: "contains",
+        searchEditorOptions: {
+            placeholder: "Ara",
+            stylingMode: 'outlined'
+        },
         itemsExpr: 'items',
         keyExpr: 'id',
         displayExpr: 'title',

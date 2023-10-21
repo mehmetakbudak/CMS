@@ -79,7 +79,7 @@
                 showRowLines: true,
                 rowAlternationEnabled: true,
                 allowColumnResizing: true,
-                // columnAutoWidth: false,
+                columnAutoWidth: true,
                 columns: [{
                     caption: "",
                     width: 65,
@@ -100,25 +100,26 @@
                 {
                     caption: 'Başlık',
                     dataField: 'title',
-                    width: 150
+                    minWidth: 300
                 },
                 {
                     caption: 'Durumu',
-                    dataField: 'status'
+                    dataField: 'status',
+                    minWidth: 200
                 },
                 {
                     caption: 'Kayıt Tarihi',
                     dataField: 'insertedDate',
                     dataType: 'date',
                     format: 'dd.MM.yyyy HH:mm',
-                    width: 150
+                    minWidth: 150
                 },
                 {
                     caption: 'Güncelleme Tarihi',
                     dataField: 'updatedDate',
                     dataType: 'date',
                     format: 'dd.MM.yyyy HH:mm',
-                    width: 150
+                    minWidth: 150
                 }],
                 masterDetail: {
                     enabled: true,

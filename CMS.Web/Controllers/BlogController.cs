@@ -1,14 +1,12 @@
-﻿using CMS.Storage.Model.ViewModel;
-using CMS.Service;
-using Microsoft.AspNetCore.Mvc;
-using CMS.Storage.Model;
+﻿using CMS.Service;
 using CMS.Storage.Enum;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using CMS.Storage.Model;
+using CMS.Storage.Model.ViewModel;
 using CMS.Web.Models;
 using DevExtreme.AspNet.Data;
-using System.Xml.Linq;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
@@ -17,12 +15,15 @@ namespace CMS.Web.Controllers
         #region Constructor
         private readonly IBlogService _blogService;
         private readonly ICommentService _commentService;
+        private readonly ITagService _tagService;
         public BlogController(
             IBlogService blogService,
-            ICommentService commentService)
+            ICommentService commentService,
+            ITagService tagService)
         {
             _blogService = blogService;
             _commentService = commentService;
+            _tagService = tagService;
         }
         #endregion
 
@@ -55,13 +56,12 @@ namespace CMS.Web.Controllers
             return View(model);
         }
 
-        [Route("blog/tag/{name}")]
-        public IActionResult BlogTag(string name)
+        [Route("blog/tag/{url}")]
+        public IActionResult BlogTag(string url)
         {
-            ViewBag.Name = name;
+            ViewBag.Url = url;
             return View();
         }
-
 
         [HttpGet("blog/list")]
         public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
@@ -70,49 +70,55 @@ namespace CMS.Web.Controllers
             return Json(DataSourceLoader.Load(list, loadOptions));
         }
 
-        #region APIs
-        [HttpGet("api/blog")]
-        public async Task<IActionResult> Get(string text, int? top)
-        {
-            var list = await _blogService.GetBlogs();
-            return Ok(list);
-        }
-
-        [HttpGet("api/blog/{id}")]
+        [HttpGet("blog/detail/{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var model = await _blogService.GetDetailById(id);
             return Ok(model);
         }
 
-        [HttpGet("api/blog/seen/{id}")]
+        [HttpGet("blog/seen/{id}")]
         public async Task<IActionResult> Seen(int id)
         {
             var model = await _blogService.Seen(id);
             return Ok(model);
         }
 
-        [HttpGet("api/blog/by-category/{blogCategoryUrl}")]
-        public async Task<IActionResult> GetBlogsByCategoryUrl(string blogCategoryUrl)
+        [HttpGet("blog/by-category")]
+        public async Task<IActionResult> GetBlogsByCategoryUrl(DataSourceLoadOptions loadOptions, string url)
         {
-            var list = await _blogService.GetBlogsByCategoryUrl(blogCategoryUrl);
-            return Ok(list);
+            var list = await _blogService.GetBlogsByCategoryUrl(url);
+            return Json(DataSourceLoader.Load(list, loadOptions));
         }
 
-        [HttpGet("api/blog/most-read")]
+        [HttpGet("blog/most-read")]
         public async Task<IActionResult> MostRead()
         {
             var list = await _blogService.MostRead();
             return Ok(list);
         }
 
-        [HttpGet("api/blog/most-read-by-category/{blogCategoryUrl}")]
+        [HttpGet("blog/most-read-by-category/{blogCategoryUrl}")]
         [ProducesResponseType(typeof(List<MostReadBlogViewModel>), 200)] //OK
         public async Task<IActionResult> MostReadByBlogCategoryId(string blogCategoryUrl)
         {
             var list = await _blogService.MostRead(blogCategoryUrl);
             return Ok(list);
         }
-        #endregion
+
+        [HttpGet("blog/tag/list")]
+        [ProducesResponseType(typeof(List<BlogTagCountModel>), 200)] //OK
+        public async Task<IActionResult> GetTags()
+        {
+            var list = await _tagService.GetSourceTags(SourceType.Blog, 10);
+            return Ok(list);
+        }
+
+        [HttpGet("blog/list-by-tag-url")]
+        public async Task<IActionResult> GetTagBlogsByUrl(DataSourceLoadOptions loadOptions, string url)
+        {
+            var list = await _blogService.GetTagBlogsByUrl(url);
+            return Json(DataSourceLoader.Load(list, loadOptions));
+        }
     }
 }

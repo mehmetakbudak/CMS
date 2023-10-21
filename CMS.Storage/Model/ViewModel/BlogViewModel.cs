@@ -24,5 +24,6 @@ namespace CMS.Storage.Model.ViewModel
         public string UserName { get; set; }
         public string Url { get; set; }
         public List<BlogDetailCategoryModel> BlogCategories { get; set; }
+        public List<BlogDetailTagModel> BlogTags { get; set; }
     }
 }

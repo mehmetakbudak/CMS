@@ -15,6 +15,7 @@ namespace CMS.Service
     public interface IJobService
     {
         Task<List<JobModel>> GetActiveJobs(string position, List<int> jobLocationId, List<int> workTypeId);
+        Task<List<JobModel>> GetAll();
         Task<JobModel> GetById(int id);
     }
 
@@ -62,6 +63,24 @@ namespace CMS.Service
                 Position = x.Position,
                 WorkTypeName = EnumHelper.GetDescription(x.WorkType)
             }).ToListAsync();
+        }
+
+        public async Task<List<JobModel>> GetAll()
+        {
+            return await _unitOfWork.Repository<Job>()
+                .Where(x => !x.Deleted)
+                .Select(x => new JobModel
+                {
+                    Id = x.Id,
+                    Description = x.Description,
+                    JobLocationName = x.JobLocation.Name,
+                    CompanyName = x.Company.Name,
+                    CompanyImageUrl = x.Company.ImageUrl,
+                    Position = x.Position,
+                    WorkTypeName = EnumHelper.GetDescription(x.WorkType),
+                    IsActive = x.IsActive,
+                    InsertedDate = x.InsertedDate
+                }).ToListAsync();
         }
 
         public async Task<JobModel> GetById(int id)

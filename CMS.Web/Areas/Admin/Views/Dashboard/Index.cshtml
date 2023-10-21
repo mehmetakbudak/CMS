@@ -2,6 +2,88 @@
     ViewData["Title"] = "Anasayfa";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
+<div class="row">
+    <div class="col-md-3">
+        <div class="card shadow mb-3 cursor-pointer" id="user">
+            <div class="card-body">
+                <div class="card-title text-center">
+                    <i class="fa fa-users h1 pb-2"></i>
+                    <h5 class="text-center">
+                        Kullanıcılar
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow mb-3 cursor-pointer" id="blog">
+            <div class="card-body">
+                <div class="card-title text-center">
+                    <i class="fa fa-pencil h1 pb-2"></i>
+                    <h5 class="text-center">
+                        Bloglar
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow mb-3 cursor-pointer" id="comment">
+            <div class="card-body">
+                <div class="card-title text-center">
+                    <i class="fa fa-comments h1 pb-2"></i>
+                    <h5 class="text-center">
+                        Yorumlar
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow mb-3 cursor-pointer" id="contact">
+            <div class="card-body">
+                <div class="card-title text-center">
+                    <i class="fa fa-envelope h1 pb-2"></i>
+                    <h5 class="text-center">
+                        İletişim Mesajları
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow cursor-pointer" id="task">
+            <div class="card-body">
+                <div class="card-title text-center">
+                    <i class="fa fa-tasks h1 pb-2"></i>
+                    <h5 class="text-center">
+                        Görevler
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<h1>Admin Index</h1>
+@section Scripts {
+    <script>
+        $(() => {
+            $("#user").click(() => {
+                window.location.href = "/admin/user";
+            });
+            $("#blog").click(() => {
+                window.location.href = "/admin/blog";
+            });
+            $("#comment").click(() => {
+                window.location.href = "/admin/comment";
+            });
+            $("#contact").click(() => {
+                window.location.href = "/admin/contact";
+            });
+            $("#task").click(() => {
+                window.location.href = "/admin/task";
+            });
+        });
+    </script>
+}
 

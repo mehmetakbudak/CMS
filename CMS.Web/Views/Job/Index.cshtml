@@ -20,7 +20,7 @@
             padding: 15px;
             border: 1px solid rgba(0, 0, 0, 0.175);
             border-radius: 0.375rem;
-            font-size: 1rem;            
+            font-size: 1rem;
         }
     </style>
 }
@@ -153,12 +153,13 @@
             $scope.listOptions = {
                 dataSource: ds,
                 remoteOperations: true,
-                pageLoadMode: 'nextButton',
+                pageLoadMode: 'scrollBottom',
                 nextButtonText: 'Daha Fazla',
                 selectByClick: false,
                 hoverStateEnabled: false,
                 activeStateEnabled: false,
-                noDataText: "Kayıt bulunamadı"
+                noDataText: "Kayıt bulunamadı",
+                height: window.screen.height
             };
 
 
@@ -224,13 +225,13 @@
             }
 
             function getJobLocations() {
-                $http.get("/Lookup/JobLocations").then((res) => {
+                $http.get("/lookup/job-locations").then((res) => {
                     $scope.jobLocations = res.data;
                 });
             }
 
             function getWorkTypes() {
-                $http.get("/Lookup/WorkTypes").then((res) => {
+                $http.get("/lookup/work-types").then((res) => {
                     $scope.workTypes = res.data;
                 });
             }

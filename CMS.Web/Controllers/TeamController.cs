@@ -1,6 +1,9 @@
 ﻿using CMS.Service;
+using CMS.Web.Models;
+using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace CMS.Web.Controllers
 {
@@ -21,11 +24,11 @@ namespace CMS.Web.Controllers
         #endregion
 
         #region APIs
-        [HttpGet("api/team")]
-        public async Task<IActionResult> Get()
+        [HttpGet("team/list")]
+        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
         {
             var list = await _teamService.GetAll();
-            return Ok(list);
+            return Json(DataSourceLoader.Load(list, loadOptions));
         }
         #endregion
     }

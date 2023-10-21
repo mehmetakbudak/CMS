@@ -249,6 +249,7 @@ namespace CMS.Service
             user.Surname = model.Surname;
             user.UserType = model.UserType;
             user.Phone = model.Phone;
+            user.Status = model.Status;
 
             await _unitOfWork.Save();
 

@@ -2,6 +2,11 @@
 using CMS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using CMS.Web.Models;
+using DevExtreme.AspNet.Data;
+using System.Collections.Generic;
+using System.Linq;
+using CMS.Storage.Model;
 
 namespace CMS.Web.Controllers
 {
@@ -31,17 +36,18 @@ namespace CMS.Web.Controllers
 
         #region Views
         public async Task<IActionResult> Index()
-        {            
+        {
             var model = new HomeViewModel()
             {
                 Services = await _service_Service.GetAllActive(),
                 Blogs = await _blogService.GetBlogs(null, 10),
-                Testimonials = await _testimonialService.GetAllActive(),
+                Testimonials = await _testimonialService.GetAllActive(10),
                 HomepageSliders = await _homepageSliderService.GetAllActive(),
                 Clients = await _clientService.GetAllActive()
             };
             return View(model);
-        }
+        }        
+
         #endregion
     }
 }
