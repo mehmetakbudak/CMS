@@ -7,6 +7,9 @@ using DevExtreme.AspNet.Data;
 using System.Collections.Generic;
 using System.Linq;
 using CMS.Storage.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
+using System;
 
 namespace CMS.Web.Controllers
 {
@@ -46,8 +49,7 @@ namespace CMS.Web.Controllers
                 Clients = await _clientService.GetAllActive()
             };
             return View(model);
-        }        
-
+        }      
         #endregion
     }
 }

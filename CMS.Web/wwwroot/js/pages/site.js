@@ -38,7 +38,9 @@ appModule.controller('HeaderController', ($scope, $http) => {
     }
 
     $scope.selectLanguage = function () {
-        window.location.href = `/?culture=${$scope.item.value}`;
+        $http.get(`/language/ChangeLanguage/?culture=${$scope.item.value}`).then(() => {
+            window.location.reload();
+        });
     }
 });
 

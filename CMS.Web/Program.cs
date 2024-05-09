@@ -6,22 +6,24 @@ using CMS.Service.Helper;
 using CMS.Service.Infrastructure;
 using CMS.Service.Middlewares;
 using CMS.Storage.Model;
+using CMS.Web.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Localization;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +57,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddSingleton<LanguageService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtHelper, JwtHelper>();
@@ -121,12 +124,16 @@ builder.Services.AddLocalization(options =>
 });
 
 builder.Services.AddMvc()
-    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
-    .AddDataAnnotationsLocalization();
+   .AddViewLocalization().AddDataAnnotationsLocalization(options => {
+       options.DataAnnotationLocalizerProvider = (type, factory) => {
+           var assemblyName = new AssemblyName(typeof(SharedResource).GetTypeInfo().Assembly.FullName);
+           return factory.Create("SharedResource", assemblyName.Name);
+       };
+   });
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    options.DefaultRequestCulture = new("tr-TR");
+    options.DefaultRequestCulture = new RequestCulture(culture: "tr-TR", uiCulture: "tr-TR");
 
     CultureInfo[] cultures = new CultureInfo[]
     {
@@ -136,6 +143,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
     options.SupportedCultures = cultures;
     options.SupportedUICultures = cultures;
+    options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
 });
 
 var app = builder.Build();
@@ -146,6 +154,12 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStaticFiles();
 
+string[] corsDomains = builder.Configuration["CorsDomains"].Split(",");
+app.UseCors(options => options.WithOrigins(corsDomains)
+                              .AllowAnyMethod()
+                              .AllowCredentials()
+                              .AllowAnyHeader());
+
 app.UseRouting();
 
 app.ErrorHandler();
@@ -155,6 +169,8 @@ app.UseAuthorization();
 
 app.UseRequestLocalization();
 app.UseRequestLocalizationCookies();
+
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 
 Global.Initialize(builder.Configuration);
 

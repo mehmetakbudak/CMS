@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace CMS.Storage.Model
 {
@@ -24,6 +25,8 @@ namespace CMS.Storage.Model
         public int? ParentId { get; set; }
         public int DisplayOrder { get; set; }
         public bool IsActive { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<TreeDataModel> Children { get; set; }
     }
 }

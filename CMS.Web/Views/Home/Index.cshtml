@@ -1,10 +1,9 @@
 ﻿@model CMS.Storage.Model.ViewModel.HomeViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
 
 
 @{
-    ViewData["Title"] = Localizer["HomePage"];
+    ViewData["Title"] = localization.GetKey("Homepage");
     int count = 0;
 }
 
@@ -74,7 +73,7 @@
                             <h2>@slider.Title</h2>
                             <p>@slider.Description</p>
                             <div class="text-center">
-                                <a href="@slider.Url" class="btn-get-started">@Localizer["More"]</a>
+                                <a href="@slider.Url" class="btn-get-started">@localization.GetKey("More")</a>
                             </div>
                         </div>
                     </div>
@@ -106,12 +105,12 @@
                             <div class="row p-3">
                                 <div class="col-10">
                                     <h5 class="card-title">
-                                        <i class="fa fa-gear me-1"></i> @Localizer["Services"]
+                                        <i class="fa fa-gear me-1"></i> @localization.GetKey("Services")
                                     </h5>
                                 </div>
                                 <div class="col-2">
                                     <a class="btn bg-green float-end btn-sm text-white"
-                                       href="/service">@Localizer["All"]</a>
+                                       href="/service">@localization.GetKey("All")</a>
                                 </div>
                             </div>
                             <div class="home-carousel p-2">
@@ -137,11 +136,11 @@
                             <div class="row p-3">
                                 <div class="col-10">
                                     <h5 class="card-title">
-                                        <i class="fa fa-pencil me-1"></i> @Localizer["Blog"]
+                                        <i class="fa fa-pencil me-1"></i> @localization.GetKey("Blog")
                                     </h5>
                                 </div>
                                 <div class="col-2">
-                                    <a class="btn bg-green float-end btn-sm text-white" href="/blog">@Localizer["All"]</a>
+                                    <a class="btn bg-green float-end btn-sm text-white" href="/blog">@localization.GetKey("All")</a>
                                 </div>
                             </div>
                             <div class="home-carousel p-2">
@@ -167,12 +166,12 @@
                             <div class="row p-3">
                                 <div class="col-10">
                                     <h5 class="card-title">
-                                        <i class="fa-regular fa-message me-1"></i> @Localizer["Testimonials"]
+                                        <i class="fa-regular fa-message me-1"></i> @localization.GetKey("Testimonials")
                                     </h5>
                                 </div>
                                 <div class="col-2">
                                     <a class="btn bg-green float-end btn-sm text-white"
-                                       href="/testimonial">@Localizer["All"]</a>
+                                       href="/testimonial">@localization.GetKey("All")</a>
                                 </div>
                             </div>
                             <div class="border-0 w-100 testimonials p-2">
@@ -200,7 +199,7 @@
                     <div class="card shadow clients">
                         <div class="card-body">
                             <h5 class="card-title mb-3 p-3">
-                                <i class="fa fa-briefcase me-1"></i> @Localizer["Customers"]
+                                <i class="fa fa-briefcase me-1"></i> @localization.GetKey("Customers")
                             </h5>
                             <div class="client">
                                 @foreach (var client in Model.Clients)

@@ -26,8 +26,8 @@ namespace CMS.Service
         Task<List<BlogModel>> GetBlogs(string text = null, int? top = null);
         Task<List<BlogModel>> GetBlogsByCategoryUrl(string blogCategoryUrl);
         Task<BlogDetailViewModel> GetDetailById(int id);
-        Task<ServiceResult> Post(BlogPostModel model);
         Task<List<MostReadBlogViewModel>> MostRead(string blogCategoryUrl = null);
+        Task<ServiceResult> Post(BlogPostModel model);
         Task<ServiceResult> Put(BlogPutModel model);
         Task<ServiceResult> Seen(int id);
         Task<ServiceResult> Delete(int id);
