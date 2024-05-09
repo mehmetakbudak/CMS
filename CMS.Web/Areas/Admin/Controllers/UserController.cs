@@ -1,8 +1,7 @@
 ﻿using CMS.Service;
 using CMS.Service.Attributes;
+using CMS.Service.Infrastructure;
 using CMS.Storage.Model;
-using CMS.Web.Models;
-using DevExtreme.AspNet.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -22,12 +21,12 @@ namespace CMS.Web.Areas.Admin.Controllers
         [CMSAuthorize(IsView = true)]
         public IActionResult Index() => View();
 
-        [HttpGet("admin/user/list")]
+        [HttpPost("admin/user/list")]
         [CMSAuthorize(RouteLevel = 3)]
-        public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions)
+        public IActionResult Get(UserFilterModel filter)
         {
-            var list = await _userService.Get();
-            return Json(DataSourceLoader.Load(list, loadOptions));
+            var response = PaginationHelper.CreatePagedReponse(_userService.Get(), filter);
+            return Ok(response);
         }
 
         [HttpGet("admin/user/{id}")]

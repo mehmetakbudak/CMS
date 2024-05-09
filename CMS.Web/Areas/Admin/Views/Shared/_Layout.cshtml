@@ -18,10 +18,9 @@
     <script src="https://cdn3.devexpress.com/jslib/23.1.4/js/dx.all.js"></script>
     <script src="https://unpkg.com/devextreme-aspnet-data@2.9.2/js/dx.aspnet.data.js"></script>
     <script src="~/js/pages/admin/global.js"></script>
-    @RenderSection("Scripts", false)
 </head>
 <body class="dx-viewport">
-    <nav class="navbar navbar-expand navbar-light bg-light border-bottom shadow fixed-top">
+    <nav class="navbar navbar-expand navbar-light bg-light shadow fixed-top">
         <a class="navbar-brand ps-3 text-dark" href="/Admin/Dashboard">Admin Paneli</a>
         <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
         </div>
@@ -32,7 +31,7 @@
                      data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-user fa-fw"></i>
                     <span class="user-name">
-                        @this.User.Claims.FirstOrDefault(x => x.Type=="FullName")?.Value
+                        @this.User.Claims.FirstOrDefault(x => x.Type == "FullName")?.Value
                     </span>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -51,7 +50,7 @@
             </li>
         </ul>
     </nav>
-    <div class="container-fluid" ng-app="app" >
+    <div class="container-fluid" ng-app="app">
         <div class="row position-relative" style="top: 50px !important;">
             <div class="col-md-2 col-sm-3">
                 <div class="main card shadow mb-3">
@@ -63,7 +62,7 @@
                             <div data-options="dxTemplate:{ name:'itemTemplate' }">
                                 <a href="{{row.url}}" class="ms-2 text-dark">{{row.title}}</a>
                             </div>
-                        </div>                        
+                        </div>
                     </div>
                 </div>
             </div>
@@ -76,5 +75,6 @@
             </div>
         </div>
     </div>
+    @RenderSection("Scripts", false)
 </body>
 </html>

@@ -8,14 +8,10 @@ namespace CMS.Service.Infrastructure
     {
         public static PagedResponse<List<T>> CreatePagedReponse<T>(IQueryable<T> data, FilterModel filter)
         {
-            var validFilter = new PaginationFilterModel(filter.Page, filter.PageSize);
-
-            var pagedData = data
-                .Skip(filter.Skip)
-                .Take(filter.Take).ToList();
-
+            var value = new PaginationFilterModel(filter.Page, filter.PageSize);
+            var pagedData = data.Skip((value.PageNumber - 1) * value.PageSize).Take(value.PageSize).ToList();
             var total = data.Count();
-            var response = new PagedResponse<List<T>>(pagedData, validFilter.PageNumber, validFilter.PageSize);
+            var response = new PagedResponse<List<T>>(pagedData, value.PageNumber, value.PageSize);
             response.Total = total;
             return response;
         }

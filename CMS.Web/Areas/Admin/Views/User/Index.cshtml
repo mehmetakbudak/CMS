@@ -1,56 +1,38 @@
 ﻿@{
-    ViewData["Title"] = "Kullanıcılar";
+    ViewData["Title"] = "Users";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-<div ng-app="app" ng-controller="appController">
-    <div class="card shadow mb-4">
-        <div class="card-header bg-white pt-3">
-            <div class="row">
-                <div class="col-9">
-                    <nav aria-label="breadcrumb" class="pt-2">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item">
-                                <a href="/admin/dashboard" class="text-decoration-none text-dark">
-                                    <i class="fa fa-home"></i>  Anasayfa
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a>
-                                    Ayarlar
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">
-                                Kullanıcılar
-                            </li>
-                        </ol>
-                    </nav>
-                </div>
-                <div class="col-3">
-                    <div class="btn-group float-end">
-                        <button type="button" class="btn bg-white dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-cog"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a ng-click="add()" class="dropdown-item text-dark cursor-pointer">
-                                    Kullanıcı Ekle
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div id="app">
+    <div class="card shadow">
         <div class="card-body">
-            <div ng-cloak dx-data-grid="dataGridOptions" dx-item-alias="data">
-                <div data-options="dxTemplate:{ name:'cellTemplate' }">
-                    <button class="btn btn-outline-secondary btn-sm me-1" ng-click="edit(data)">
-                        <i class="fa fa-pencil"></i>
-                    </button>
-                    <button class="btn btn-outline-danger btn-sm" ng-click="delete(data)">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </div>
+            <div class="d-flex mb-3">
+                <h5 class="flex-grow-1">Users</h5>
+                <button class="btn btn-primary btn-sm float-end" v-on:click="add"><i class="fa fa-plus"></i> Add</button>
+            </div>
+            <el-table :data="users" border class="w-100">
+                <el-table-column label="" width="60">
+                    <template slot-scope="scope">
+                        <el-dropdown v-on:command="handleCommand">
+                            <span class="el-dropdown-link">
+                                <i class="el-icon-s-tools"></i><i class="el-icon-arrow-down el-icon--right"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item command="edit">Edit</el-dropdown-item>
+                                <el-dropdown-item command="delete">Delete</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="name" label="Name" width="200"></el-table-column>
+                <el-table-column prop="surname" label="Surname"></el-table-column>
+                <el-table-column prop="emailAddress" label="Email Address" width="300"></el-table-column>
+            </el-table>
+            <div class="mt-3">
+                <el-pagination background layout="prev, pager, next, sizes"
+                               :current-page="page"
+                               :total="total"
+                               v-on:current-change="pageChange"
+                               v-on:size-change="sizeChange"></el-pagination>
             </div>
         </div>
     </div>
@@ -58,105 +40,74 @@
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title">{{titlePopup}}</h6>
+                    <h6 class="modal-title">{{titleModal}}</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="form">
-                        <ul class="nav nav-tabs mb-4" id="pills-tab" role="tablist">
-                            <li class="nav-item cursor-pointer" role="presentation">
-                                <span class="nav-link active p-3" id="step1-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step1-tab-pane' aria-controls="step1-tab-pane" aria-selected="true"><span>Kullanıcı Bilgileri</span></span>
-                            </li>
-                            <li class="nav-item cursor-pointer" role="presentation">
-                                <span class="nav-link p-3" id="step2-tab" role="tab" data-bs-toggle="tab" data-bs-target='#step2-tab-pane' aria-controls="step2-tab-pane" aria-selected="false"><span>Yetkiler</span></span>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="formTabsContent">
-                            <div class="tab-pane fade active show" id="step1-tab-pane" role="tabpanel" aria-labelledby="step1-tab" tabindex="0">
-                                <div class="row">
-                                    <div class="col-md-6 mb-4">
-                                        <div class="w-100"
-                                             dx-text-box="nameOptions"
-                                             dx-validator="nameValidatorOptions">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="w-100"
-                                             dx-text-box="surnameOptions"
-                                             dx-validator="surnameValidatorOptions">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="w-100"
-                                             dx-text-box="emailOptions"
-                                             dx-validator="emailValidatorOptions">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="w-100"
-                                             dx-text-box="phoneOptions">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="w-100"
-                                             dx-select-box="userTypeOptions"
-                                             dx-validator="userTypeValidatorOptions">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="w-100"
-                                             dx-select-box="userStatusOptions"
-                                             dx-validator="userStatusValidatorOptions">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4" ng-if="selectedData.userType == 2">
-                                        <div dx-tag-box="{
-                                                label: 'Rol Adı',
-                                                stylingMode: 'outlined',
-                                                labelMode: 'floating',
-                                                displayExpr: 'name',
-                                                valueExpr: 'id',
-                                                bindingOptions: {
-                                                    dataSource: 'roles',
-                                                    value: 'selectedData.roleIds'
-                                                }
-                                             }"
-                                             dx-validator="{
-                                                validationRules: [{
-                                                    type: 'required',
-                                                    message: 'Rol seçiniz.'
-                                             }]
-                                        }">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <label class="form-label w-100">Aktif</label>
-                                        <div dx-switch="{ bindingOptions: {
-                                                value: 'selectedData.isActive'
-                                            }
-                                        }">
-                                        </div>
-                                    </div>
+                    <el-tabs>
+                        <el-tab-pane label="Info">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Name</label>
+                                    <el-input placeholder="Name" v-model="formData.name"></el-input>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Surname</label>
+                                    <el-input placeholder="Surname" v-model="formData.surname"></el-input>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Email Address</label>
+                                    <el-input placeholder="Email Address" v-model="formData.emailAddress"></el-input>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Phone</label>
+                                    <el-input placeholder="Phone" v-model="formData.phone"></el-input>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Type</label>
+                                    <el-select class="w-100" v-model="formData.userType" filterable placeholder="Select types">
+                                        <el-option v-for="item in types"
+                                                   :key="item.id"
+                                                   :label="item.name"
+                                                   :value="item.id">
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Status</label>
+                                    <el-select class="w-100" v-model="formData.status" filterable placeholder="Select status">
+                                        <el-option v-for="item in statuses"
+                                                   :key="item.id"
+                                                   :label="item.name"
+                                                   :value="item.id">
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Roles</label>
+                                    <el-select class="w-100" v-model="formData.roleIds" filterable multiple placeholder="Select roles">
+                                        <el-option v-for="item in roles"
+                                                   :key="item.id"
+                                                   :label="item.name"
+                                                   :value="item.id">
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label w-100">Active</label>
+                                    <el-switch v-model="formData.isActive"></el-switch>
                                 </div>
                             </div>
-                            <div class="tab-pane fade show" id="step2-tab-pane" role="tabpanel" aria-labelledby="step2-tab" tabindex="0">
+                        </el-tab-pane>
+                        <el-tab-pane label="Documents">
 
-                                Yetki işlemleri
-
-                            </div>
-                        </div>
-                    </form>
+                        </el-tab-pane>
+                    </el-tabs>
                 </div>
                 <div class="modal-footer">
                     <div class="text-end">
-                        <button dx-button="{
-                            text: 'Kaydet',
-                            onClick: save,
-                            type: 'default'
-                        }" class="btn"></button>
-                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">
-                            Kapat
-                        </button>
+                        <button class="btn btn-primary">Save</button>
+                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">Close</button>
                     </div>
                 </div>
             </div>
@@ -164,280 +115,86 @@
     </div>
 </div>
 
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+}
 
 @section Scripts {
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/umd/locale/en.js"></script>
     <script>
-        appModule.controller('appController', ($scope, $http) => {
-            $scope.titlePopup = "";
-            $scope.selectedData = {};
-            $scope.userStatuses = [];
-            $scope.userTypes = [];
-            $scope.roles = [];
-
-            function getUserStatuses() {
-                $http.get(`/admin/lookup/user-statuses`).then((res) => {
-                    $scope.userStatuses = res.data;
-                });
-            }
-
-            function getUserTypes() {
-                $http.get(`/admin/lookup/user-types`).then((res) => {
-                    $scope.userTypes = res.data;
-                });
-            }
-
-            function getRoles() {
-                $http.get(`/admin/lookup/roles`).then((res) => {
-                    $scope.roles = res.data;
-                });
-            }
-
-            $scope.nameOptions = {
-                label: 'Adı',
-                stylingMode: 'outlined',
-                labelMode: 'floating',
-                bindingOptions: {
-                    value: 'selectedData.name'
-                }
-            };
-
-            $scope.surnameOptions = {
-                label: 'Soyadı',
-                stylingMode: 'outlined',
-                labelMode: 'floating',
-                bindingOptions: {
-                    value: 'selectedData.surname'
-                }
-            };
-
-            $scope.emailOptions = {
-                label: 'Email Adresi',
-                stylingMode: 'outlined',
-                labelMode: 'floating',
-                bindingOptions: {
-                    value: 'selectedData.emailAddress'
-                }
-            };
-
-            $scope.phoneOptions = {
-                label: 'Telefon',
-                stylingMode: 'outlined',
-                labelMode: 'floating',
-                bindingOptions: {
-                    value: 'selectedData.phone'
-                }
-            };
-
-            $scope.userTypeOptions = {
-                label: 'Kullanıcı Tipi',
-                stylingMode: 'outlined',
-                labelMode: 'floating',
-                displayExpr: 'name',
-                valueExpr: 'id',
-                bindingOptions: {
-                    dataSource: 'userTypes',
-                    value: 'selectedData.userType'
-                }
-            };
-
-            $scope.userStatusOptions = {
-                label: 'Kullanıcı Durumu',
-                stylingMode: 'outlined',
-                labelMode: 'floating',
-                displayExpr: 'name',
-                valueExpr: 'id',
-                bindingOptions: {
-                    dataSource: 'userStatuses',
-                    value: 'selectedData.status'
-                }
-            };
-
-            $scope.nameValidatorOptions = {
-                validationRules: [{
-                    type: 'required',
-                    message: 'Adı giriniz.'
-                }]
-            };
-
-            $scope.surnameValidatorOptions = {
-                validationRules: [{
-                    type: 'required',
-                    message: 'Soyadı giriniz.'
-                }]
-            };
-
-            $scope.emailValidatorOptions = {
-                validationRules: [{
-                    type: 'required',
-                    message: 'Email adresi gereklidir.',
-                },
-                {
-                    type: 'email',
-                    message: 'Email formatı uygun değildir.',
-                }]
-            }
-
-            $scope.userTypeValidatorOptions = {
-                validationRules: [{
-                    type: 'required',
-                    message: 'Kullanıcı tipi seçiniz.',
-                }]
-            }
-
-            $scope.userStatusValidatorOptions = {
-                validationRules: [{
-                    type: 'required',
-                    message: 'Kullanıcı durumu seçiniz.',
-                }]
-            }
-
-            $scope.dataGridOptions = {
-                dataSource: DevExpress.data.AspNet.createStore({
-                    key: 'id',
-                    loadUrl: '/admin/user/list',
-                }),
-                remoteOperations: true,
-                paging: {
-                    pageSize: 5,
-                },
-                pager: {
-                    visible: true,
-                    allowedPageSizes: [10, 20, 50, 'all'],
-                    showPageSizeSelector: true,
-                    showInfo: true,
-                    showNavigationButtons: true,
-                },
-                filterRow: {
-                    visible: true,
-                    applyFilter: 'auto',
-                },
-                headerFilter: {
-                    visible: true,
-                    search: {
-                        enabled: true,
-                    },
-                },
-                wordWrapEnabled: true,
-                showBorders: true,
-                showColumnLines: true,
-                showRowLines: true,
-                rowAlternationEnabled: true,
-                allowColumnResizing: true,
-                columns: [{
-                    caption: "",
-                    width: 105,
-                    allowHeaderFiltering: false,
-                    allowFiltering: false,
-                    cellTemplate: 'cellTemplate'
-                },
-                {
-                    dataField: 'id',
-                    sortOrder: "desc",
-                    visible: false
-                },
-                {
-                    caption: 'Adı',
-                    dataField: 'name',
-                    width: 150,
-                },
-                {
-                    caption: 'Soyadı',
-                    dataField: 'surname',
-                    width: 150,
-                },
-                {
-                    caption: 'Durumu',
-                    dataField: 'statusName',
-                    width: 200,
-                },
-                {
-                    caption: 'Kullanıcı Tipi',
-                    dataField: 'userTypeName',
-                    width: 200
-                },
-                {
-                    caption: 'Email Adresi',
-                    dataField: 'emailAddress',
-                    width: 200
-                },
-                {
-                    caption: 'Telefon',
-                    dataField: 'phone',
-                    width: 200
-                },
-                {
-                    caption: 'Aktif',
-                    dataField: 'isActive',
-                    width: 100
-                },
-                {
-                    caption: 'Kayıt Tarihi',
-                    dataField: 'insertedDate',
-                    dataType: 'date',
-                    format: 'dd.MM.yyyy HH:mm',
-                    width: 150
-                },
-                {
-                    caption: 'Güncelleme Tarihi',
-                    dataField: 'updatedDate',
-                    dataType: 'date',
-                    format: 'dd.MM.yyyy HH:mm',
-                    width: 150
-                },
-                ],
-                onInitialized(e) {
-                    $scope.dataGrid = e.component;
-                }
-            };
-
-            $scope.add = function () {
-                $scope.titlePopup = "Kullanıcı Ekle";
-                $("#modalForm").modal("show");
-                $scope.selectedData = {};
-                $scope.selectedData.isActive = true;
-                getUserTypes();
-                getUserStatuses();
-                getRoles();
-            };
-
-            $scope.edit = function (row) {
-                $scope.titlePopup = "Kullanıcı Düzenle";
-                $("#modalForm").modal("show");
-                getUserTypes();
-                getUserStatuses();
-                getRoles();
-                $http.get(`/admin/user/${row.data.id}`).then((res) => {
-                    $scope.selectedData = res.data;
-                });
-            }
-
-            $scope.save = function (e) {
-                const result = e.validationGroup.validate();
-                if (result.isValid) {
-                    if ($scope.selectedData.id) {
-                        $http.put("/admin/user", $scope.selectedData)
-                            .then((res) => {
-                                $scope.dataGrid.refresh();
-                                $("#modalForm").modal("hide");
-                                DevExpress.ui.notify(res.data.message, 'success');
-                            });
-                    } else {
-                        $http.post("/admin/user", $scope.selectedData)
-                            .then((res) => {
-                                $scope.dataGrid.refresh();
-                                $("#modalForm").modal("hide");
-                                DevExpress.ui.notify(res.data.message, 'success');
-                            });
+        ELEMENT.locale(ELEMENT.lang.en);
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    users: [],
+                    roles: [],
+                    statuses: [],
+                    types: [],
+                    page: 1,
+                    total: 0,
+                    titleModal: '',
+                    selectedData: {},
+                    formData: {
+                        id: 0,
+                        name: '',
+                        surname: '',
+                        emailAddress: '',
+                        phone: '',
+                        userType: null,
+                        status: null,
+                        roleIds: [],
+                        isActive: true
                     }
-                }
-            }
-
-            $scope.delete = function (row) {
-                if (confirm("Silmek istediğinize emin misiniz?")) {
-                    $http.delete(`/admin/user/${row.data.id}`).then((res) => {
-                        $scope.dataGrid.refresh();
-                        DevExpress.ui.notify(res.data.message, 'success');
+                };
+            },
+            created() {
+                this.getUsers();
+            },
+            methods: {
+                getUsers() {
+                    $.post("/admin/user/list", {
+                        pageSize: this.pageSize,
+                        page: this.page
+                    }).then((res) => {
+                        this.users = res.list;
+                        this.total = res.total;
                     });
+                },
+                getUserTypes() {
+                    $.get("/admin/lookup/user-types").then(res => {
+                        this.types = res;
+                    });
+                },
+                getStatuses() {
+                    $.get("/admin/lookup/user-statuses").then(res => {
+                        this.statuses = res;
+                    });
+                },
+                getRoles() {
+                    $.get("/admin/lookup/roles").then(res => {
+                        this.roles = res;
+                    });
+                },
+                pageChange(e) {
+                    this.page = e;
+                    this.getUsers();
+                },
+                sizeChange(e) {
+                    this.pageSize = e;
+                    this.getUsers();
+                },
+                handleCommand(e) {
+                    console.log(e);
+                },
+                add() {
+                    $("#modalForm").modal("show");
+                    this.titleModal = "Add User";
+                    this.getRoles();
+                    this.getStatuses();
+                    this.getUserTypes();
                 }
             }
         });

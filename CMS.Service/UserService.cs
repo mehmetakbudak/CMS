@@ -1,10 +1,12 @@
 ﻿using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Service.Exceptions;
+using CMS.Service.Helper;
+using CMS.Service.Infrastructure;
 using CMS.Storage.Consts;
 using CMS.Storage.Entity;
 using CMS.Storage.Enum;
 using CMS.Storage.Model;
-using CMS.Service.Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,15 +14,12 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using CMS.Service.Exceptions;
-using CMS.Service.Infrastructure;
-using System.Collections.Generic;
 
 namespace CMS.Service
 {
     public interface IUserService
     {
-        Task<List<UserGetModel>> Get();
+        IQueryable<UserGetModel> Get();
         Task<UserModel> GetById(int id);
         Task<LoginResponseModel> Authenticate(LoginModel model);
         Task<User> GetTokenInfo(int userId, string token);
@@ -59,9 +58,9 @@ namespace CMS.Service
             _memoryCache = memoryCache;
         }
 
-        public async Task<List<UserGetModel>> Get()
+        public IQueryable<UserGetModel> Get()
         {
-            var list = await _unitOfWork.Repository<User>()
+            var list = _unitOfWork.Repository<User>()
                 .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
                 .AsQueryable()
@@ -79,7 +78,7 @@ namespace CMS.Service
                     InsertedDate = x.InsertedDate,
                     StatusName = EnumHelper.GetDescription(x.Status),
                     UserTypeName = EnumHelper.GetDescription(x.UserType),
-                }).ToListAsync();
+                }).AsQueryable();
             return list;
         }
 

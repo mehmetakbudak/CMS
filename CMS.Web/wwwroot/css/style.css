@@ -137,3 +137,11 @@
 .dx-button-text {
     text-transform: unset !important;
 }
+
+.el-input__inner {
+    border: 1px solid #606266 !important;
+}
+
+.el-select .el-input .el-select__caret {
+    color: #606266 !important;
+}
