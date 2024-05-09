@@ -45,17 +45,6 @@
     background-color: unset !important;
 }
 
-@media (max-width:768px) {
-    .user-name {
-        display: none !important;
-    }
-
-    .grid-buttons {
-        width: 90px;
-    }
-}
-
-
 .note-btn.dropdown-toggle:after {
     content: none;
 }
@@ -122,7 +111,23 @@
     overflow: initial !important;
 }
 
-@media (max-width: 767px) {
+.left-menu {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .user-name {
+        display: none !important;
+    }
+
+    .grid-buttons {
+        width: 90px;
+    }
+
+    .left-menu {
+        display: none !important;
+    }
+
     .table-responsive .dropdown-menu {
         position: static !important;
     }

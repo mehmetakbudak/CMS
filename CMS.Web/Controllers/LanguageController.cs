@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq;
 
 namespace CMS.Web.Controllers
@@ -35,6 +37,15 @@ namespace CMS.Web.Controllers
             var requestCultureFeature = HttpContext.Features.Get<IRequestCultureFeature>();
             var currentCulture = requestCultureFeature.RequestCulture.Culture;
             return Ok(currentCulture);
+        }
+
+        [HttpGet("Language/ChangeLanguage")]
+        public IActionResult ChangeLanguage(string culture)
+        {
+            Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                new CookieOptions() { Expires = DateTimeOffset.UtcNow.AddYears(1) });
+            return Ok();
         }
     }
 }

@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CMS</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/23.1.4/css/dx.material.blue.light.css" />
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/23.2.3/css/dx.material.blue.light.css" />
     <link rel="stylesheet" href="~/css/slick.css" />
     <link rel="stylesheet" href="~/css/slick-theme.css" />
     <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
@@ -21,7 +21,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-sanitize.min.js">
     </script>
     <script src="https://unpkg.com/devextreme-quill@1.6.2/dist/dx-quill.min.js"></script>
-    <script src="https://cdn3.devexpress.com/jslib/23.1.4/js/dx.all.js"></script>
+    <script src="https://cdn3.devexpress.com/jslib/23.2.3/js/dx.all.js"></script>
     <script src="https://unpkg.com/devextreme-aspnet-data@2.9.2/js/dx.aspnet.data.js"></script>
     <script src="~/js/lib/slick.min.js"></script>
     <script src="~/js/pages/site.js" asp-append-version="true"></script>
@@ -92,8 +92,9 @@
                                     if (userType != (int)UserType.Member)
                                     {
                                         <li>
-                                            <a class="dropdown-item text-dark" href="/Admin/Dashboard">
-                                                Yönetim Paneli
+                                            <a class="dropdown-item text-dark"
+                                               href="/admin/dashboard">
+                                                @localization.GetKey("AdminPanel")
                                             </a>
                                         </li>
                                     }
@@ -101,22 +102,22 @@
                             }
                             <li>
                                 <a class="dropdown-item text-dark" href="/profile">
-                                    Kullanıcı Bilgileri
+                                    @localization.GetKey("UserInfo")
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item text-dark" href="/comments">
-                                    Yorumlarım
+                                    @localization.GetKey("MyComments")
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item text-dark" href="/change-password">
-                                    Şifre Değiştir
+                                    @localization.GetKey("ChangePassword")
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item text-dark" href="/logout">
-                                    Çıkış Yap
+                                    @localization.GetKey("Logout")
                                 </a>
                             </li>
                         </ul>
@@ -134,12 +135,12 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item text-dark" href="/login">
-                                    Giriş Yap
+                                    @localization.GetKey("Login")
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item text-dark" href="/register">
-                                    Üye Ol
+                                    @localization.GetKey("Register")
                                 </a>
                             </li>
                         </ul>

@@ -126,15 +126,18 @@ namespace CMS.Service
 
             if (user.PasswordExpireDate < DateTime.Now)
             {
+                user.HashCode = Security.RandomBase64();
+                user.Status = UserStatus.NotSetPassword;
+                await _unitOfWork.Save();
+
                 await SendMailResetPassword(user);
                 throw new ForbiddenException("Şifre geçerlilik süresi dolmuş. Mail adresinize şifre belirleme linki gönderildi.");
             }
 
-            var jwtResult = _jwtHelper.GenerateJwtToken(user.Id);
+            //var jwtResult = _jwtHelper.GenerateJwtToken(user.Id);
 
-            user.Token = jwtResult?.Token;
-            user.TokenExpireDate = DateTime.Now.AddHours(2);
-            await _unitOfWork.Save();
+            //user.Token = jwtResult?.Token;
+            //user.TokenExpireDate = DateTime.Now.AddHours(2);
 
             var result = new LoginResponseModel
             {
@@ -142,9 +145,9 @@ namespace CMS.Service
                 Surname = user.Surname,
                 Id = user.Id,
                 UserType = user.UserType,
-                ExpireDate = jwtResult?.ExpireDate,
+                //ExpireDate = jwtResult?.ExpireDate,
                 FullName = user.FullName,
-                Token = jwtResult?.Token
+                //Token = jwtResult?.Token
             };
 
             return result;
