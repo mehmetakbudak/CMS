@@ -2,112 +2,178 @@
     ViewData["Title"] = "Users";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-<div id="app">
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="d-flex mb-3">
-                <h5 class="flex-grow-1">Users</h5>
-                <button class="btn btn-primary btn-sm float-end" v-on:click="add"><i class="fa fa-plus"></i> Add</button>
+<div class="card shadow">
+    <div class="card-header bg-white pt-3">
+        <div class="row">
+            <div class="col-9">
+                <nav aria-label="breadcrumb" class="pt-2">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/admin/dashboard" class="text-decoration-none text-dark">
+                                <i class="fa fa-home"></i>  Home
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a>Settings</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Users
+                        </li>
+                    </ol>
+                </nav>
             </div>
-            <el-table :data="users" border class="w-100">
-                <el-table-column label="" width="60">
-                    <template slot-scope="scope">
-                        <el-dropdown v-on:command="handleCommand">
-                            <span class="el-dropdown-link">
-                                <i class="el-icon-s-tools"></i><i class="el-icon-arrow-down el-icon--right"></i>
-                            </span>
-                            <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item command="edit">Edit</el-dropdown-item>
-                                <el-dropdown-item command="delete">Delete</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </el-dropdown>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="name" label="Name" width="200"></el-table-column>
-                <el-table-column prop="surname" label="Surname"></el-table-column>
-                <el-table-column prop="emailAddress" label="Email Address" width="300"></el-table-column>
-            </el-table>
-            <div class="mt-3">
-                <el-pagination background layout="prev, pager, next, sizes"
-                               :current-page="page"
-                               :total="total"
-                               v-on:current-change="pageChange"
-                               v-on:size-change="sizeChange"></el-pagination>
+            <div class="col-3">
+                <div class="btn-group float-end">
+                    <button type="button" class="btn bg-white dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-cog"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a id="btnAdd" class="dropdown-item text-dark cursor-pointer">Add</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="modalForm" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title">{{titleModal}}</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <el-tabs>
-                        <el-tab-pane label="Info">
+    <div class="card-body">
+        <div class="accordion mb-3" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Filter Area
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <form id="filterForm">
                             <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Name</label>
-                                    <el-input placeholder="Name" v-model="formData.name"></el-input>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input id="txtFilterName" />
                                 </div>
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Surname</label>
-                                    <el-input placeholder="Surname" v-model="formData.surname"></el-input>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Surname</label>
+                                    <input id="txtFilterSurname" />
                                 </div>
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Email Address</label>
-                                    <el-input placeholder="Email Address" v-model="formData.emailAddress"></el-input>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    <input id="txtFilterEmailAddress" />
                                 </div>
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Phone</label>
-                                    <el-input placeholder="Phone" v-model="formData.phone"></el-input>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <input id="txtFilterPhone" />
                                 </div>
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Type</label>
-                                    <el-select class="w-100" v-model="formData.userType" filterable placeholder="Select types">
-                                        <el-option v-for="item in types"
-                                                   :key="item.id"
-                                                   :label="item.name"
-                                                   :value="item.id">
-                                        </el-option>
-                                    </el-select>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">User Type</label>
+                                    <input id="mslFilterUserType" />
                                 </div>
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Status</label>
-                                    <el-select class="w-100" v-model="formData.status" filterable placeholder="Select status">
-                                        <el-option v-for="item in statuses"
-                                                   :key="item.id"
-                                                   :label="item.name"
-                                                   :value="item.id">
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Roles</label>
-                                    <el-select class="w-100" v-model="formData.roleIds" filterable multiple placeholder="Select roles">
-                                        <el-option v-for="item in roles"
-                                                   :key="item.id"
-                                                   :label="item.name"
-                                                   :value="item.id">
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <label class="form-label w-100">Active</label>
-                                    <el-switch v-model="formData.isActive"></el-switch>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <input id="mslFilterStatus" />
                                 </div>
                             </div>
-                        </el-tab-pane>
-                        <el-tab-pane label="Documents">
-
-                        </el-tab-pane>
-                    </el-tabs>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button id="btnFilter" class="btn btn-primary btn-sm float-end">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                    <button id="btnClear" class="btn btn-outline-secondary btn-sm float-end me-2">
+                                        <i class="fa fa-close"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <div class="text-end">
-                        <button class="btn btn-primary">Save</button>
-                        <button data-bs-dismiss="modal" class="btn btn-outline-secondary">Close</button>
+            </div>
+        </div>
+        <div id="grid"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title fs-5" id="modalTitle"></h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="tabstrip">
+                    <ul>
+                        <li class="k-active">
+                            User Info
+                        </li>
+                        <li>
+                            Job Applications
+                        </li>
+                        <li>
+                            Files
+                        </li>
+                    </ul>
+                    <div>
+                        <form id="frmModal">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input id="txtName" required validationMessage="Name required." />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Surname</label>
+                                    <input id="txtSurname" required validationMessage="Surname required." />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    <input id="txtEmailAddress" required validationMessage="Email address required." />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <input id="txtPhone" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">User Type</label>
+                                    <input id="drpUserType" required validationMessage="Select user type." />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <input id="drpStatus" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Roles</label>
+                                    <input id="mslRoles" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label w-100">Active</label>
+                                    <input id="swtIsActive" />
+                                </div>
+                            </div>
+                            <button id="btnSave" type="button" class="btn btn-primary float-end">Save</button>
+                        </form>
+                    </div>
+                    <div>
+                        <div id="gridJobApplication"></div>
+                    </div>
+                    <div>
+                        <table id="gridUserFiles">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        File Name
+                                    </th>
+                                    <th>
+                                        Type
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <script id="userFileRowTemplate" type="text/x-kendo-tmpl">
+                            <tr>
+                                <td><a target="_blank" target href="#: fileUrl #"> #: fileName # </a></td>
+                                <td>#: fileTypeName #</td>
+                            </tr>
+                        </script>
                     </div>
                 </div>
             </div>
@@ -115,87 +181,311 @@
     </div>
 </div>
 
-@section Styles {
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-}
-
 @section Scripts {
-    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="https://unpkg.com/element-ui/lib/umd/locale/en.js"></script>
     <script>
-        ELEMENT.locale(ELEMENT.lang.en);
-        new Vue({
-            el: '#app',
-            data() {
-                return {
-                    users: [],
-                    roles: [],
-                    statuses: [],
-                    types: [],
-                    page: 1,
-                    total: 0,
-                    titleModal: '',
-                    selectedData: {},
-                    formData: {
-                        id: 0,
-                        name: '',
-                        surname: '',
-                        emailAddress: '',
-                        phone: '',
-                        userType: null,
-                        status: null,
-                        roleIds: [],
-                        isActive: true
-                    }
-                };
-            },
-            created() {
-                this.getUsers();
-            },
-            methods: {
-                getUsers() {
-                    $.post("/admin/user/list", {
-                        pageSize: this.pageSize,
-                        page: this.page
-                    }).then((res) => {
-                        this.users = res.list;
-                        this.total = res.total;
-                    });
-                },
-                getUserTypes() {
-                    $.get("/admin/lookup/user-types").then(res => {
-                        this.types = res;
-                    });
-                },
-                getStatuses() {
-                    $.get("/admin/lookup/user-statuses").then(res => {
-                        this.statuses = res;
-                    });
-                },
-                getRoles() {
-                    $.get("/admin/lookup/roles").then(res => {
-                        this.roles = res;
-                    });
-                },
-                pageChange(e) {
-                    this.page = e;
-                    this.getUsers();
-                },
-                sizeChange(e) {
-                    this.pageSize = e;
-                    this.getUsers();
-                },
-                handleCommand(e) {
-                    console.log(e);
-                },
-                add() {
-                    $("#modalForm").modal("show");
-                    this.titleModal = "Add User";
-                    this.getRoles();
-                    this.getStatuses();
-                    this.getUserTypes();
+        $(document).ready(function () {
+            var id = 0;
+            var jobApplicationsDataSource;
+            var userFilesDataSource;
+
+            var userTypeDataSource = new kendo.data.DataSource({
+                transport: {
+                    dataType: "json",
+                    read: "/admin/lookup/user-types"
                 }
+            });
+
+            var statusDataSource = new kendo.data.DataSource({
+                transport: {
+                    dataType: "json",
+                    read: "/admin/lookup/user-statuses"
+                }
+            });
+
+            var txtFilterName = $("#txtFilterName").kendoTextBox().data("kendoTextBox");
+
+            var txtFilterSurname = $("#txtFilterSurname").kendoTextBox().data("kendoTextBox");
+
+            var txtFilterEmailAddress = $("#txtFilterEmailAddress").kendoTextBox().data("kendoTextBox");
+
+            var txtFilterPhone = $("#txtFilterPhone").kendoTextBox().data("kendoTextBox");
+
+            var mslFilterUserType = $("#mslFilterUserType").kendoMultiSelect({
+                placeholder: " ",
+                downArrow: true,
+                dataTextField: "name",
+                dataValueField: "id",
+                dataSource: userTypeDataSource
+            }).data("kendoMultiSelect");
+
+            var mslFilterStatus = $("#mslFilterStatus").kendoMultiSelect({
+                placeholder: " ",
+                downArrow: true,
+                dataTextField: "name",
+                dataValueField: "id",
+                dataSource: statusDataSource
+            }).data("kendoMultiSelect");
+
+            var gridDataSource = new kendo.data.DataSource({
+                transport: {
+                    read: function (options) {
+                        var data = {
+                            page: options.data.page,
+                            pageSize: options.data.pageSize,
+                            name: txtFilterName.value(),
+                            surname: txtFilterSurname.value(),
+                            emailAddress: txtFilterEmailAddress.value(),
+                            phone: txtFilterPhone.value(),
+                            userStatusIds: mslFilterStatus.value(),
+                            userTypeIds: mslFilterUserType.value()
+                        }
+                        $.post("/admin/user/list", data).then((res) => {
+                            options.success(res);
+                        });
+                    }
+                },
+                schema: {
+                    data: "list",
+                    total: "total"
+                },
+                serverPaging: true,
+                pageSize: 5
+            });
+
+            var grid = $("#grid").kendoGrid({
+                dataSource: gridDataSource,
+                pageable: true,
+                scrollable: true,
+                resizable: true,
+                loaderType: "loadingPanel",
+                columns: [
+                    {
+                        command: [
+                            { text: '', name: 'editRow', iconClass: "k-icon k-i-pencil", click: editRow },
+                            { text: '', name: 'destroyRow', iconClass: "k-icon k-i-trash", click: deleteRow }
+                        ], title: "", width: 105, sticky: true
+                    },
+                    {
+                        field: "name",
+                        title: "Name",
+                        width: 200
+                    },
+                    {
+                        field: "surname",
+                        title: "Surname",
+                        width: 200
+                    },
+                    {
+                        field: "emailAddress",
+                        title: "Email Address",
+                        width: 250
+                    },
+                    {
+                        field: "phone",
+                        title: "Phone",
+                        width: 150
+                    },
+                    {
+                        field: "userTypeName",
+                        title: "User Type",
+                        width: 200
+                    },
+                    {
+                        field: "statusName",
+                        title: "Status",
+                        width: 200
+                    },
+
+                ]
+            }).data("kendoGrid")
+
+            var gridJobApplication = $("#gridJobApplication").kendoGrid({
+                sortable: true,
+                pageable: true,
+                scrollable: true,
+                resizable: true,
+                loaderType: "loadingPanel",
+                noRecords: {
+                    template: () => "<div class='p-2'>No data.</div>"
+                },
+                columns: [
+                    {
+                        field: "companyName",
+                        title: "Company",
+                        width: 200
+                    },
+                    {
+                        field: "position",
+                        title: "Position",
+                        width: 200
+                    },
+                    {
+                        field: 'jobLocationName',
+                        title: 'Location',
+                        width: 200
+                    },
+                    {
+                        field: 'workTypeName',
+                        title: 'Work Type',
+                        width: 200
+                    }
+                ]
+            }).data("kendoGrid");
+
+            var gridUserFiles = $("#gridUserFiles").kendoGrid({
+                sortable: true,
+                pageable: true,
+                scrollable: true,
+                resizable: true,
+                loaderType: "loadingPanel",
+                noRecords: {
+                    template: () => "<div class='p-2'>No data.</div>"
+                },
+                rowTemplate: kendo.template($("#userFileRowTemplate").html())
+            }).data("kendoGrid");
+
+            var txtName = $("#txtName").kendoTextBox().data("kendoTextBox");
+
+            var txtSurname = $("#txtSurname").kendoTextBox().data("kendoTextBox");
+
+            var txtEmailAddress = $("#txtEmailAddress").kendoTextBox().data("kendoTextBox");
+
+            var txtPhone = $("#txtPhone").kendoTextBox().data("kendoTextBox");
+
+            var drpUserType = $("#drpUserType").kendoDropDownList({
+                optionLabel: 'Select user type',
+                dataTextField: "name",
+                dataValueField: "id",
+                dataSource: userTypeDataSource
+            }).data("kendoDropDownList");
+
+            var drpStatus = $("#drpStatus").kendoDropDownList({
+                optionLabel: 'Select status',
+                dataTextField: "name",
+                dataValueField: "id",
+                dataSource: statusDataSource
+            }).data("kendoDropDownList");
+
+            var mslRoles = $("#mslRoles").kendoMultiSelect({
+                dataTextField: "name",
+                dataValueField: "id",
+                placeholder: "Select roles",
+                downArrow: true,
+                dataSource: {
+                    transport: {
+                        dataType: "json",
+                        read: "/admin/lookup/roles"
+                    }
+                }
+            }).data("kendoMultiSelect");
+
+            var swtIsActive = $("#swtIsActive").kendoSwitch().data("kendoSwitch");
+
+            var tabstrip = $("#tabstrip").kendoTabStrip().data("kendoTabStrip");
+
+            $("#btnAdd").click(() => {
+                this.id = 0;
+                $("#modalForm").modal("show");
+                $("#modalTitle").text("Add User");
+                txtName.value("");
+                txtSurname.value("");
+                txtEmailAddress.value("");
+                txtPhone.value("");
+                drpStatus.value("");
+                drpUserType.value([]);
+                mslRoles.value([]);
+                swtIsActive.value(true);
+                swtIsActive.value(true);
+                tabstrip.disable("li:not(:first)");
+                tabstrip.select(0);
+                $("#drpStatus").hide();
+            });
+
+            $("#btnFilter").click(() => {
+                gridDataSource.read();
+            });
+
+            $("#btnClear").click(() => {
+                txtFilterName.value("");
+                txtFilterSurname.value("");
+                txtFilterEmailAddress.value("");
+                txtFilterPhone.value("");
+                mslFilterStatus.value({});
+                mslFilterUserType.value({});
+                gridDataSource.read();
+            });
+
+            $("#btnSave").click(() => {
+                var data = {
+                    id: id,
+                    name: txtName.value(),
+                    surname: txtSurname.value(),
+                    emailAddress: txtEmailAddress.value(),
+                    phone: txtPhone.value(),
+                    status: drpStatus.value(),
+                    userType: drpUserType.value(),
+                    roleIds: mslRoles.value(),
+                    isActive: swtIsActive.value()
+                };
+                var requestType = "";
+                if (this.id == 0) {
+                    requestType = "POST";
+                } else {
+                    requestType = "PUT";
+                }
+                $.ajax({
+                    type: requestType,
+                    url: "/admin/user",
+                    data: data
+                }).done((res) => {
+                    gridDataSource.read();
+                    $("#modalForm").modal("hide");
+                });
+            });
+
+            function editRow(e) {
+                var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                $("#modalTitle").text("Edit User");
+                $("#modalForm").modal("show");
+                tabstrip.enable("li:not(:first)");
+                $("#drpStatus").show();
+
+                $.get(`/admin/user/${dataItem.id}`).then((res) => {
+                    txtName.value(res.name);
+                    txtSurname.value(res.surname);
+                    txtEmailAddress.value(res.emailAddress);
+                    txtPhone.value(res.phone);
+                    drpStatus.value(res.status);
+                    drpUserType.value(res.userType);
+                    mslRoles.value(res.roleIds);
+                    swtIsActive.value(res.isActive);
+                    id = dataItem.id;
+                });
+
+                jobApplicationsDataSource = new kendo.data.DataSource({
+                    transport: {
+                        dataType: "json",
+                        read: `/admin/user/jobs/${dataItem.id}`
+                    },
+                    pageSize: 5
+                });
+
+                gridJobApplication.setDataSource(jobApplicationsDataSource);
+
+                userFilesDataSource = new kendo.data.DataSource({
+                    transport: {
+                        dataType: "json",
+                        read: `/admin/user/files/${dataItem.id}`
+                    },
+                    pageSize: 5
+                });
+
+                gridUserFiles.setDataSource(userFilesDataSource);
+            }
+
+            function deleteRow(e) {
+                var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                console.log(dataItem);
             }
         });
     </script>

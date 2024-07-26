@@ -117,6 +117,8 @@ namespace CMS.Storage.Model
         public string Name { get; set; }
         public string Surname { get; set; }
         public string EmailAddress { get; set; }
-        public int? UserType { get; set; }
+        public string Phone { get; set; }
+        public List<int> UserTypeIds { get; set; } = new List<int>();
+        public List<int> UserStatusIds { get; set; } = new List<int>();
     }
 }

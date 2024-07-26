@@ -150,3 +150,7 @@
 .el-select .el-input .el-select__caret {
     color: #606266 !important;
 }
+
+.el-dialog__body {
+    padding: 0 20px !important;
+}

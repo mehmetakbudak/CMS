@@ -52,11 +52,12 @@ namespace CMS.Service
                 .Select(x => new UserFileModel
                 {
                     Id = x.Id,
-                    FileName = x.FileName,
-                    FileType = (UserFileType)type,
                     FileUrl = x.FileUrl,
+                    FileName = x.FileName,
+                    IsDefault = x.IsDefault,
+                    FileType = (UserFileType)type,
                     InsertedDate = x.InsertedDate,
-                    IsDefault = x.IsDefault
+                    FileTypeName = EnumHelper.GetDescription(x.FileType)
                 }).ToListAsync();
         }
 

@@ -162,8 +162,6 @@ app.UseCors(options => options.WithOrigins(corsDomains)
 
 app.UseRouting();
 
-app.ErrorHandler();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -185,5 +183,7 @@ app.UseEndpoints(endpoints =>
       pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
     );
 });
+
+app.UseExceptionHandleMiddleware();
 
 app.Run();

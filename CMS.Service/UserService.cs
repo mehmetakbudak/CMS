@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace CMS.Service
 {
     public interface IUserService
     {
-        IQueryable<UserGetModel> Get();
+        IQueryable<UserGetModel> Get(UserFilterModel model);
         Task<UserModel> GetById(int id);
         Task<LoginResponseModel> Authenticate(LoginModel model);
         Task<User> GetTokenInfo(int userId, string token);
@@ -35,6 +36,8 @@ namespace CMS.Service
         Task<ResetPasswordInfoModel> GetUserByCode(string code);
         Task<ServiceResult> ResetPassword(ResetPasswordModel model);
         Task<ServiceResult> Authorize(AuthorizeModel model);
+        Task<List<UserJobModel>> GetUserJobs(int userId);
+        Task<List<UserFileModel>> GetUserFiles(int id);
     }
 
     public class UserService : IUserService
@@ -58,28 +61,47 @@ namespace CMS.Service
             _memoryCache = memoryCache;
         }
 
-        public IQueryable<UserGetModel> Get()
+        public IQueryable<UserGetModel> Get(UserFilterModel model)
         {
-            var list = _unitOfWork.Repository<User>()
+            var query = _unitOfWork.Repository<User>()
                 .Where(x => !x.Deleted)
                 .OrderByDescending(x => x.Id)
-                .AsQueryable()
-                .Select(x => new UserGetModel
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Phone = x.Phone,
-                    Status = x.Status,
-                    Surname = x.Surname,
-                    IsActive = x.IsActive,
-                    UserType = x.UserType,
-                    UpdatedDate = x.UpdatedDate,
-                    EmailAddress = x.EmailAddress,
-                    InsertedDate = x.InsertedDate,
-                    StatusName = EnumHelper.GetDescription(x.Status),
-                    UserTypeName = EnumHelper.GetDescription(x.UserType),
-                }).AsQueryable();
-            return list;
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(model.Name))
+                query = query.Where(x => x.Name.Contains(model.Name));
+
+            if (!string.IsNullOrEmpty(model.Surname))
+                query = query.Where(x => x.Surname.Contains(model.Surname));
+
+            if (!string.IsNullOrEmpty(model.EmailAddress))
+                query = query.Where(x => x.EmailAddress.Contains(model.EmailAddress));
+
+            if (!string.IsNullOrEmpty(model.Phone))
+                query = query.Where(x => x.Phone.Contains(model.Phone));
+
+            if (model.UserStatusIds.Count > 0)
+                query = query.Where(x => model.UserStatusIds.Contains((int)x.Status));
+
+            if (model.UserTypeIds.Count > 0)
+                query = query.Where(x => model.UserTypeIds.Contains((int)x.UserType));
+
+            var data = query.Select(x => new UserGetModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Phone = x.Phone,
+                Status = x.Status,
+                Surname = x.Surname,
+                IsActive = x.IsActive,
+                UserType = x.UserType,
+                UpdatedDate = x.UpdatedDate,
+                EmailAddress = x.EmailAddress,
+                InsertedDate = x.InsertedDate,
+                StatusName = EnumHelper.GetDescription(x.Status),
+                UserTypeName = EnumHelper.GetDescription(x.UserType),
+            });
+            return data;
         }
 
         public Task<UserModel> GetById(int id)
@@ -163,18 +185,21 @@ namespace CMS.Service
         public async Task<ServiceResult> Post(UserModel model)
         {
             var result = new ServiceResult { StatusCode = HttpStatusCode.OK };
-            try
+            //try
+            //{
+            var strategy = _unitOfWork.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
             {
+                await _unitOfWork.CreateTransaction();
 
                 var checkEmail = await _unitOfWork.Repository<User>()
-                    .Any(x => x.Id != model.Id && x.EmailAddress == model.EmailAddress && !x.Deleted);
+                .Any(x => x.EmailAddress == model.EmailAddress && !x.Deleted);
 
                 if (checkEmail)
                 {
+                    await _unitOfWork.Rollback();
                     throw new FoundException("Email adresi ile daha önce kullanıcı kaydedilmiş.");
                 }
-
-                await _unitOfWork.CreateTransaction();
 
                 var user = new User
                 {
@@ -194,8 +219,12 @@ namespace CMS.Service
 
                 await _unitOfWork.Save();
 
-                // kullanıcıya email gönderiliyor                
                 result = await SendMailResetPassword(user);
+
+                if (result.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new BadRequestException("An error occurred while sending the email.");
+                }
 
                 if (model.UserType == UserType.Admin)
                 {
@@ -211,13 +240,14 @@ namespace CMS.Service
                 }
 
                 await _unitOfWork.Commit();
+            });
 
-                result.Message = AlertMessages.Post;
-            }
-            catch
-            {
-                await _unitOfWork.Rollback();
-            }
+            result.Message = AlertMessages.Post;
+            //}
+            //catch
+            //{
+            //    await _unitOfWork.Rollback();
+            //}
             return result;
         }
 
@@ -632,6 +662,44 @@ namespace CMS.Service
                 return result;
             }
             return result;
+        }
+
+        public async Task<List<UserJobModel>> GetUserJobs(int userId)
+        {
+            var userJobs = await _unitOfWork.Repository<UserJob>()
+                .Where(x => x.UserId == userId && !x.Job.Deleted)
+                .Include(x => x.Job.Company)
+                .Include(x => x.Job.JobLocation)
+                .Select(x => new UserJobModel
+                {
+                    Id = x.Id,
+                    JobId = x.JobId,
+                    InsertedDate = x.InsertedDate,
+                    Position = x.Job.Position,
+                    JobLocationName = x.Job.JobLocation.Name,
+                    CompanyName = x.Job.Company.Name,
+                    CompanyImageUrl = x.Job.Company.ImageUrl,
+                    WorkTypeName = EnumHelper.GetDescription(x.Job.WorkType)
+                }).ToListAsync();
+            return userJobs;
+        }
+
+        public async Task<List<UserFileModel>> GetUserFiles(int id)
+        {
+            var userFiles = await _unitOfWork.Repository<UserFile>()
+                .Where(x => x.UserId == id)
+                .Select(x => new UserFileModel
+                {
+
+                    Id = x.Id,
+                    FileName = x.FileName,
+                    FileType = x.FileType,
+                    FileTypeName = EnumHelper.GetDescription(x.FileType),
+                    FileUrl = x.FileUrl,
+                    InsertedDate = x.InsertedDate,
+                    IsDefault = x.IsDefault
+                }).ToListAsync();
+            return userFiles;
         }
     }
 }
