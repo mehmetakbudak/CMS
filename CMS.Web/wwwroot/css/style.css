@@ -6,6 +6,11 @@
     font-weight: 500 !important;
 }
 
+a {
+    color: black !important;
+    text-decoration: none !important;
+}
+
 .k-expander-title {
     color: unset !important;
     text-transform: unset !important;

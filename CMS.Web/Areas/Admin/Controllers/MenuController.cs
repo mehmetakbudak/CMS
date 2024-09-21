@@ -38,7 +38,7 @@ namespace CMS.Web.Areas.Admin.Controllers
         [HttpGet("admin/menu/user-admin-menu")]
         public async Task<IActionResult> GetUserAdminMenu()
         {
-            var list = await _menuService.GetUserAdminMenu();
+            var list = await _menuService.GetUserAdminTreeMenu();
             return Ok(list);
         }
     }

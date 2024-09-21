@@ -44,7 +44,7 @@ appModule.controller('HeaderController', ($scope, $http) => {
     }
 });
 
-$(() => {
+$(() => { 
     const select = (el, all = false) => {
         el = el.trim()
         if (all) {

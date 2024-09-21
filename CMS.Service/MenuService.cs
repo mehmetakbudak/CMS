@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace CMS.Service
 {
@@ -18,6 +17,7 @@ namespace CMS.Service
         Task<List<MenuItemGetModel>> GetFrontendMenu();
         Task<List<MenuItemGetModel>> GetAdminMenu();
         Task<List<MenuItemGetModel>> GetUserAdminMenu();
+        Task<List<MenuItemTreeModel>> GetUserAdminTreeMenu(List<MenuItemGetModel> data = null, int? parentId = null, List<MenuItemTreeModel> children = null);
         Task<List<TreeDataModel>> GetFrontendTreeMenu(int? parentId = null, List<TreeDataModel> children = null);
     }
 
@@ -47,6 +47,33 @@ namespace CMS.Service
                     ParentId = x.ParentId,
                     Url = x.Url
                 }).ToListAsync();
+        }
+
+        public async Task<List<MenuItemTreeModel>> GetUserAdminTreeMenu(List<MenuItemGetModel> data = null, int? parentId = null, List<MenuItemTreeModel> children = null)
+        {
+            var menuItems = new List<MenuItemTreeModel>();
+
+            var allList = await GetUserAdminMenu();
+
+            var list = allList.Where(x => x.ParentId == parentId)
+                .Select(x => new MenuItemTreeModel
+                {
+                    Id = x.Id,
+                    Label = x.Title,
+                    Url = x.Url,
+                }).ToList();
+
+            menuItems.AddRange(list);
+
+            foreach (var menuItem in list)
+            {
+                var items = await GetUserAdminTreeMenu(allList, menuItem.Id, list);
+                if (items != null && items.Count > 0)
+                {
+                    menuItem.Children = items;
+                }
+            }
+            return menuItems;
         }
 
         public async Task<List<MenuItemGetModel>> GetUserAdminMenu()

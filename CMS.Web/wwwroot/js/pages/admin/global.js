@@ -1,4 +1,35 @@
-﻿const appModule = angular.module('app', ['dx']);
+﻿ELEMENT.locale(ELEMENT.lang.en)
+
+new Vue({
+    el: '#treeMenu',
+    data() {
+        return {
+            items: [],
+            filterText: ""            
+        }
+    },
+    created() {
+        this.getAdminMenu();        
+    },
+    watch: {
+        filterText(val) {
+            this.$refs.tree.filter(val);
+        }
+    },
+    methods: {
+        getAdminMenu() {
+            $.get("/admin/menu/user-admin-menu").then((res) => {
+                this.items = res;
+            })
+        },
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.label.indexOf(value) !== -1;
+        }
+    }
+});
+
+const appModule = angular.module('app', ['dx']);
 appModule.controller('menuController', ($scope, $http) => {
     $scope.adminDataSource;
 

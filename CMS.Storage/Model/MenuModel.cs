@@ -46,8 +46,17 @@ namespace CMS.Storage.Model
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? ParentId { get; set; }
-
-        public bool Expanded { get; set; }
     }
 
+
+    public class MenuItemTreeModel
+    {
+        public int Id { get; set; }
+
+        public string Label { get; set; }
+        public string Url { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<MenuItemTreeModel> Children { get; set; }
+    }
 }
