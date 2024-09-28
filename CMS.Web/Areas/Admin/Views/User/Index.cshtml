@@ -39,74 +39,68 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="accordion mb-3" id="accordionForm">
-                    <div class="accordion-item">
-                        <h5 class="accordion-header h5">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                Filter Area
-                            </button>
-                        </h5>
-                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionForm">
-                            <div class="accordion-body">
-                                <form id="filterForm">
-                                    <div class="row">
-                                        <div class="col-lg-4 col-md-6 mb-3">
-                                            <label class="form-label">Name</label>
-                                            <el-input placeholder="Name" v-model="filter.name" />
-                                        </div>
-                                        <div class="col-lg-4 col-md-6 mb-3">
-                                            <label class="form-label">Surname</label>
-                                            <el-input placeholder="Surname" v-model="filter.surname" />
+                <el-collapse class="mb-3">
+                    <el-collapse-item>
+                        <template slot="title">
+                            <div class="h6">Filter Area</div>
+                        </template>
+                        <form id="filterForm">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Name</label>
+                                    <el-input placeholder="Name" v-model="filter.name" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Surname</label>
+                                    <el-input placeholder="Surname" v-model="filter.surname" />
 
-                                        </div>
-                                        <div class="col-lg-4 col-md-6 mb-3">
-                                            <label class="form-label">Email Address</label>
-                                            <el-input placeholder="Email Address" v-model="filter.emailAddress" />
-                                        </div>
-                                        <div class="col-lg-4 col-md-6 mb-3">
-                                            <label class="form-label">Phone</label>
-                                            <el-input placeholder="Phone" v-model="filter.phone" />
-                                        </div>
-                                        <div class="col-lg-4 col-md-6 mb-3">
-                                            <label class="form-label">User Type</label>
-                                            <el-select class="w-100"
-                                                       v-model="filter.userTypeIds"
-                                                       multiple
-                                                       placeholder="Select user types">
-                                                <el-option v-for="item in userTypes"
-                                                           :key="item.id"
-                                                           :label="item.name"
-                                                           :value="item.id" />
-                                            </el-select>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6 mb-3">
-                                            <label class="form-label">Status</label>
-                                            <el-select class="w-100" v-model="filter.userStatusIds"
-                                                       multiple
-                                                       placeholder="Select user statuses">
-                                                <el-option v-for="item in userStatuses"
-                                                           :key="item.id"
-                                                           :label="item.name"
-                                                           :value="item.id" />
-                                            </el-select>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <button class="btn btn-primary btn-sm float-end" v-on:click="search">
-                                                <i class="fa fa-search"></i> Search
-                                            </button>
-                                            <button class="btn btn-outline-secondary btn-sm float-end me-2"
-                                                    v-on:click="clear">
-                                                <i class="fa fa-close"></i> Clear
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    <el-input placeholder="Email Address" v-model="filter.emailAddress" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <el-input placeholder="Phone" v-model="filter.phone" />
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">User Type</label>
+                                    <el-select class="w-100"
+                                               v-model="filter.userTypeIds"
+                                               multiple
+                                               placeholder="Select user types">
+                                        <el-option v-for="item in userTypes"
+                                                   :key="item.id"
+                                                   :label="item.name"
+                                                   :value="item.id" />
+                                    </el-select>
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <el-select class="w-100" v-model="filter.userStatusIds"
+                                               multiple
+                                               placeholder="Select user statuses">
+                                        <el-option v-for="item in userStatuses"
+                                                   :key="item.id"
+                                                   :label="item.name"
+                                                   :value="item.id" />
+                                    </el-select>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button class="btn btn-primary btn-sm float-end" v-on:click="search">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm float-end me-2"
+                                            v-on:click="clear">
+                                        <i class="fa fa-close"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </el-collapse-item>
+                </el-collapse>
 
                 <el-table :data="users" class="w-100" border>
                     <el-table-column fixed="left" label="" width="60">
@@ -133,100 +127,101 @@
                 <el-pagination class="mt-3" background layout="prev, pager, next, total" :total="total" v-on:current-change="onPageChange"></el-pagination>
             </div>
         </div>
+</div>
 
-        <div class="modal fade" id="modalForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-scrollable modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title fs-5">{{modalTitle}}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <el-tabs type="border-card">
-                            <el-tab-pane label="User Info">
-                                <el-form :model="formData" status-icon :rules="rules" ref="userInfo">
-                                    <div class="row">
-                                        <div class="col-lg-4 col-md-6">
-                                            <el-form-item label="Name" prop="name">
-                                                <el-input placeholder="Name" v-model="formData.name" />
-                                            </el-form-item>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6">
-                                            <el-form-item label="Surname" prop="surname">
-                                                <el-input placeholder="Surname" v-model="formData.surname" />
-                                            </el-form-item>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6">
-                                            <el-form-item label="Email Address" prop="emailAddress">
-                                                <el-input placeholder="Email Address"
-                                                          v-model="formData.emailAddress" />
-                                            </el-form-item>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6">
-                                            <el-form-item label="Phone" prop="phone">
-                                                <el-input placeholder="Phone" v-model="formData.phone" />
-                                            </el-form-item>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6">
-                                            <el-form-item label="User Type" prop="userType">
-                                                <el-select class="w-100"
-                                                           v-model="formData.userType"
-                                                           placeholder="Select user type">
-                                                    <el-option v-for="item in userTypes"
-                                                               :key="item.id"
-                                                               :label="item.name"
-                                                               :value="item.id" />
-                                                </el-select>
-                                            </el-form-item>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6" v-if="formData.id != 0">
-                                            <el-form-item label="User Status" prop="status">
-                                                <el-select class="w-100"
-                                                           v-model="formData.status"
-                                                           placeholder="Select user status">
-                                                    <el-option v-for="item in userStatuses"
-                                                               :key="item.id"
-                                                               :label="item.name"
-                                                               :value="item.id" />
-                                                </el-select>
-                                            </el-form-item>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6" v-if="formData.userType != 3">
-                                            <el-form-item label="Roles" prop="roleIds">
-                                                <el-select class="w-100"
-                                                           v-model="formData.roleIds"
-                                                           multiple
-                                                           placeholder="Select roles">
-                                                    <el-option v-for="item in roles"
-                                                               :key="item.id"
-                                                               :label="item.name"
-                                                               :value="item.id" />
-                                                </el-select>
-                                            </el-form-item>
-                                        </div>
-                                        <div class="col-lg-4 col-md-6">
-                                            <el-form-item label="Active" prop="isActive">
-                                                <el-switch class="w-100"
-                                                           v-model="formData.isActive"></el-switch>
-                                            </el-form-item>
-                                        </div>
-                                    </div>
-                                    <button v-on:click="save" type="button" class="btn btn-primary float-end">
-                                        <i class="fa fa-save"></i> Save
-                                    </button>
-                                </el-form>
-                            </el-tab-pane>
-                            <el-tab-pane label="Job Applications">
-                                jobs
-                            </el-tab-pane>
-                            <el-tab-pane label="Files">
-                                files
-                            </el-tab-pane>
-                        </el-tabs>
-                    </div>
-                </div>
+<div class="modal fade" id="modalForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-5">{{modalTitle}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <el-tabs type="border-card">
+                    <el-tab-pane label="User Info">
+                        <el-form :model="formData" status-icon :rules="rules" ref="userInfo">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6">
+                                    <el-form-item label="Name" prop="name">
+                                        <el-input placeholder="Name" v-model="formData.name" />
+                                    </el-form-item>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <el-form-item label="Surname" prop="surname">
+                                        <el-input placeholder="Surname" v-model="formData.surname" />
+                                    </el-form-item>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <el-form-item label="Email Address" prop="emailAddress">
+                                        <el-input placeholder="Email Address"
+                                                  v-model="formData.emailAddress" />
+                                    </el-form-item>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <el-form-item label="Phone" prop="phone">
+                                        <el-input placeholder="Phone" v-model="formData.phone" />
+                                    </el-form-item>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <el-form-item label="User Type" prop="userType">
+                                        <el-select class="w-100"
+                                                   v-model="formData.userType"
+                                                   placeholder="Select user type">
+                                            <el-option v-for="item in userTypes"
+                                                       :key="item.id"
+                                                       :label="item.name"
+                                                       :value="item.id" />
+                                        </el-select>
+                                    </el-form-item>
+                                </div>
+                                <div class="col-lg-4 col-md-6" v-if="formData.id != 0">
+                                    <el-form-item label="User Status" prop="status">
+                                        <el-select class="w-100"
+                                                   v-model="formData.status"
+                                                   placeholder="Select user status">
+                                            <el-option v-for="item in userStatuses"
+                                                       :key="item.id"
+                                                       :label="item.name"
+                                                       :value="item.id" />
+                                        </el-select>
+                                    </el-form-item>
+                                </div>
+                                <div class="col-lg-4 col-md-6" v-if="formData.userType != 3">
+                                    <el-form-item label="Roles" prop="roleIds">
+                                        <el-select class="w-100"
+                                                   v-model="formData.roleIds"
+                                                   multiple
+                                                   placeholder="Select roles">
+                                            <el-option v-for="item in roles"
+                                                       :key="item.id"
+                                                       :label="item.name"
+                                                       :value="item.id" />
+                                        </el-select>
+                                    </el-form-item>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <el-form-item label="Active" prop="isActive">
+                                        <el-switch class="w-100"
+                                                   v-model="formData.isActive"></el-switch>
+                                    </el-form-item>
+                                </div>
+                            </div>
+                            <button v-on:click="save" type="button" class="btn btn-primary float-end">
+                                <i class="fa fa-save"></i> Save
+                            </button>
+                        </el-form>
+                    </el-tab-pane>
+                    <el-tab-pane label="Job Applications">
+                        jobs
+                    </el-tab-pane>
+                    <el-tab-pane label="Files">
+                        files
+                    </el-tab-pane>
+                </el-tabs>
             </div>
         </div>
+    </div>
+</div>
     </template>
 </div>
 @section Scripts {
