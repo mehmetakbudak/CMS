@@ -1,8 +1,8 @@
 # CMS 
 Content management system 
  
-- Asp.Net Core 6.0 Mvc
-- Angular.js
+- Asp.Net Core 9.0 Web Api
+- Angular 19
 - MsSql
-- Devextreme
+- PrimeNG
 
