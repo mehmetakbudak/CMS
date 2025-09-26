@@ -1,0 +1,45 @@
+<main class="main">
+  <div class="page-title accent-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Testimonials</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a routerLink="/">Home</a></li>
+          <li class="current">Testimonials</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <section id="testimonials" class="testimonials section">
+    <div class="container">
+      <div class="row gy-4">
+        <div class="col-md-6" *ngFor="let item of list">
+          <div class="testimonial-item">
+            <img
+            src="{{ environment.host }}{{ item.imageUrl }}"
+            class="testimonial-img"
+              alt=""
+            />
+            <h3>{{ item.name }} {{ item.surname }}</h3>
+            <h4>{{ item.title }}</h4>
+            <p class="mt-5">
+              <i class="bi bi-quote quote-icon-left"></i>
+              <span [innerHTML]="item.description"></span>
+              <i class="bi bi-quote quote-icon-right"></i>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <p-paginator
+          (onPageChange)="onPageChange($event)"
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="total"
+          [rowsPerPageOptions]="[4, 12, 20]"
+        />
+      </div>
+    </div>
+  </section>
+</main>

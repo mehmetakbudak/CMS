@@ -1,0 +1,95 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="row">
+  <div class="col-12">
+    <p-panel>
+      <ng-template pTemplate="header">
+        <div class="font-bold">
+          <h3>Jobs</h3>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="icons">
+        <p-button (click)="reset()" icon="pi pi-delete-left" [link]="true" />
+        <p-button (click)="search()" icon="pi pi-search" [link]="true" />
+        <p-button
+          class="p-panel-header-icon p-link"
+          (click)="menu.toggle($event)"
+          icon="pi pi-ellipsis-v"
+          [link]="true"
+        />
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+      </ng-template>
+      <div class="mt-3">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <input
+                class="w-100"
+                type="text"
+                pInputText
+                placeholder="Position"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <p-table
+        [value]="list"
+        [lazy]="true"
+        [showGridlines]="true"
+        [stripedRows]="true"
+        [paginator]="true"
+        [first]="first"
+        [rows]="rows"
+        [loading]="loading"
+        [scrollable]="true"
+        (onPage)="pageChange($event)"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [totalRecords]="totalRecords"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="table-icon-col" pFrozenColumn></th>
+            <th>Position</th>
+            <th>Tenant</th>
+            <th>Location</th>
+            <th>Work Type</th>
+            <th>Inserted User</th>
+            <th>Inserted Date</th>
+            <th>Updated Date</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td class="table-icon-col" pFrozenColumn>
+              <p-menu
+                #menu
+                [model]="gridMenuItems"
+                [popup]="true"
+                appendTo="body"
+              ></p-menu>
+              <p-button
+                (click)="menuToggle(menu, $event, item)"
+                icon="pi pi-cog"
+                [link]="true"
+              />
+            </td>
+            <td>
+              <a class="cursor-pointer" (click)="edit(item.id)">
+                {{ item.position }}
+              </a>
+            </td>
+            <td>{{ item.tenantName }}</td>
+            <td>{{ item.jobLocationName }}</td>
+            <td>{{ item.workTypeName | translate}}</td>
+            <td>{{ item.insertedUserName }}</td>
+            <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+            <td>{{ item.updatedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+</div>

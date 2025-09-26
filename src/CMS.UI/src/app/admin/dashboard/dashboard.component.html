@@ -1,0 +1,337 @@
+<p-toast />
+<p-panel header="{{ 'Summary' | translate }}" [toggleable]="true">
+  <div class="text-center content-align-center py-5" *ngIf="loadingSummary">
+    <p-progress-spinner />
+    <div>Loading...</div>
+  </div>
+  <div class="row mt-4" *ngIf="!loadingSummary">
+    <div class="col-md-3 mb-3">
+      <div class="card cursor-pointer border-success" routerLink="/admin/user">
+        <div class="card-header bg-success text-white">
+          <i class="pi pi-users"></i> Users
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.userCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card cursor-pointer border-primary" routerLink="/admin/role">
+        <div class="card-header bg-primary text-white">
+          <i class="pi pi-wrench"></i> Roles
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.roleCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div
+        class="card cursor-pointer border-secondary"
+        routerLink="/admin/task"
+      >
+        <div class="card-header bg-secondary text-white">
+          <i class="pi pi-list-check"></i> Tasks
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.taskCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card cursor-pointer border-info" routerLink="/admin/blog">
+        <div class="card-header bg-info text-white">
+          <i class="pi pi-book"></i> Blogs
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.blogCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div
+        class="card cursor-pointer border-danger"
+        routerLink="/admin/comment"
+      >
+        <div class="card-header bg-danger text-white">
+          <i class="pi pi-comments"></i> Comments
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.commentCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card cursor-pointer border-dark" routerLink="/admin/contact">
+        <div class="card-header bg-dark text-white">
+          <i class="pi pi-info-circle"></i> Contact Messages
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.contactMessageCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card cursor-pointer border-success">
+        <div class="card-header bg-success text-white">
+          <i class="pi pi-code"></i> Homepage Sliders
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.homepageSliderCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card cursor-pointer border-primary" routerLink="/admin/job">
+        <div class="card-header bg-primary text-white">
+          <i class="pi pi-briefcase"></i> Jobs
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.jobCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div
+        class="card cursor-pointer border-secondary"
+        routerLink="/admin/page"
+      >
+        <div class="card-header bg-secondary text-white">
+          <i class="pi pi-pencil"></i> Pages
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.pageCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card cursor-pointer border-info" routerLink="/admin/service">
+        <div class="card-header bg-info text-white">
+          <i class="pi pi-cog"></i> Services
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.serviceCount }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div
+        class="card cursor-pointer border-danger"
+        routerLink="/admin/testimonial"
+      >
+        <div class="card-header bg-danger text-white">
+          <i class="pi pi-book"></i> Testimonials
+        </div>
+        <div class="card-body text-center">
+          <h4>{{ data.testimonialCount }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-panel>
+
+<div class="row mt-4">
+  <div class="col-md-12">
+    <p-panel header="{{ 'MyTasks' | translate }}" [toggleable]="true">
+      <div class="mt-3">
+        <p-table
+          [value]="tasks"
+          [lazy]="true"
+          [showGridlines]="true"
+          [stripedRows]="true"
+          [paginator]="true"
+          [first]="first"
+          [rows]="rows"
+          [loading]="loading"
+          [scrollable]="true"
+          (onPage)="pageChange($event)"
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          [totalRecords]="totalRecords"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [showCurrentPageReport]="true"
+          dataKey="id"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="table-icon-col"></th>
+              <th class="table-icon-col" pFrozenColumn></th>
+              <th style="min-width: 200px">Title</th>
+              <th style="min-width: 200px">Category Name</th>
+              <th style="min-width: 200px">Status Name</th>
+              <th style="min-width: 150px">Inserted Date</th>
+              <th style="min-width: 150px">Updated Date</th>
+              <th>Active</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-expanded="expanded">
+            <tr>
+              <td class="table-icon-col">
+                <p-button
+                  [link]="true"
+                  [pRowToggler]="item"
+                  [icon]="
+                    expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'
+                  "
+                />
+              </td>
+              <td pFrozenColumn class="table-icon-col">
+                <p-menu
+                  #menu
+                  [model]="gridMenuItems"
+                  [popup]="true"
+                  appendTo="body"
+                ></p-menu>
+                <p-button
+                  [link]="true"
+                  (click)="menuToggle(menu, $event, item)"
+                  icon="pi pi-cog"
+                />
+              </td>
+              <td>
+                <a class="cursor-pointer" (click)="edit(item.id)">{{
+                  item.title
+                }}</a>
+              </td>
+              <td>{{ item.taskCategoryName }}</td>
+              <td>{{ item.taskStatusName }}</td>
+              <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+              <td>{{ item.updatedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+              <td>
+                <p-checkbox
+                  [disabled]="true"
+                  [(ngModel)]="item.isActive"
+                  [binary]="true"
+                  inputId="binary"
+                ></p-checkbox>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="rowexpansion" let-task>
+            <tr>
+              <td colspan="8">
+                <div class="p-2">
+                  <div
+                    style="
+                      font-size: 16px;
+                      font-weight: bold;
+                      padding-bottom: 10px;
+                    "
+                  >
+                    <i class="pi pi-info-circle"></i> Description :
+                  </div>
+                  <div [innerHTML]="task.description"></div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9">No tasks found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-panel>
+  </div>
+</div>
+
+<p-dialog
+  header="Edit Task"
+  [(visible)]="visibleTaskModal"
+  [breakpoints]="{ '960px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [modal]="true"
+  position="top"
+  [maximizable]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="taskForm">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input
+            class="w-100"
+            type="text"
+            pInputText
+            [readOnly]="true"
+            formControlName="title"
+          />
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label">Task Category</label>
+          <p-select
+            class="w-100"
+            formControlName="taskCategoryId"
+            [options]="taskCategories"
+            appendTo="body"
+            optionLabel="name"
+            optionValue="id"
+            [disabled]="true"
+          />
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label w-100">
+            Task Status
+            <span class="text-danger">*</span>
+          </label>
+          <p-select
+            class="w-100"
+            formControlName="taskStatusId"
+            [options]="taskStatuses"
+            appendTo="body"
+            [filter]="true"
+            optionLabel="name"
+            optionValue="id"
+            [ngClass]="{
+              'is-invalid': submittedTaskForm && fTask['taskStatusId'].errors
+            }"
+          />
+          <div
+            *ngIf="submittedTaskForm && fTask['taskStatusId'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="fTask['taskStatusId'].errors['required']">
+              Task Status is required
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="mb-3">
+    <label class="form-label">Description</label>
+    <p-editor
+      [(ngModel)]="description"
+      [readonly]="true"
+      [disabled]="true"
+    ></p-editor>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button
+      size="small"
+      (click)="saveTask()"
+      type="submit"
+      class="float-end"
+      icon="pi pi-save"
+      label="Save"
+      pAutoFocus
+      [autofocus]="true"
+    ></p-button>
+  </ng-template>
+</p-dialog>

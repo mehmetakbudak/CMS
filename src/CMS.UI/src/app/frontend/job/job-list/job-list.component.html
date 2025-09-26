@@ -1,0 +1,151 @@
+<main class="main">
+  <div class="page-title accent-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Jobs</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li>
+            <a routerLink="/">{{ "Homepage" | translate }}</a>
+          </li>
+          <li class="current">{{ "Jobs" | translate }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row my-5">
+      <div class="col-md-3">
+        <p-panel [toggleable]="true" styleClass="mb-3">
+          <ng-template #header>
+            <h5><i class="pi pi-filter me-1"></i>{{ "Filter" | translate }}</h5>
+          </ng-template>
+          <div class="mt-3">
+            <div class="mb-3">
+              <h6 class="pb-1">{{ "Position" | translate }}</h6>
+              <input
+                pInputText
+                placeholder="{{ 'Position' | translate }}"
+                size="small"
+                class="w-100"
+                [(ngModel)]="position"
+              />
+            </div>
+            <div class="mb-3">
+              <h6 class="pb-1">{{ "Tenants" | translate }}</h6>
+              <div class="d-flex mb-1" *ngFor="let item of tenants">
+                <p-check-box
+                  [(ngModel)]="item.checked"
+                  [binary]="true"
+                  inputId="cm{{ item.id }}"
+                ></p-check-box>
+                <label for="cm{{ item.id }}" class="ms-2">{{
+                  item.name
+                }}</label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <h6 class="pb-1">{{ "WorkType" | translate }}</h6>
+              <div class="d-flex mb-1" *ngFor="let item of workTypes">
+                <p-check-box
+                  [(ngModel)]="item.checked"
+                  [binary]="true"
+                  inputId="wt{{ item.id }}"
+                ></p-check-box>
+                <label for="wt{{ item.id }}" class="ms-2">
+                  {{ item.name | translate }}
+                </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <h6 class="pb-1">{{ "Location" | translate }}</h6>
+              <div class="d-flex mb-1" *ngFor="let item of jobLocations">
+                <p-check-box
+                  [(ngModel)]="item.checked"
+                  [binary]="true"
+                  inputId="lo{{ item.id }}"
+                ></p-check-box>
+                <label for="lo{{ item.id }}" class="ms-2">{{
+                  item.name
+                }}</label>
+              </div>
+            </div>
+            <div class="d-flex">
+              <p-button
+                icon="pi pi-search"
+                label="{{ 'Search' | translate }}"
+                severity="warn"
+                size="small"
+                (onClick)="search()"
+              ></p-button>
+              <p-button
+                icon="pi pi-delete-left"
+                label="{{ 'Clear' | translate }}"
+                severity="warn"
+                size="small"
+                [outlined]="true"
+                class="ms-2"
+                (onClick)="clearAll()"
+              ></p-button>
+            </div>
+          </div>
+        </p-panel>
+      </div>
+      <div class="col-md-9">
+        <div *ngIf="list?.length > 0">
+          <div
+            ngClass="cursor-pointer"
+            [routerLink]="['/job', item.id]"
+            class="mb-3"
+            *ngFor="let item of list"
+          >
+            <p-panel [showHeader]="false">
+              <div class="d-flex mt-4">
+                <img
+                  height="100"
+                  width="100"
+                  src="{{ environment.host }}{{ item.tenantImageUrl }}"
+                  alt="logo"
+                />
+                <div class="ms-3">
+                  <div class="w-100">
+                    <div>
+                      <h5>{{ item.position }}</h5>
+                    </div>
+                    <div class="d-md-flex mt-3">
+                      <div class="me-3">
+                        <i class="pi pi-briefcase"></i> {{ item.tenantName }}
+                      </div>
+                      <div class="me-3">
+                        <i class="pi pi-clock"></i>
+                        {{ item.workTypeName | translate }}
+                      </div>
+                      <div>
+                        <i class="pi pi-map-marker"></i>
+                        {{ item.jobLocationName }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </p-panel>
+          </div>
+        </div>
+
+        <p-panel [showHeader]="false" styleClass="pt-3">
+          <div *ngIf="list?.length === 0">
+            <h5>No data.</h5>
+          </div>
+
+          <p-paginator
+            *ngIf="list?.length > 0"
+            (onPageChange)="onPageChange($event)"
+            [first]="skip"
+            [rows]="pageSize"
+            [totalRecords]="total"
+            [rowsPerPageOptions]="[5, 10, 20]"
+          />
+        </p-panel>
+      </div>
+    </div>
+  </div>
+</main>

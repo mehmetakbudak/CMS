@@ -1,0 +1,91 @@
+<nav class="navbar navbar-light bg-white p-1 border-bottom">
+  <div class="navbar-brand d-flex">
+    <p-button
+      (click)="menuShow()"
+      variant="outlined"
+      severity="secondary"
+      rounded="true"
+      size="small"
+      icon="pi pi-align-justify"
+      styleClass="mx-1 d-block d-sm-none"
+    ></p-button>
+    <a class="navbar-brand text-left ps-1" routerLink="/admin">{{
+      "AdminPanel" | translate
+    }}</a>
+  </div>
+  <div class="navbar-text p-0 d-flex">
+    <p-select
+      id="selectLanguage"
+      class="me-1 border-1"
+      styleClass="px-0"
+      [(ngModel)]="selectedLanguageCode"
+      [options]="languages"
+      optionLabel="name"
+      optionValue="code"
+      size="small"
+      (onChange)="changeLanguage($event)"
+    ></p-select>
+    <p-menu #menu [model]="userMenu" [popup]="true" appendTo="body"></p-menu>
+    <p-button
+      [outlined]="true"
+      size="small"
+      severity="secondary"
+      class="text-dark w-100 d-flex user-button"
+      (click)="menu.toggle($event)"
+    >
+      <i class="me-1 pi pi-user"></i>
+      <div class="d-none d-sm-block me-1">{{ fullName }}</div>
+      <i class="pi pi-chevron-down"></i>
+    </p-button>
+  </div>
+</nav>
+<div class="container-fluid h-100">
+  <div class="row">
+    <div class="col-12 col-sm-3 col-md-2 d-none d-sm-block">
+      <div class="mt-3 menu">
+        <p-panel [showHeader]="false">
+          <div class="">
+            <p-tree
+              [value]="items"
+              class="w-100"
+              [filter]="true"
+              filterPlaceholder="{{ 'Search' | translate }}"
+            >
+              <ng-template let-node pTemplate="default">
+                @if (node.url != null) {
+                <a class="text-dark" [routerLink]="node.url">
+                  {{ node.label | translate }}
+                </a>
+                } @else {
+                <span class="text-dark">{{ node.label | translate }}</span>
+                }
+              </ng-template>
+            </p-tree>
+          </div>
+        </p-panel>
+      </div>
+    </div>
+    <div class="col-12 col-sm-9 col-md-10 my-3">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+
+<p-drawer [(visible)]="visibleDrawer" header="{{ 'Menu' | translate }}">
+  <p>
+    <p-tree [value]="items" class="drawerMenu" [filter]="true" filterPlaceholder="{{ 'Search' | translate }}">
+      <ng-template let-node pTemplate="default">
+        @if (node.url != null) {
+        <a
+          class="text-dark"
+          [routerLink]="node.url"
+          (click)="visibleDrawer = false"
+          >{{ node.label | translate }}</a
+        >
+        } @else {
+        <span class="text-dark">{{ node.label | translate }}</span>
+        }
+      </ng-template>
+    </p-tree>
+  </p>
+</p-drawer>

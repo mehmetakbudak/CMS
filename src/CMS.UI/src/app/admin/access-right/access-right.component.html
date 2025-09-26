@@ -1,0 +1,477 @@
+<p-toast></p-toast>
+<p-confirm-dialog></p-confirm-dialog>
+<p-panel>
+  <ng-template #header>
+    <div class="d-flex w-100">
+      <div class="w-100 align-content-center">
+        <h3 class="mb-0">Access Right Categories</h3>
+      </div>
+      <div class="flex-shrink-1">
+        <p-button
+          size="small"
+          styleClass="float-end small-button"
+          [rounded]="true"
+          severity="warn"
+          icon="pi pi-plus"
+          (click)="addAccessRightCategory()"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+  <div class="mt-3">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="mb-3">
+          <input class="w-100" type="text" pInputText placeholder="Name" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <p-table
+    [value]="accessRightCategories"
+    [paginator]="true"
+    [rows]="5"
+    [loading]="loading"
+    [scrollable]="true"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    rowExpandMode="single"
+    dataKey="id"
+    (onRowExpand)="onRowExpand($event)"
+    [showGridlines]="true"
+    [stripedRows]="true"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="table-icon-col"></th>
+        <th class="table-icon-col"></th>
+        <th>Name</th>
+        <th>Display Order</th>
+        <th>Active</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-expanded="expanded">
+      <tr>
+        <td class="table-icon-col">
+          <p-button
+            size="small"
+            [link]="true"
+            [pRowToggler]="item"
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+          />
+        </td>
+        <td class="table-icon-col">
+          <p-menu
+            #menuCategory
+            [model]="menuItemsCategory"
+            [popup]="true"
+            appendTo="body"
+          ></p-menu>
+          <p-button
+            size="small"
+            (click)="menuToggleCategory(menuCategory, $event, item)"
+            icon="pi pi-cog"
+            [link]="true"
+          />
+        </td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.displayOrder }}</td>
+        <td>
+          <p-checkbox
+            [disabled]="true"
+            [(ngModel)]="item.isActive"
+            [binary]="true"
+            inputId="binary"
+          />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-item>
+      <tr>
+        <td colspan="5">
+          <div class="p-2">
+            <div class="d-flex w-100 pb-2">
+              <div class="w-100 align-content-center">
+                <h3 class="mb-0">Access Rights</h3>
+              </div>
+              <div class="flex-shrink-1">
+                <p-button
+                  size="small"
+                  [rounded]="true"
+                  severity="warn"
+                  styleClass="float-end small-button"
+                  icon="pi pi-plus"
+                  (click)="addAccessRight()"
+                ></p-button>
+              </div>
+            </div>
+            <p-table
+              [value]="accessRights"
+              [showGridlines]="true"
+              [stripedRows]="true"
+            >
+              <ng-template #header>
+                <tr>
+                  <th class="table-icon-col"></th>
+                  <th>Name</th>
+                  <th>Display Order</th>
+                  <th>Active</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-accessRight>
+                <tr>
+                  <td pFrozenColumn class="table-icon-col">
+                    <p-menu
+                      #menuAccessRight
+                      [model]="menuItemsAccessRight"
+                      [popup]="true"
+                      appendTo="body"
+                    ></p-menu>
+                    <p-button
+                      (click)="
+                        menuToggleAccessRight(
+                          menuAccessRight,
+                          $event,
+                          accessRight
+                        )
+                      "
+                      icon="pi pi-cog"
+                      [link]="true"
+                    />
+                  </td>
+                  <td>{{ accessRight.name }}</td>
+                  <td>{{ accessRight.displayOrder }}</td>
+                  <td>
+                    <p-checkbox
+                      [disabled]="true"
+                      [(ngModel)]="accessRight.isActive"
+                      [binary]="true"
+                      inputId="binary"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="4">No data.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4">No data.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-panel>
+
+<p-dialog
+  [header]="titleAccessRightCategory"
+  [(visible)]="showAccessRightCategory"
+  [breakpoints]="{ '960px': '90vw' }"
+  [modal]="true"
+  position="top"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="formAccessRightCategory">
+    <div class="mb-3">
+      <label class="form-label">Name</label>
+      <input
+        class="w-100"
+        type="text"
+        pInputText
+        formControlName="name"
+        [ngClass]="{
+          'is-invalid':
+            submittedAccessRightCategory && fAccessRightCategory['name'].errors
+        }"
+      />
+      <div
+        *ngIf="
+          submittedAccessRightCategory && fAccessRightCategory['name'].errors
+        "
+        class="invalid-feedback"
+      >
+        <div *ngIf="fAccessRightCategory['name'].errors['required']">
+          Name is required
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Order</label>
+      <p-inputNumber
+        class="w-100"
+        inputId="integeronly"
+        formControlName="displayOrder"
+        min="1"
+        [showButtons]="true"
+        [ngClass]="{
+          'is-invalid':
+            submittedAccessRightCategory &&
+            fAccessRightCategory['displayOrder'].errors
+        }"
+      />
+      <div
+        *ngIf="
+          submittedAccessRightCategory &&
+          fAccessRightCategory['displayOrder'].errors
+        "
+        class="invalid-feedback"
+      >
+        <div *ngIf="fAccessRightCategory['displayOrder'].errors['required']">
+          Order is required
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label w-100">Active</label>
+      <p-toggleSwitch formControlName="isActive"></p-toggleSwitch>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      size="small"
+      (click)="saveAccessRightCategory()"
+      type="submit"
+      class="float-end"
+      icon="pi pi-save"
+      label="Save"
+      pAutoFocus
+      [autofocus]="true"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="titleAccessRight"
+  [(visible)]="showAccessRight"
+  [breakpoints]="{ '960px': '90vw' }"
+  [style]="{ width: '30vw' }"
+  [modal]="true"
+  position="top"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="formAccessRight">
+    <div class="mb-3">
+      <label class="form-label">Name</label>
+      <input
+        class="w-100"
+        type="text"
+        pInputText
+        formControlName="name"
+        [ngClass]="{
+          'is-invalid': submittedAccessRight && fAccessRight['name'].errors
+        }"
+      />
+      <div
+        *ngIf="submittedAccessRight && fAccessRight['name'].errors"
+        class="invalid-feedback"
+      >
+        <div *ngIf="fAccessRight['name'].errors['required']">
+          Name is required
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Order</label>
+      <p-inputNumber
+        class="w-100"
+        inputId="integeronly"
+        formControlName="displayOrder"
+        min="1"
+        [showButtons]="true"
+        [ngClass]="{
+          'is-invalid':
+            submittedAccessRight && fAccessRight['displayOrder'].errors
+        }"
+      />
+      <div
+        *ngIf="submittedAccessRight && fAccessRight['displayOrder'].errors"
+        class="invalid-feedback"
+      >
+        <div *ngIf="fAccessRight['displayOrder'].errors['required']">
+          Order is required
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label w-100">Active</label>
+      <p-toggleSwitch formControlName="isActive"></p-toggleSwitch>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      (click)="saveAccessRight()"
+      size="small"
+      type="submit"
+      class="float-end"
+      icon="pi pi-save"
+      label="Save"
+      severity="warn"
+      pAutoFocus
+      [autofocus]="true"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Endpoints"
+  [(visible)]="showAccessRightEndpoints"
+  [breakpoints]="{ '960px': '90vw' }"
+  [style]="{ width: '50vw' }"
+  [modal]="true"
+  position="top"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="d-flex w-100 pb-2">
+    <div class="w-100 align-content-center"></div>
+    <div class="flex-shrink-1">
+      <p-button
+        size="small"
+        [rounded]="true"
+        severity="warn"
+        styleClass="float-end small-button"
+        icon="pi pi-plus"
+        (click)="addAccessRightEndpoint()"
+      ></p-button>
+    </div>
+  </div>
+  <p-table
+    [value]="accessRightEndpoints"
+    [showGridlines]="true"
+    [showGridlines]="true"
+    [stripedRows]="true"
+    styleClass="pb-3"
+  >
+    <ng-template #header>
+      <tr>
+        <th class="table-icon-col"></th>
+        <th>Endpoint</th>
+        <th>Method</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-item>
+      <tr>
+        <td pFrozenColumn class="table-icon-col">
+          <p-menu
+            #menuAccessRightEndpoint
+            [model]="menuItemsAccessRightEndpoint"
+            [popup]="true"
+            appendTo="body"
+          ></p-menu>
+          <p-button
+            (click)="
+              menuToggleAccessRightEndpoint(
+                menuAccessRightEndpoint,
+                $event,
+                item
+              )
+            "
+            icon="pi pi-cog"
+            [link]="true"
+          />
+        </td>
+        <td>{{ item.endpoint }}</td>
+        <td>{{ item.methodName }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="3">No data.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+<p-dialog
+  [header]="titleAccessRightEndpointForm"
+  [(visible)]="showAccessRightEndpointForm"
+  [breakpoints]="{ '960px': '90vw' }"
+  [style]="{ width: '30vw' }"
+  [modal]="true"
+  position="top"
+  [modal]="true"
+  position="top"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="formAccessRightEndpoint">
+    <div class="mb-3">
+      <label class="form-label">Endpoint</label>
+      <input
+        class="w-100"
+        type="text"
+        pInputText
+        placeholder="Endpoint"
+        formControlName="endpoint"
+        [ngClass]="{
+          'is-invalid':
+            submittedAccessRightEndpoint &&
+            fAccessRightEndpoint['endpoint'].errors
+        }"
+      />
+      <div
+        *ngIf="
+          submittedAccessRightEndpoint &&
+          fAccessRightEndpoint['endpoint'].errors
+        "
+        class="invalid-feedback"
+      >
+        <div *ngIf="fAccessRightEndpoint['endpoint'].errors['required']">
+          Endpoint is required
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Method Type</label>
+      <p-select
+        [options]="methodTypes"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select method type"
+        formControlName="method"
+        styleClass="w-100"
+        appendTo="body"
+        [ngClass]="{
+          'is-invalid':
+            submittedAccessRightEndpoint &&
+            fAccessRightEndpoint['method'].errors
+        }"
+      />
+      <div
+        *ngIf="
+          submittedAccessRightEndpoint && fAccessRightEndpoint['method'].errors
+        "
+        class="invalid-feedback"
+      >
+        <div *ngIf="fAccessRightEndpoint['method'].errors['required']">
+          Method type is required
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      (click)="saveAccessRightEndpoint()"
+      size="small"
+      type="submit"
+      class="float-end"
+      icon="pi pi-save"
+      label="Save"
+      severity="warn"
+      pAutoFocus
+      [autofocus]="true"
+    ></p-button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,102 @@
+<p-confirm-dialog />
+<p-toast />
+<div class="row" style="margin-bottom: 15px">
+  <div class="col-md-12">
+    <p-panel>
+      <ng-template pTemplate="header">
+        <div class="font-bold">
+          <h3>Contact Messages</h3>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="icons">
+        <p-button (click)="reset()" icon="pi pi-delete-left" [link]="true" />
+        <p-button (click)="search()" icon="pi pi-search" [link]="true" />
+      </ng-template>
+      <div class="mt-3">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <input class="w-100" type="text" pInputText placeholder="Name" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <p-table
+        [value]="list"
+        [lazy]="true"
+        [showGridlines]="true"
+        [stripedRows]="true"
+        [paginator]="true"
+        [first]="first"
+        [rows]="rows"
+        [loading]="loading"
+        [scrollable]="true"
+        (onPage)="pageChange($event)"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [totalRecords]="totalRecords"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+        dataKey="id"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="table-icon-col"></th>
+            <th class="table-icon-col" pFrozenColumn></th>
+            <th>Category Name</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Email Address</th>
+            <th>Inserted Date</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item let-expanded="expanded">
+          <tr>
+            <td class="table-icon-col">
+              <p-button
+                [link]="true"
+                [pRowToggler]="item"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              />
+            </td>
+            <td pFrozenColumn class="table-icon-col">
+              <p-menu
+                #menu
+                [model]="gridMenuItems"
+                [popup]="true"
+                appendTo="body"
+              ></p-menu>
+              <p-button
+                (click)="menuToggle(menu, $event, item)"
+                icon="pi pi-cog"
+                [link]="true"
+              />
+            </td>
+            <td>{{ item.contactCategoryName }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.surname }}</td>
+            <td>{{ item.emailAddress }}</td>
+            <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-item>
+          <tr>
+            <td colspan="7">
+              <div class="p-2">
+                <div
+                  style="
+                    font-size: 16px;
+                    font-weight: bold;
+                    padding-bottom: 10px;
+                  "
+                >
+                  <i class="pi pi-info-circle"></i> Message :
+                </div>
+                <div>{{ item.message }}</div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+</div>

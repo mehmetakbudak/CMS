@@ -1,0 +1,62 @@
+<p-confirm-dialog />
+<p-toast />
+<main class="main">
+  <div class="row">
+    <div class="col-12">
+      <p-panel [showHeader]="false">
+        <div class="p-md-3">
+          <h2 class="my-3">Applied Jobs</h2>
+          <p-table
+            [value]="list"
+            [paginator]="true"
+            [rows]="5"
+            [showGridlines]="true"
+            [stripedRows]="true"
+            [rowsPerPageOptions]="[5, 10, 20]"
+            [loading]="loading"
+          >
+            <ng-template #header>
+              <tr>
+                <th class="table-icon-col" pFrozenColumn></th>
+                <th>Tenant</th>
+                <th>Location</th>
+                <th>Position</th>
+                <th>Work Type</th>
+                <th>Inserted Date</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-item>
+              <tr>
+                <td pFrozenColumn class="table-icon-col">
+                  <p-menu
+                    #menu
+                    [model]="gridMenuItems"
+                    [popup]="true"
+                    appendTo="body"
+                  ></p-menu>
+                  <p-button
+                    (click)="menuToggle(menu, $event, item)"
+                    icon="pi pi-cog"
+                    [link]="true"
+                  />
+                </td>
+                <td>{{ item.tenantName }}</td>
+                <td>{{ item.jobLocationName }}</td>
+                <td>
+                  <a routerLink="/job/{{ item.jobId }}">{{ item.position }}</a>
+                </td>
+                <td>{{ item.workTypeName }}</td>
+                <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="6">No data.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+</main>

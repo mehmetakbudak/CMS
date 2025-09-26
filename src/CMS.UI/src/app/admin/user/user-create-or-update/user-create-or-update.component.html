@@ -1,0 +1,197 @@
+<p-toast />
+<div class="card">
+  <div class="card-header py-3 bg-white">
+    <div class="d-flex">
+      <i
+        class="pi pi-arrow-left cursor-pointer align-content-center"
+        routerLink="/admin/user"
+      ></i>
+      <h5 class="ms-3 mb-0">{{ id ? "User Update" : "New User" }}</h5>
+    </div>
+  </div>
+  <div class="card-body pt-0">
+    <p-tabs value="0" scrollable="true">
+      <p-tablist>
+        <p-tab value="0">User Infos</p-tab>
+        <p-tab value="1" *ngIf="id > 0">User Documents</p-tab>
+        <p-tab value="2" *ngIf="id > 0">User Job Applications</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <form [formGroup]="form">
+            <div class="row mt-3">
+              <div class="col-lg-4 col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Name</label>
+                  <input
+                    class="w-100"
+                    type="text"
+                    pInputText
+                    formControlName="name"
+                    placeholder="Name"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['name'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['name'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['name'].errors['required']">
+                      Name is required
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Surname</label>
+                  <input
+                    class="w-100"
+                    type="text"
+                    pInputText
+                    formControlName="surname"
+                    placeholder="Surname"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['surname'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['surname'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['surname'].errors['required']">
+                      Surname is required
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Email Address</label>
+                  <input
+                    class="w-100"
+                    type="text"
+                    pInputText
+                    formControlName="emailAddress"
+                    placeholder="Email Address"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['emailAddress'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['emailAddress'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['emailAddress'].errors['required']">
+                      Email address is required
+                    </div>
+                    <div *ngIf="f['emailAddress'].errors['email']">
+                      Email address invalid format
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <div class="mb-3">
+                  <label class="form-label w-100">Phone</label>
+                  <p-inputmask
+                    styleClass="w-100"
+                    mask="999 999 99 99"
+                    formControlName="phone"
+                    placeholder="5XX-XXX XX XX"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['phone'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['phone'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['phone'].errors['required']">
+                      Phone is required
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-6" *ngIf="id > 0">
+                <div class="mb-3">
+                  <label class="form-label w-100">Status</label>
+                  <p-select
+                    styleClass="w-100"
+                    [readonly]="true"
+                    formControlName="status"
+                    [options]="userStatuses"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select Status"
+                  ></p-select>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <div class="mb-3">
+                  <label class="form-label w-100">User Type</label>
+                  <p-select
+                    styleClass="w-100"
+                    formControlName="userType"
+                    [options]="userTypes"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select User Type"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['userType'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['userType'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['userType'].errors['required']">
+                      User Type is required
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="col-lg-4 col-md-6"
+                *ngIf="form.controls['userType'].value != UserType.Member"
+              >
+                <div class="mb-3">
+                  <label class="form-label w-100">Roles</label>
+                  <p-multiselect
+                    styleClass="w-100"
+                    formControlName="roleIds"
+                    [options]="roles"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select Roles"
+                  ></p-multiselect>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <div class="mb-3">
+                  <label class="form-label w-100">Active</label>
+                  <p-toggle-switch
+                    class="w-100"
+                    formControlName="isActive"
+                  ></p-toggle-switch>
+                </div>
+              </div>
+            </div>
+            <p-button
+              size="small"
+              (click)="save()"
+              type="submit"
+              icon="pi pi-save"
+              label="Save"
+              pAutoFocus
+              [autofocus]="true"
+            />
+          </form>
+        </p-tabpanel>
+        <p-tabpanel value="1"> </p-tabpanel>
+        <p-tabpanel value="2"> </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</div>

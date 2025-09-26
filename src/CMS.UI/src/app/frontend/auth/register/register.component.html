@@ -1,0 +1,182 @@
+<p-toast />
+<main class="main">
+  <div class="page-title accent-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Register</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a routerLink="/">Home</a></li>
+          <li class="current">Register</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <section id="team" class="team section">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-4 col-sm-6 offset-md-4">
+          <div class="card shadow">
+            <div class="card-header bg-white py-4">
+              <h4 class="mb-0">
+                <i class="pi pi-user-plus me-1" style="font-size: 24px"></i>
+                Register
+              </h4>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="form">
+                <div class="mb-4">
+                  <label class="pb-2">Name</label>
+                  <input
+                    class="w-100"
+                    pInputText
+                    placeholder="Name"
+                    formControlName="name"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['name'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['name'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['name'].errors['required']">
+                      Name is required
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="pb-2">Surname</label>
+                  <input
+                    class="w-100"
+                    pInputText
+                    placeholder="Surname"
+                    formControlName="surname"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['surname'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['surname'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['surname'].errors['required']">
+                      Surname is required
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="pb-2">Email Address</label>
+                  <input
+                    class="w-100"
+                    pInputText
+                    type="email"
+                    placeholder="Email Address"
+                    formControlName="emailAddress"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['emailAddress'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['emailAddress'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['emailAddress'].errors['required']">
+                      Email address is required
+                    </div>
+                    <div *ngIf="f['emailAddress'].errors['email']">
+                      Email address is invalid
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="pb-2">Password</label>
+                  <p-password
+                    type="password"
+                    class="w-100"
+                    [inputStyle]="{ width: '100%' }"
+                    placeholder="Password"
+                    [feedback]="false"
+                    formControlName="password"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['password'].errors
+                    }"
+                  ></p-password>
+                  <div
+                    *ngIf="submitted && f['password'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['password'].errors['required']">
+                      Password is required
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="pb-2">Password Again</label>
+                  <p-password
+                    type="password"
+                    class="w-100"
+                    [inputStyle]="{ width: '100%' }"
+                    placeholder="Password Again"
+                    [feedback]="false"
+                    formControlName="rePassword"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['rePassword'].errors
+                    }"
+                  ></p-password>
+                  <div
+                    *ngIf="submitted && f['rePassword'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['rePassword'].errors['required']">
+                      Password Again is required
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="pb-2">Phone</label>
+                  <p-inputmask
+                    styleClass="w-100"
+                    mask="(999) 999-9999"
+                    formControlName="phone"
+                    placeholder="(999) 999-9999"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['phone'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['phone'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['phone'].errors['required']">
+                      Phone is required
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-4 d-flex justify-content-between">
+                  <a
+                    class="float-start btn btn-light text-decoration-none cursor-pointer text-dark align-content-center"
+                    routerLink="/login"
+                    ><i class="pi pi-arrow-left me-2"></i>Login</a
+                  >
+                  <p-button
+                    severity="warn"
+                    [disabled]="disabled"
+                    styleClass="px-4 float-end"
+                    size="small"
+                    (click)="onSubmit()"
+                    type="submit"
+                    label="Save"
+                    pAutoFocus
+                    size="small"
+                    [autofocus]="true"
+                  ></p-button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

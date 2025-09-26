@@ -1,0 +1,53 @@
+<main class="main">
+  <div class="page-title accent-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">{{ service.name }}</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/service">Services</a></li>
+          <li class="current">{{ service.name }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="my-5">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <p-panel [toggleable]="true">
+            <ng-template #header>
+              <div class="my-1 cursor-pointer">
+                <h5 routerLink="/service">
+                  <i class="pi pi-cog"></i> Services
+                </h5>
+              </div>
+            </ng-template>
+            <div
+              class="mt-3 cursor-pointer"
+              *ngFor="let item of services"
+              [routerLink]="['/service', item.url]"
+            >
+              <i class="pi pi-arrow-right me-2"></i>
+              <a class="text-dark"> {{ item.name }}</a>
+            </div>
+          </p-panel>
+        </div>
+        <div class="col-md-9 mb-3">
+          <div class="card">
+            <img
+              class="card-img-top"
+              src="{{ environment.host }}{{ service.imageUrl }}"
+              alt="logo"
+            />
+            <div class="card-body">
+              <div class="card-title">{{ service.name }}</div>
+              <div [innerHtml]="service.content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

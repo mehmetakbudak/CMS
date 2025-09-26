@@ -1,0 +1,200 @@
+<p-toast />
+<p-confirm-dialog />
+<div class="row">
+  <div class="col-md-12">
+    <p-panel>
+      <ng-template #header>
+        <div class="font-bold">
+          <h3>Homepage Sliders</h3>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="icons">
+        <p-button (click)="reset()" icon="pi pi-delete-left" [link]="true" />
+        <p-button (click)="search()" icon="pi pi-search" [link]="true" />
+        <p-button
+          [link]="true"
+          (click)="menu.toggle($event)"
+          icon="pi pi-ellipsis-v"
+        />
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+      </ng-template>
+      <div class="my-3">
+        <div class="row">
+          <div class="col-md-4">
+            <input class="w-100" type="text" pInputText placeholder="Title" />
+          </div>
+        </div>
+      </div>
+      <p-table
+        [value]="list"
+        [lazy]="true"
+        [showGridlines]="true"
+        [stripedRows]="true"
+        [paginator]="true"
+        [first]="first"
+        [rows]="rows"
+        [loading]="loading"
+        [scrollable]="true"
+        (onPage)="pageChange($event)"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [totalRecords]="totalRecords"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="table-icon-col" pFrozenColumn></th>
+            <th>Title</th>
+            <th>Url</th>
+            <th>Display Order</th>
+            <th>Active</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td pFrozenColumn class="table-icon-col">
+              <p-menu
+                #menu
+                [model]="gridMenuItems"
+                [popup]="true"
+                appendTo="body"
+              ></p-menu>
+              <p-button
+                (click)="menuToggle(menu, $event, item)"
+                icon="pi pi-cog"
+                [link]="true"
+              />
+            </td>
+            <td>
+              <a class="cursor-pointer" (click)="edit(item.id)">
+                {{ item.title }}
+              </a>
+            </td>
+            <td>{{ item.url }}</td>
+            <td>{{ item.displayOrder }}</td>
+            <td>
+              <p-checkbox
+                [disabled]="true"
+                [(ngModel)]="item.isActive"
+                [binary]="true"
+                inputId="binary"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+</div>
+
+<p-dialog
+  [header]="title"
+  [(visible)]="isVisible"
+  [breakpoints]="{ '960px': '95vw' }"
+  [style]="{ width: '50vw' }"
+  [modal]="true"
+  position="top"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="form">
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input
+        class="w-100"
+        type="text"
+        pInputText
+        formControlName="title"
+        [ngClass]="{ 'is-invalid': submitted && f['title'].errors }"
+      />
+      <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+        <div *ngIf="f['title'].errors['required']">Title is required</div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Url</label>
+      <input
+        class="w-100"
+        type="text"
+        pInputText
+        formControlName="url"
+        [ngClass]="{ 'is-invalid': submitted && f['url'].errors }"
+      />
+      <div *ngIf="submitted && f['url'].errors" class="invalid-feedback">
+        <div *ngIf="f['url'].errors['required']">Url is required</div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <div class="d-flex">
+        <div style="width: 250px">
+          <label class="form-label w-100">Display Order</label>
+          <p-inputNumber
+            formControlName="displayOrder"
+            [min]="1"
+            [showButtons]="true"
+            placeholder="Select Display Order"
+            formControlName="displayOrder"
+            [ngClass]="{
+              'is-invalid': submitted && f['displayOrder'].errors
+            }"
+          />
+          <div
+            *ngIf="submitted && f['displayOrder'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="f['displayOrder'].errors['required']">
+              Display Order is required
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="form-label w-100">Active</label>
+          <p-toggle-switch class="w-100" formControlName="isActive" />
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label w-100">Description</label>
+      <textarea pTextarea class="w-100" formControlName="description" rows="5"></textarea>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="card-header">Image</div>
+    <div class="card-body">
+      <img
+        height="150"
+        width="150"
+        *ngIf="imageUrl"
+        src="{{ environment.host }}{{ imageUrl }}"
+      />
+      <div class="my-2">
+        <p-fileUpload
+          styleClass="align-content-center justify-content-start"
+          [chooseLabel]="'Choose Image'"
+          mode="basic"
+          [maxFileSize]="1000000"
+          accept="image/*"
+          [showCancelButton]="false"
+          [showUploadButton]="false"
+          chooseStyleClass="py-1 bg-secondary border-secondary"
+          (onSelect)="onSelect($event)"
+        ></p-fileUpload>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      size="small"
+      (click)="save()"
+      type="submit"
+      class="float-end"
+      icon="pi pi-save"
+      label="Save"
+      pAutoFocus
+      [autofocus]="true"
+    ></p-button>
+  </ng-template>
+</p-dialog>

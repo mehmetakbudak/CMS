@@ -1,0 +1,186 @@
+<p-toast></p-toast>
+<p-confirm-dialog></p-confirm-dialog>
+<div class="row">
+  <div class="col-md-12">
+    <form (ngSubmit)="search()">
+      <p-panel>
+        <ng-template pTemplate="header">
+          <div class="font-bold">
+            <h3 class="mb-0">{{ "Dictionary" | translate }}</h3>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="icons">
+          <p-button (click)="reset()" icon="pi pi-delete-left" [link]="true" />
+          <p-button type="submit" icon="pi pi-search" [link]="true" />
+          <p-button
+            class="p-panel-header-icon p-link"
+            (click)="menu.toggle($event)"
+            icon="pi pi-ellipsis-v"
+            [link]="true"
+          />
+          <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+        </ng-template>
+        <div class="mt-3">
+          <div class="row">
+            <div class="col-lg-3 col-md-4">
+              <div class="mb-3">
+                <input
+                  class="w-100"
+                  type="text"
+                  pInputText
+                  [(ngModel)]="filterForm.code"
+                  placeholder="{{ 'Code' | translate }}"
+                />
+              </div>
+            </div>
+            <div
+              class="col-lg-3 col-md-4"
+              *ngFor="let item of filterForm.languageValues"
+            >
+              <div class="mb-3">
+                <input
+                  class="w-100"
+                  type="text"
+                  pInputText
+                  [(ngModel)]="item.value"
+                  [placeholder]="item.languageName | translate"
+                />
+              </div>
+            </div>
+          </div>
+          <p-table
+            [value]="list.items"
+            [lazy]="true"
+            [paginator]="true"
+            [first]="first"
+            [rows]="rows"
+            [loading]="loading"
+            [scrollable]="true"
+            (onPage)="pageChange($event)"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [totalRecords]="totalRecords"
+            [pageLinks]="screenWidth > 576 ? 5 : 2"
+            currentPageReportTemplate="{{
+              'CurrentPageReportTemplate' | translate
+            }}"
+            [showCurrentPageReport]="true"
+            [showGridlines]="true"
+            [stripedRows]="true"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th class="table-icon-col" pFrozenColumn></th>
+                <th *ngFor="let item of list.header">{{ item | translate }}</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+              <tr>
+                <td class="table-icon-col" pFrozenColumn>
+                  <p-menu
+                    #menu
+                    [model]="gridMenuItems"
+                    [popup]="true"
+                    appendTo="body"
+                  ></p-menu>
+                  <p-button
+                    (click)="menuToggle(menu, $event, item)"
+                    icon="pi pi-cog"
+                    [link]="true"
+                  />
+                </td>
+                <td>
+                  <a class="cursor-pointer" (click)="edit(item.id)">
+                    {{ item.code }}
+                  </a>
+                </td>
+                <td *ngFor="let item of item.values">{{ item.value }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td [attr.colspan]="list?.header?.length + 1">
+                  No data found.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-panel>
+    </form>
+  </div>
+</div>
+
+<p-dialog
+  [header]="title"
+  [(visible)]="isVisible"
+  [breakpoints]="{ '960px': '90vw' }"
+  [style]="{ width: '30vw' }"
+  [modal]="true"
+  position="top"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="form">
+    <div class="mb-3">
+      <label class="form-label">{{ "Code" | translate }}</label>
+      <input
+        class="w-100"
+        type="text"
+        pInputText
+        placeholder="Code"
+        formControlName="code"
+        [ngClass]="{ 'is-invalid': submitted && f['code'].errors }"
+      />
+      <div *ngIf="submitted && f['code'].errors" class="invalid-feedback">
+        <div *ngIf="f['code'].errors['required']">Code is required</div>
+      </div>
+    </div>
+
+    <div formArrayName="values">
+      <div
+        class="mb-3"
+        *ngFor="let item of values?.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <label class="form-label">{{
+          getLanguageName(item) | translate
+        }}</label>
+        <input
+          class="w-100"
+          type="text"
+          pInputText
+          placeholder="{{ getLanguageName(item) }}"
+          formControlName="value"
+          [ngClass]="{ 'is-invalid': submitted && item.get('value')?.invalid }"
+        />
+        <div
+          *ngIf="submitted && item.get('value')?.hasError('required')"
+          class="invalid-feedback"
+        >
+          {{ getLanguageName(item) }} is required
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      severity="secondary"
+      (click)="isVisible = false"
+      class="float-end"
+      icon="pi pi-times"
+      label="{{ 'Close' | translate }}"
+      [outlined]="true"
+    />
+    <p-button
+      size="small"
+      (click)="save()"
+      type="submit"
+      class="float-end"
+      icon="pi pi-save"
+      label="{{ 'Save' | translate }}"
+      pAutoFocus
+      [autofocus]="true"
+    />
+  </ng-template>
+</p-dialog>

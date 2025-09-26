@@ -1,0 +1,145 @@
+<p-toast />
+<div class="card">
+  <div class="card-header py-3 bg-white">
+    <div class="d-flex">
+      <i
+        class="pi pi-arrow-left cursor-pointer align-content-center"
+        routerLink="/admin/job"
+      ></i>
+      <h5 class="ms-3 mb-0">{{ id ? "Job Update" : "New Job" }}</h5>
+    </div>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="form">
+      <div class="row">
+        <div class="col-12">
+          <div class="mb-3">
+            <label class="form-label">Position</label>
+            <input
+              pInputText
+              class="w-100"
+              placeholder="Position"
+              formControlName="position"
+              [ngClass]="{
+                'is-invalid': submitted && f['position'].errors
+              }"
+            />
+            <div
+              *ngIf="submitted && f['position'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['position'].errors['required']">
+                Position is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Tenant</label>
+            <p-select
+              styleClass="w-100"
+              [options]="tenants"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select Tenant"
+              [filter]="true"
+              appendTo="body"
+              formControlName="tenantId"
+              [ngClass]="{
+                'is-invalid': submitted && f['tenantId'].errors
+              }"
+            ></p-select>
+            <div
+              *ngIf="submitted && f['tenantId'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['tenantId'].errors['required']">
+                Tenant is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Work Types</label>
+            <p-select
+              styleClass="w-100"
+              [options]="workTypes"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select Work Type"
+              [filter]="true"
+              appendTo="body"
+              formControlName="workType"
+              [ngClass]="{
+                'is-invalid': submitted && f['workType'].errors
+              }"
+            ></p-select>
+            <div
+              *ngIf="submitted && f['workType'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['workType'].errors['required']">
+                Work type is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Job Location</label>
+            <p-select
+              styleClass="w-100"
+              [options]="jobLocations"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select Job Location"
+              [filter]="true"
+              appendTo="body"
+              formControlName="jobLocationId"
+              [ngClass]="{
+                'is-invalid': submitted && f['jobLocationId'].errors
+              }"
+            ></p-select>
+            <div
+              *ngIf="submitted && f['jobLocationId'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['jobLocationId'].errors['required']">
+                Job location is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label w-100">Active</label>
+            <p-toggle-switch
+              class="w-100"
+              formControlName="isActive"
+            ></p-toggle-switch>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="mb-3">
+            <p-editor
+              #editorRef
+              formControlName="description"
+              [style]="{ minHeight: '120px' }"
+            ></p-editor>
+          </div>
+        </div>
+      </div>
+      <p-button
+        size="small"
+        (click)="save()"
+        type="submit"
+        icon="pi pi-save"
+        label="Save"
+        pAutoFocus
+        [autofocus]="true"
+      />
+    </form>
+  </div>
+</div>

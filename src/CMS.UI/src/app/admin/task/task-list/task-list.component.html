@@ -1,0 +1,171 @@
+<div class="row mb-3">
+  <div class="col-md-12">
+    <p-panel>
+      <ng-template pTemplate="header">
+        <h3>Tasks</h3>
+      </ng-template>
+      <ng-template #icons>
+        <p-button
+          (click)="reset()"
+          icon="pi pi-delete-left"
+          [link]="true"
+        />
+        <p-button
+          (click)="search()"
+          icon="pi pi-search"
+          [link]="true"
+        />
+        <p-button
+          (click)="menu.toggle($event)"
+          icon="pi pi-ellipsis-v"
+          [link]="true"
+        />
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+      </ng-template>
+      <div class="m-0">
+        <p-tabs [value]="selectedTab" (onChange)="onTabChange($event)">
+          <p-tablist>
+            <p-tab [value]="0" (click)="onTabChange(0)">In Progress List</p-tab>
+            <p-tab [value]="1" (click)="onTabChange(1)">Completed List</p-tab>
+          </p-tablist>
+        </p-tabs>
+        <div class="row mt-3">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <p-select
+                styleClass="w-100"
+                [options]="taskCategories"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select category"
+                [showClear]="true"
+                [filter]="true"
+                [(ngModel)]="filterForm.taskCategoryId"
+                (onChange)="onSelectTaskCategory($event)"
+              ></p-select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <p-multi-select
+                styleClass="w-100"
+                [options]="taskStatuses"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select statuses"
+                [showClear]="true"
+                [filter]="true"
+                [(ngModel)]="filterForm.taskStatusIds"
+              ></p-multi-select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <input
+                class="w-100"
+                pInputText
+                placeholder="Title"
+                [(ngModel)]="filterForm.title"
+              />
+            </div>
+          </div>
+        </div>
+        <p-table
+          [value]="tasks"
+          [lazy]="true"
+          [showGridlines]="true"
+          [stripedRows]="true"
+          [paginator]="true"
+          [first]="first"
+          [rows]="rows"
+          [loading]="loading"
+          [scrollable]="true"
+          (onPage)="pageChange($event)"
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          [totalRecords]="totalRecords"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [showCurrentPageReport]="true"
+          dataKey="id"
+          [expandedRowKeys]="expandedRows"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="table-icon-col"></th>
+              <th class="table-icon-col" pFrozenColumn></th>
+              <th>Title</th>
+              <th>Category Name</th>
+              <th>Status Name</th>
+              <th>User Name</th>
+              <th>Inserted Date</th>
+              <th>Updated Date</th>
+              <th>Active</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-expanded="expanded">
+            <tr>
+              <td class="table-icon-col">
+                <p-button
+                  [link]="true"
+                  [pRowToggler]="item"
+                  [icon]="
+                    expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'
+                  "
+                />
+              </td>
+              <td pFrozenColumn class="table-icon-col">
+                <p-menu
+                  #menu
+                  [model]="gridMenuItems"
+                  [popup]="true"
+                  appendTo="body"
+                ></p-menu>
+                <p-button
+                  [link]="true"
+                  (click)="menuToggle(menu, $event, item)"
+                  icon="pi pi-cog"
+                />
+              </td>
+              <td><a class="cursor-pointer" (click)="edit(item.id)">{{ item.title }}</a></td>
+              <td>{{ item.taskCategoryName }}</td>
+              <td>{{ item.taskStatusName }}</td>
+              <td>{{ item.userNameSurname }}</td>
+              <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+              <td>{{ item.updatedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+              <td>
+                <p-checkbox
+                  [disabled]="true"
+                  [(ngModel)]="item.isActive"
+                  [binary]="true"
+                  inputId="binary"
+                ></p-checkbox>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="rowexpansion" let-task>
+            <tr>
+              <td colspan="9">
+                <div class="p-2">
+                  <div
+                    style="
+                      font-size: 16px;
+                      font-weight: bold;
+                      padding-bottom: 10px;
+                    "
+                  >
+                    <i class="pi pi-info-circle"></i> Description :
+                  </div>
+                  <div [innerHTML]="task.description"></div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9">No tasks found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-panel>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+<main class="main">
+  <div class="container">
+    <div class="mt-2 mb-5" *ngIf="homepageSliders.length > 0">
+      <p-galleria
+        [value]="homepageSliders"
+        [showIndicators]="true"
+        [showThumbnails]="false"
+        [showItemNavigators]="true"
+        [circular]="true"
+      >
+        <ng-template #item let-item>
+          <img
+            (click)="onSliderClick(item)"
+            [height]="homeSliderImgHeight"
+            [src]="environment.host + item.imageUrl"
+            class="d-block w-100 cursor-pointer"
+          />
+        </ng-template>
+        <ng-template #caption let-item>
+          <div (click)="onSliderClick(item)" class="cursor-pointer">
+            <div class="text-xl mb-2 font-bold">{{ item.title }}</div>
+            <div class="text-white" *ngIf="item.description != null">
+              {{ item.description }}
+            </div>
+          </div>
+        </ng-template>
+      </p-galleria>
+    </div>
+    <div class="mb-5" *ngIf="jobs.length > 0">
+      <p-panel [showHeader]="false">
+        <div class="d-flex mt-4">
+          <div class="ms-3 flex-grow-1 align-content-center title">Jobs</div>
+          <p-button
+            severity="warn"
+            class="me-3"
+            size="small"
+            iconPos="right"
+            icon="pi pi-arrow-right"
+            routerLink="job"
+            label="All"
+            [text]="true"
+          />
+        </div>
+        <p-carousel
+          [value]="jobs"
+          [numVisible]="3"
+          [numScroll]="3"
+          [circular]="true"
+          [responsiveOptions]="responsiveOptions"
+          autoplayInterval="6000"
+          [showNavigators]="false"
+        >
+          <ng-template let-job #item>
+            <div
+              class="cursor-pointer text-center border rounded-1 m-3 p-3"
+              routerLink="job/{{ job.id }}"
+            >
+              <div class="mb-3">
+                <img src="{{ environment.host }}{{ job.tenantImageUrl }}" />
+              </div>
+              <div>
+                <h6>
+                  {{ job.position }}
+                </h6>
+              </div>
+            </div>
+          </ng-template>
+        </p-carousel>
+      </p-panel>
+    </div>
+    <div class="mb-5" *ngIf="blogs.length > 0">
+      <p-panel [showHeader]="false">
+        <div class="d-flex mt-4">
+          <div class="ms-3 flex-grow-1 align-content-center title">Blogs</div>
+          <p-button
+            [text]="true"
+            severity="warn"
+            class="me-3"
+            size="small"
+            iconPos="right"
+            icon="pi pi-arrow-right"
+            routerLink="blog"
+            label="All"
+          />
+        </div>
+        <p-carousel
+          [value]="blogs"
+          [numVisible]="3"
+          [numScroll]="3"
+          [circular]="true"
+          [responsiveOptions]="responsiveOptions"
+          autoplayInterval="6000"
+          [showNavigators]="false"
+        >
+          <ng-template let-blog #item>
+            <div
+              class="m-3 cursor-pointer"
+              routerLink="/blog/{{ blog.url }}/{{ blog.id }}"
+            >
+              <div class="mb-2">
+                <img
+                  class="img-thumbnail"
+                  src="{{ environment.host }}{{ blog.imageUrl }}"
+                />
+              </div>
+              <h6>{{ blog.title }}</h6>
+            </div>
+          </ng-template>
+        </p-carousel>
+      </p-panel>
+    </div>
+  </div>
+</main>

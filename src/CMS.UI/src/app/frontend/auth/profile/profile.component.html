@@ -1,0 +1,100 @@
+<p-toast />
+<main class="main">
+  <div class="row">
+    <div class="col-12">
+      <p-panel [showHeader]="false">
+        <div class="p-3">
+          <h2 class="my-3">Profile</h2>
+          <form [formGroup]="form">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Name</label>
+                  <input
+                    pInputText
+                    class="w-100"
+                    formControlName="name"
+                    [ngClass]="{ 'is-invalid': submitted && f['name'].errors }"
+                  />
+                  <div
+                    *ngIf="submitted && f['name'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['name'].errors['required']">
+                      Name is required
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Surname</label>
+                  <input
+                    pInputText
+                    class="w-100"
+                    formControlName="surname"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['surname'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['surname'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['surname'].errors['required']">
+                      Surname is required
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Email Address</label>
+                  <input
+                    pInputText
+                    class="w-100"
+                    formControlName="emailAddress"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['emailAddress'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['emailAddress'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['emailAddress'].errors['required']">
+                      Email Address is required
+                    </div>
+                    <div *ngIf="f['emailAddress'].errors['email']">
+                      Email Address invalid format
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Phone</label>
+                  <p-inputmask
+                    styleClass="w-100"
+                    mask="(999) 999-9999"
+                    formControlName="phone"
+                    placeholder="(999) 999-9999"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <p-button
+                size="small"
+                label="Save"
+                severity="warn"
+                styleClass="px-3"
+                (click)="save($event)"
+              ></p-button>
+            </div>
+          </form>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+</main>

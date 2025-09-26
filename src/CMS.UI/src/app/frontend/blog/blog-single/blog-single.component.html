@@ -1,0 +1,229 @@
+<p-toast />
+<main class="main">
+  <div class="page-title accent-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">{{ blog.title }}</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/blog">Blogs</a></li>
+          <li class="current">{{ blog?.title }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="blog-details" style="padding: 60px 0 30px 0">
+          <article class="article">
+            <div class="post-img">
+              <img
+                src="{{ environment.host }}{{ blog?.imageUrl }}"
+                alt=""
+                class="img-fluid"
+              />
+            </div>
+
+            <h2 class="title my-2">
+              {{ blog?.title }}
+            </h2>
+
+            <div class="meta-top m-0">
+              <ul>
+                <li class="d-flex align-items-center mb-2">
+                  <i class="pi pi-user"></i>
+                  <a>{{ blog?.userName }}</a>
+                </li>
+                <li class="d-flex align-items-center mb-2">
+                  <i class="pi pi-clock"></i>
+                  <a>{{ blog?.insertedDate | date : "dd.MM.yyyy" }}</a>
+                </li>
+                <li class="d-flex align-items-center mb-2">
+                  <i class="pi pi-comments"></i>
+                  <a>{{ blog?.commentCount }} Comments</a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="content" [innerHtml]="blog?.content"></div>
+
+            <div class="meta-bottom">
+              @if(blog?.blogCategories?.length > 0) {
+              <i class="pi pi-folder"></i>
+              <ul class="cats" *ngFor="let category of blog?.blogCategories">
+                <li>
+                  <a href="#" class="ps-1">{{ category.name }}</a>
+                </li>
+              </ul>
+              } @if(blog?.blogTags?.length > 0) {
+              <i class="pi pi-tags"></i>
+              <ul class="tags">
+                <li *ngFor="let tag of blog.blogTags">
+                  <a class="ps-1" href="#">{{ tag.name }}</a>
+                </li>
+              </ul>
+              }
+            </div>
+          </article>
+        </div>
+
+        <div
+          class="blog-comments section mb-5"
+          style="box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1)"
+        >
+          <div class="d-flex" style="padding: 15px 10px 0 30px">
+            <div class="d-flex p-2 w-100 align-items-center">
+              <h4 class="comments-count mb-0">
+                <i class="pi pi-comments" style="font-size: 1.5rem"></i>
+                Comments
+              </h4>
+            </div>
+            <div class="p-2 flex-shrink-1">
+              <p-button
+                [rounded]="true"
+                size="small"
+                severity="warn"
+                *ngIf="isAuthenticated"
+                icon="pi pi-plus"
+                size="small"
+                (click)="add()"
+              />
+            </div>
+          </div>
+
+          <div class="alert alert-info mx-3" *ngIf="!isAuthenticated">
+            <a routerLink="/login" class="text-dark h6"
+              ><i class="pi pi-exclamation-circle font-size-24"></i> Please log
+              in to comment!</a
+            >
+          </div>
+          <p-tree [value]="comments" class="w-100" styleClass="px-1 pt-0">
+            <ng-template let-node pTemplate="default">
+              <div class="comment">
+                <div class="d-flex">
+                  <div class="comment-img">
+                    <p-avatar icon="pi pi-user" size="large" shape="circle" />
+                  </div>
+                  <div>
+                    <div class="d-flex align-content-between w-100">
+                      <h5 class="mb-0 align-content-center">
+                        {{ node.userFullName }}
+                      </h5>
+                      <p-button
+                        severity="warn"
+                        label="Reply"
+                        icon="pi pi-reply"
+                        size="small"
+                        [outlined]="true"
+                        class="reply ms-3 cursor-pointer"
+                        (click)="reply(node)"
+                        *ngIf="isAuthenticated"
+                      ></p-button>
+                    </div>
+                    <time datetime="2020-01-01">{{
+                      node.insertedDate | date : "dd.MM.yyyy HH:mm"
+                    }}</time>
+                    <p>
+                      {{ node.description }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </p-tree>
+        </div>
+      </div>
+      <div class="col-lg-4 sidebar">
+        <div class="widgets-container">
+          <div class="recent-posts-widget widget-item">
+            <div>
+              <h5 class="border-bottom border-2 pb-2 mb-3">Most Reads</h5>
+              <div class="mb-4" *ngFor="let item of mostReads">
+                <div
+                  class="card border-0 mb-4 cursor-pointer"
+                  routerLink="../../../blog/{{ item.url }}/{{ item.id }}"
+                >
+                  <img
+                    class="card-img-top"
+                    src="{{ environment.host }}{{ item.imageUrl }}"
+                  />
+                  <div class="fw-semibold mt-1 text-sm-start">
+                    {{ item.title }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tags-widget widget-item">
+            <h3 class="widget-title">Tags</h3>
+            <ul>
+              <li><a href="#">App</a></li>
+              <li><a href="#">IT</a></li>
+              <li><a href="#">Business</a></li>
+              <li><a href="#">Mac</a></li>
+              <li><a href="#">Design</a></li>
+              <li><a href="#">Office</a></li>
+              <li><a href="#">Creative</a></li>
+              <li><a href="#">Studio</a></li>
+              <li><a href="#">Smart</a></li>
+              <li><a href="#">Tips</a></li>
+              <li><a href="#">Marketing</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<p-dialog
+  [(visible)]="showCommentModal"
+  [header]="headerCommentModal"
+  [modal]="true"
+  position="top"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  [style]="{ width: '30vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="mb-4 card" *ngIf="selectedComment">
+    <div class="card-header">
+      <i class="pi pi-user me-1"></i> {{ selectedComment.userFullName }}
+    </div>
+    <div class="card-body">
+      {{ selectedComment.description }}
+    </div>
+  </div>
+  <form [formGroup]="form">
+    <div class="mb-4">
+      <label class="form-label">Comment</label>
+      <textarea
+        class="w-100"
+        rows="5"
+        cols="30"
+        pTextarea
+        placeholder="Comment"
+        formControlName="comment"
+        [ngClass]="{
+          'is-invalid': submitted && f['comment'].errors
+        }"
+      ></textarea>
+      <div *ngIf="submitted && f['comment'].errors" class="invalid-feedback">
+        <div *ngIf="f['comment'].errors['required']">Comment is required</div>
+      </div>
+    </div>
+    <p-button
+      size="small"
+      label="Save"
+      icon="pi pi-save"
+      styleClass="float-end"
+      severity="warn"
+      (click)="save()"
+    ></p-button>
+  </form>
+</p-dialog>

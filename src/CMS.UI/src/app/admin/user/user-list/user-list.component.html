@@ -1,0 +1,121 @@
+<p-toast />
+<p-confirm-dialog />
+<div class="row">
+  <div class="col-md-12">
+    <p-panel>
+      <ng-template #header>
+        <div class="font-bold">
+          <h3>Users</h3>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="icons">
+        <p-button (click)="reset()" icon="pi pi-delete-left" [link]="true" />
+        <p-button (click)="search()" icon="pi pi-search" [link]="true" />
+        <p-button
+          [link]="true"
+          (click)="menu.toggle($event)"
+          icon="pi pi-ellipsis-v"
+        />
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+      </ng-template>
+      <div class="mt-2">
+        <div class="row mt-4">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <input
+                class="w-100"
+                type="text"
+                pInputText
+                [(ngModel)]="filterForm.name"
+                placeholder="Name"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <input
+                class="w-100"
+                type="text"
+                pInputText
+                [(ngModel)]="filterForm.surname"
+                placeholder="Surname"
+              />
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="mb-3 ml-md-3"></div>
+          </div>
+        </div>
+        <p-table
+          [value]="users"
+          [lazy]="true"
+          [showGridlines]="true"
+          [stripedRows]="true"
+          [paginator]="true"
+          [first]="first"
+          [rows]="rows"
+          [loading]="loading"
+          [scrollable]="true"
+          (onPage)="pageChange($event)"
+          [rowsPerPageOptions]="[5, 10, 25, 50]"
+          [totalRecords]="totalRecords"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [showCurrentPageReport]="true"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="table-icon-col" pFrozenColumn></th>
+              <th>Email Address</th>
+              <th>Name</th>
+              <th>Surname</th>
+              <th>Phone</th>
+              <th>User Type</th>
+              <th>Status</th>
+              <th>Inserted Date</th>
+              <th>Updated Date</th>
+              <th>Active</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-user>
+            <tr>
+              <td pFrozenColumn class="table-icon-col">
+                <p-menu
+                  #menu
+                  [model]="gridMenuItems"
+                  [popup]="true"
+                  appendTo="body"
+                ></p-menu>
+                <p-button
+                  [link]="true"
+                  (click)="menuToggle(menu, $event, user)"
+                  icon="pi pi-cog"
+                />
+              </td>
+              <td>
+                <a class="cursor-pointer" (click)="edit(user.id)">
+                  {{ user.emailAddress }}
+                </a>
+              </td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.surname }}</td>
+              <td>{{ user.phone }}</td>
+              <td>{{ user.userTypeName }}</td>
+              <td>{{ user.statusName }}</td>
+              <td>{{ user.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+              <td>{{ user.updatedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+              <td>
+                <p-checkbox
+                  [disabled]="true"
+                  [(ngModel)]="user.isActive"
+                  [binary]="true"
+                  inputId="binary"
+                ></p-checkbox>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-panel>
+  </div>
+</div>

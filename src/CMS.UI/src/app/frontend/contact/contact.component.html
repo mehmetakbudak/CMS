@@ -1,0 +1,181 @@
+<main class="main">
+  <div class="page-title accent-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Contact</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a routerLink="/">Home</a></li>
+          <li class="current">Contact</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <section id="contact" class="contact section" style="padding: 60px 0">
+    <div class="container">
+      <div class="row gy-5 gx-lg-5">
+        <div class="col-lg-4">
+          <div class="info">
+            <h3>Get in touch</h3>
+            <p>
+              Et id eius voluptates atque nihil voluptatem enim in tempore
+              minima sit ad mollitia commodi minus.
+            </p>
+
+            <div class="info-item d-flex">
+              <i class="bi bi-geo-alt flex-shrink-0"></i>
+              <div>
+                <h4>Location:</h4>
+                <p>A108 Adam Street, New York, NY 535022</p>
+              </div>
+            </div>
+
+            <div class="info-item d-flex">
+              <i class="bi bi-envelope flex-shrink-0"></i>
+              <div>
+                <h4>Email:</h4>
+                <p>info&#64;example.com</p>
+              </div>
+            </div>
+
+            <div class="info-item d-flex">
+              <i class="bi bi-phone flex-shrink-0"></i>
+              <div>
+                <h4>Call:</h4>
+                <p>+1 5589 55488 55</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="info">
+            <h4 class="mb-3">Your Message</h4>
+            <form [formGroup]="form">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <input
+                    type="text"
+                    pInputText
+                    class="w-100"
+                    placeholder="Your Name"
+                    formControlName="name"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['name'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['name'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['name'].errors['required']">
+                      Name is required
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <input
+                    class="w-100"
+                    type="text"
+                    pInputText
+                    placeholder="Your Surname"
+                    formControlName="surname"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['surname'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['surname'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['surname'].errors['required']">
+                      Surname is required
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <input
+                    class="w-100"
+                    type="text"
+                    pInputText
+                    placeholder="Your Email"
+                    formControlName="emailAddress"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['emailAddress'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['emailAddress'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['emailAddress'].errors['required']">
+                      Email address is required
+                    </div>
+                    <div *ngIf="f['emailAddress'].errors['email']">
+                      Email address invalid format
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <p-select
+                    placeholder="Select category"
+                    styleClass="w-100"
+                    [options]="contactCategories"
+                    optionLabel="name"
+                    optionValue="id"
+                    [filter]="true"
+                    formControlName="contactCategoryId"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['contactCategoryId'].errors
+                    }"
+                  />
+                  <div
+                    *ngIf="submitted && f['contactCategoryId'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['contactCategoryId'].errors['required']">
+                      Category is required
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-4">
+                <textarea
+                  rows="5"
+                  cols="30"
+                  class="w-100"
+                  pTextarea
+                  placeholder="Message"
+                  formControlName="message"
+                  [ngClass]="{
+                    'is-invalid': submitted && f['message'].errors
+                  }"
+                ></textarea>
+                <div
+                  *ngIf="submitted && f['message'].errors"
+                  class="invalid-feedback"
+                >
+                  <div *ngIf="f['message'].errors['required']">
+                    Message is required
+                  </div>
+                </div>
+              </div>
+              <div class="">
+                <p-button
+                  class="float-end"
+                  icon="pi pi-send"
+                  label="Send"
+                  (click)="save()"
+                  type="submit"
+                  severity="warn"
+                  pAutoFocus
+                  [autofocus]="true"
+                ></p-button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,91 @@
+<header
+  id="header"
+  class="header d-flex align-items-center sticky-top border-bottom"
+>
+  <div class="container position-relative d-flex align-items-center">
+    <a
+      [routerLink]="['/']"
+      class="logo d-flex align-items-center h4 flex-grow-1 mb-0"
+    >
+      CMS</a
+    >
+    <div
+      class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse flex-grow-1 d-none d-sm-block"
+      [ngClass]="{ show: false }"
+      *ngIf="visibleMenu"
+    >
+      <p-menubar [model]="items">
+        <ng-template #item let-item>
+          @if(item.route) {
+          <a [routerLink]="item.route" class="p-menubar-item-link">
+            <span>{{ item.label }}</span>
+          </a>
+          } @else {
+          <div class="p-menubar-item-link">
+            <span>{{ item.label }}</span>
+            <span class="pi pi-fw pi-angle-down px-0"></span>
+          </div>
+          }
+        </ng-template>
+      </p-menubar>
+    </div>
+    <p-button
+      (click)="showMenu()"
+      variant="outlined"
+      severity="secondary"
+      rounded="true"
+      size="small"
+      icon="pi pi-align-justify"
+      styleClass="me-1 d-block d-sm-none"
+    />
+    <div class="align-content-end">
+      <div class="d-flex">
+        <p-select
+          id="selectLanguage"
+          severity="secondary"
+          size="small"
+          [(ngModel)]="selectedLanguageCode"
+          [options]="languages"
+          optionLabel="name"
+          optionValue="code"
+          size="small"
+          (onChange)="changeLanguage($event)"
+          class="me-1"
+        />
+        <p-menu
+          #menuUser
+          [model]="userMenuItems"
+          [popup]="true"
+          appendTo="body"
+        />
+        <p-button
+          severity="secondary"
+          (click)="menuUser.toggle($event)"
+          icon="pi pi-user"
+          [outlined]="true"
+        />
+      </div>
+    </div>
+  </div>
+</header>
+
+<div *ngIf="!visibleMenu">
+  <p-drawer [(visible)]="visibleDrawer" header="Menu">
+    <p>
+      <p-tree [value]="mobileMenuItems">
+        <ng-template let-node pTemplate="default">
+          @if (node.route != null) {
+          <a
+            class="text-dark"
+            [routerLink]="node.route"
+            (click)="visibleDrawer = false"
+            >{{ node.label }}</a
+          >
+          } @else {
+          <span class="text-dark">{{ node.label }}</span>
+          }
+        </ng-template>
+      </p-tree>
+    </p>
+  </p-drawer>
+</div>

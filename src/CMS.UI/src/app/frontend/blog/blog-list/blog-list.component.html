@@ -1,0 +1,109 @@
+<main class="main">
+  <div class="page-title accent-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Blogs</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a routerLink="/">Home</a></li>
+          <li class="current">Blogs</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+  <section id="blog-posts" class="blog-posts section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="row">
+            <div class="col-md-6 mb-3" *ngFor="let blog of blogs">
+              <article
+                class="position-relative h-100 cursor-pointer"
+                routerLink="../blog/{{ blog.url }}/{{ blog.id }}"
+              >
+                <div class="post-img position-relative overflow-hidden">
+                  <img
+                    src="{{ environment.host }}{{ blog.imageUrl }}"
+                    class="img-fluid"
+                    alt=""
+                  />
+                  <span class="post-date">{{
+                    blog.insertedDate | date : "dd.MM.yyyy"
+                  }}</span>
+                </div>
+
+                <div class="post-content d-flex flex-column">
+                  <h3 class="post-title">
+                    {{ blog.title }}
+                  </h3>
+
+                  <div class="meta d-flex align-items-center mt-1">
+                    <div class="d-flex align-items-center">
+                      <i class="pi pi-user"></i>
+                      <span class="ps-1">{{ blog.userName }}</span>
+                    </div>
+                    <div class="d-flex align-items-center ms-3">
+                      <i class="pi pi-comments"></i>
+                      <span class="ps-1">{{ blog.commentCount }}</span>
+                    </div>
+                  </div>
+                  <p>
+                    {{ blog.description }}
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <p-paginator
+            (onPageChange)="onPageChange($event)"
+            [first]="skip"
+            [rows]="pageSize"
+            [totalRecords]="total"
+            [rowsPerPageOptions]="[4, 12, 20]"
+          />
+        </div>
+        <div class="col-md-4" *ngIf="mostReads.length > 0">
+          <div class="widgets-container m-0">
+            <div class="search-widget mb-4">
+              <form action="">
+                <input type="text" />
+                <button type="submit" title="Search">
+                  <i class="pi pi-search"></i>
+                </button>
+              </form>
+            </div>
+            <h5 class="border-bottom border-2 pb-2">
+              <i class="pi pi-list"></i> Blog Categories
+            </h5>
+            <div class="pb-4 pt-3">
+              <div class="mb-3" *ngFor="let item of blogCategories">
+                <a class="text-dark" routerLink="{{ item.url }}">
+                  <i class="pi pi-arrow-right pe-2"></i> {{ item.name }} ({{
+                    item.blogCount
+                  }})</a
+                >
+              </div>
+            </div>
+            <div class="">
+              <h5 class="border-bottom border-2 pb-2 mb-3">Most Reads</h5>
+              <div class="mb-4" *ngFor="let blog of mostReads">
+                <div
+                  class="card border-0 mb-4 cursor-pointer"
+                  routerLink="../blog/{{ blog.url }}/{{ blog.id }}"
+                >
+                  <img
+                    class="card-img-top"
+                    src="{{ environment.host }}{{ blog.imageUrl }}"
+                  />
+                  <div class="fw-semibold mt-1 text-sm-start">
+                    {{ blog.title }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

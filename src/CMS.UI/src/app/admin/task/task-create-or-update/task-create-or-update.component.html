@@ -1,0 +1,123 @@
+<p-toast />
+<div class="card">
+  <div class="card-header py-3 bg-white">
+    <div class="d-flex">
+      <i
+        class="pi pi-arrow-left cursor-pointer align-content-center"
+        routerLink="/admin/task"
+      ></i>
+      <h5 class="ms-3 mb-0">{{ id ? "Task Update" : "New Task" }}</h5>
+    </div>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="form" class="my-3">
+      <div class="row">
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input
+            class="w-100"
+            pInputText
+            formControlName="title"
+            [ngClass]="{
+              'is-invalid': submitted && f['title'].errors
+            }"
+          />
+          <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+            <div *ngIf="f['title'].errors['required']">Title is required</div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <p-select
+              styleClass="w-100"
+              [options]="taskCategories"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select a category"
+              [showClear]="true"
+              [filter]="true"
+              formControlName="taskCategoryId"
+              (onChange)="onCategoryChange($event)"
+              [ngClass]="{
+                'is-invalid': submitted && f['taskCategoryId'].errors
+              }"
+            ></p-select>
+            <div
+              *ngIf="submitted && f['taskCategoryId'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['taskCategoryId'].errors['required']">
+                Task Category is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <p-select
+              styleClass="w-100"
+              [options]="taskStatuses"
+              optionLabel="name"
+              optionValue="id"
+              [filter]="true"
+              placeholder="Select a status"
+              [showClear]="true"
+              formControlName="taskStatusId"
+              [ngClass]="{
+                'is-invalid': submitted && f['taskStatusId'].errors
+              }"
+            ></p-select>
+            <div
+              *ngIf="submitted && f['taskStatusId'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['taskStatusId'].errors['required']">
+                Task Status is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Assign User</label>
+            <p-select
+              styleClass="w-100"
+              [options]="users"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select a user"
+              [showClear]="true"
+              [filter]="true"
+              formControlName="assignUserId"
+            ></p-select>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label w-100">Active</label>
+            <p-toggleswitch class="w-100" formControlName="isActive" />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <p-editor
+            formControlName="description"
+            class="w-100"
+            [style]="{ minHeight: '120px' }"
+          ></p-editor>
+        </div>
+      </div>
+      <p-button
+        size="small"
+        (click)="save()"
+        type="submit"
+        icon="pi pi-save"
+        label="Save"
+        pAutoFocus
+        [autofocus]="true"
+      />
+    </form>
+  </div>
+</div>

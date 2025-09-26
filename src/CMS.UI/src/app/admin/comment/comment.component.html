@@ -1,0 +1,119 @@
+<p-confirm-dialog />
+<p-toast />
+<div class="row" style="margin-bottom: 15px">
+  <div class="col-md-12">
+    <p-panel>
+      <ng-template pTemplate="header">
+        <div class="font-bold">
+          <h3>Comments</h3>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="icons">
+        <p-button (click)="reset()" icon="pi pi-delete-left" [link]="true" />
+        <p-button (click)="search()" icon="pi pi-search" [link]="true" />
+      </ng-template>
+      <div class="mt-3">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <input
+                class="w-100"
+                type="text"
+                pInputText
+                placeholder="User Name"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <p-table
+        [value]="list"
+        [lazy]="true"
+        [showGridlines]="true"
+        [stripedRows]="true"
+        [paginator]="true"
+        [first]="first"
+        [rows]="rows"
+        [loading]="loading"
+        [scrollable]="true"
+        (onPage)="pageChange($event)"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [totalRecords]="totalRecords"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+        dataKey="id"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="table-icon-col"></th>
+            <th class="table-icon-col" pFrozenColumn></th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>User Name</th>
+            <th>Inserted Date</th>
+            <th>Updated Date</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item let-expanded="expanded">
+          <tr>
+            <td class="table-icon-col">
+              <p-button
+                [link]="true"
+                [pRowToggler]="item"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              />
+            </td>
+            <td pFrozenColumn class="table-icon-col">
+              <p-menu
+                #menu
+                [model]="gridMenuItems"
+                [popup]="true"
+                appendTo="body"
+              ></p-menu>
+              <p-button
+                (click)="menuToggle(menu, $event, item)"
+                icon="pi pi-cog"
+                [link]="true"
+              />
+            </td>
+            <td>{{ item.source }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.userFullName }}</td>
+            <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+            <td>{{ item.updatedDate | date : "dd.MM.yyyy HH:mm" }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-item>
+          <tr>
+            <td colspan="7">
+              <div class="p-2">
+                <div class="card w-100">
+                  <div class="card-header bg-white">
+                    <h5><i class="pi pi-comment"></i> Comment</h5>
+                  </div>
+                  <div class="card-body">{{ item.description }}</div>
+                  <div class="card-footer bg-white">
+                    <p-select
+                      size="small"
+                      [options]="commentStatuses"
+                      optionLabel="name"
+                      optionValue="id"
+                      [(ngModel)]="item.statusId"
+                    />
+                    <p-button
+                      (click)="updateComment(item)"
+                      size="small"
+                      class="ms-2"
+                      icon="pi pi-save"
+                      label="Save"
+                    />
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-panel>
+  </div>
+</div>

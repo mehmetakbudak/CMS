@@ -1,0 +1,178 @@
+<p-toast />
+<div class="card">
+  <div class="card-header py-3 bg-white">
+    <div class="d-flex">
+      <i
+        class="pi pi-arrow-left cursor-pointer align-content-center"
+        routerLink="/admin/blog"
+      ></i>
+      <h5 class="ms-3 mb-0">{{ id ? "Blog Update" : "New Blog" }}</h5>
+    </div>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="form">
+      <div class="row">
+        <div class="col-12">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input
+              pInputText
+              class="w-100"
+              placeholder="Title"
+              formControlName="title"
+              [ngClass]="{
+                'is-invalid': submitted && f['title'].errors
+              }"
+            />
+            <div
+              *ngIf="submitted && f['title'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['title'].errors['required']">Title is required</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea
+              class="w-100"
+              rows="3"
+              pTextarea
+              formControlName="description"
+              [ngClass]="{
+                'is-invalid': submitted && f['description'].errors
+              }"
+            ></textarea>
+
+            <div
+              *ngIf="submitted && f['description'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['description'].errors['required']">
+                Description is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label">Blog Categories</label>
+            <p-multiselect
+              styleClass="w-100"
+              [options]="blogCategories"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select Blog Categories"
+              [filter]="true"
+              appendTo="body"
+              formControlName="blogCategoryIds"
+              [maxSelectedLabels]="5"
+            ></p-multiselect>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label">Tags</label>
+            <p-multiselect
+              styleClass="w-100"
+              [options]="tags"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select Tags"
+              [filter]="true"
+              appendTo="body"
+              formControlName="selectedTagIds"
+              [maxSelectedLabels]="5"
+            ></p-multiselect>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Display Order</label>
+            <p-inputnumber
+              class="w-100"
+              [min]="1"
+              [showButtons]="true"
+              placeholder="Select Display Order"
+              formControlName="displayOrder"
+              [ngClass]="{
+                'is-invalid': submitted && f['displayOrder'].errors
+              }"
+            ></p-inputnumber>
+            <div
+              *ngIf="submitted && f['displayOrder'].errors"
+              class="invalid-feedback"
+            >
+              <div *ngIf="f['displayOrder'].errors['required']">
+                Display Order is required
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="mb-3 d-flex">
+            <div>
+              <label class="form-label w-100">Active</label>
+              <p-toggle-switch
+                class="w-100"
+                formControlName="isActive"
+              ></p-toggle-switch>
+            </div>
+            <div>
+              <label class="form-label w-100">Published</label>
+              <p-toggle-switch
+                class="w-100"
+                formControlName="published"
+              ></p-toggle-switch>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="mb-3">
+            <p-editor
+              #editorRef
+              formControlName="content"
+              [style]="{ minHeight: '120px' }"
+            ></p-editor>
+          </div>
+        </div>
+        <div class="col-12 mb-3">
+          <div class="card">
+            <div class="card-header">Image</div>
+            <div class="card-body">
+              <img
+                height="200"
+                width="200"
+                *ngIf="imageUrl"
+                src="{{ environment.host }}{{ imageUrl }}"
+              />
+              <div class="my-2">
+                <p-fileUpload
+                  styleClass="align-content-center justify-content-start"
+                  [chooseLabel]="'Choose Image'"
+                  mode="basic"
+                  [maxFileSize]="1000000"
+                  accept="image/*"
+                  [showCancelButton]="false"
+                  [showUploadButton]="false"
+                  chooseStyleClass="py-1 bg-secondary border-secondary"
+                  (onSelect)="onSelect($event)"
+                ></p-fileUpload>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p-button
+        size="small"
+        (click)="save()"
+        type="submit"
+        icon="pi pi-save"
+        label="Save"
+        pAutoFocus
+        [autofocus]="true"
+      />
+    </form>
+  </div>
+</div>
