@@ -1,11 +1,11 @@
 import { AuthService } from './../../../services/auth.service';
 import { Component, OnInit } from '@angular/core';
-import { PanelModule } from 'primeng/panel';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
+import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'app-user-layout',
-  imports: [PanelModule, RouterLink, RouterOutlet],
+  imports: [RouterOutlet, SharedModule],
   templateUrl: './user-layout.component.html',
   styleUrl: './user-layout.component.css',
 })

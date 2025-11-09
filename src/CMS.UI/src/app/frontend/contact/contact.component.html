@@ -1,11 +1,19 @@
 <main class="main">
   <div class="page-title accent-background">
     <div class="container d-lg-flex justify-content-between align-items-center">
-      <h1 class="mb-2 mb-lg-0">Contact</h1>
+      <h1 class="mb-2 mb-lg-0">
+        {{ "Contact" | translate }}
+      </h1>
       <nav class="breadcrumbs">
         <ol>
-          <li><a routerLink="/">Home</a></li>
-          <li class="current">Contact</li>
+          <li>
+            <a routerLink="/">
+              {{ "Homepage" | translate }}
+            </a>
+          </li>
+          <li class="current">
+            {{ "Contact" | translate }}
+          </li>
         </ol>
       </nav>
     </div>
@@ -16,32 +24,26 @@
       <div class="row gy-5 gx-lg-5">
         <div class="col-lg-4">
           <div class="info">
-            <h3>Get in touch</h3>
-            <p>
-              Et id eius voluptates atque nihil voluptatem enim in tempore
-              minima sit ad mollitia commodi minus.
-            </p>
-
             <div class="info-item d-flex">
-              <i class="bi bi-geo-alt flex-shrink-0"></i>
+              <i class="pi pi-map flex-shrink-0"></i>
               <div>
-                <h4>Location:</h4>
+                <h4>{{ "Address" | translate }}</h4>
                 <p>A108 Adam Street, New York, NY 535022</p>
               </div>
             </div>
 
             <div class="info-item d-flex">
-              <i class="bi bi-envelope flex-shrink-0"></i>
+              <i class="pi pi-envelope flex-shrink-0"></i>
               <div>
-                <h4>Email:</h4>
+                <h4>{{ "EmailAddress" | translate }}</h4>
                 <p>info&#64;example.com</p>
               </div>
             </div>
 
             <div class="info-item d-flex">
-              <i class="bi bi-phone flex-shrink-0"></i>
+              <i class="pi pi-phone flex-shrink-0"></i>
               <div>
-                <h4>Call:</h4>
+                <h4>{{ "Phone" | translate }}</h4>
                 <p>+1 5589 55488 55</p>
               </div>
             </div>
@@ -50,7 +52,7 @@
 
         <div class="col-lg-8">
           <div class="info">
-            <h4 class="mb-3">Your Message</h4>
+            <h4 class="mb-3">{{ "YourMessage" | translate }}</h4>
             <form [formGroup]="form">
               <div class="row">
                 <div class="col-md-6 mb-4">
@@ -58,7 +60,7 @@
                     type="text"
                     pInputText
                     class="w-100"
-                    placeholder="Your Name"
+                    placeholder="{{ 'YourName' | translate }}"
                     formControlName="name"
                     [ngClass]="{
                       'is-invalid': submitted && f['name'].errors
@@ -69,7 +71,7 @@
                     class="invalid-feedback"
                   >
                     <div *ngIf="f['name'].errors['required']">
-                      Name is required
+                      {{ "Name.Required" | translate }}
                     </div>
                   </div>
                 </div>
@@ -78,7 +80,7 @@
                     class="w-100"
                     type="text"
                     pInputText
-                    placeholder="Your Surname"
+                    placeholder="{{ 'YourSurname' | translate }}"
                     formControlName="surname"
                     [ngClass]="{
                       'is-invalid': submitted && f['surname'].errors
@@ -89,7 +91,7 @@
                     class="invalid-feedback"
                   >
                     <div *ngIf="f['surname'].errors['required']">
-                      Surname is required
+                      {{ "Surname.Required" | translate }}
                     </div>
                   </div>
                 </div>
@@ -98,7 +100,7 @@
                     class="w-100"
                     type="text"
                     pInputText
-                    placeholder="Your Email"
+                    placeholder="{{ 'YourEmail' | translate }}"
                     formControlName="emailAddress"
                     [ngClass]="{
                       'is-invalid': submitted && f['emailAddress'].errors
@@ -109,16 +111,16 @@
                     class="invalid-feedback"
                   >
                     <div *ngIf="f['emailAddress'].errors['required']">
-                      Email address is required
+                      {{ "EmailAddress.Required" | translate }}
                     </div>
                     <div *ngIf="f['emailAddress'].errors['email']">
-                      Email address invalid format
+                      {{ "EmailAddress.Invalid" | translate }}
                     </div>
                   </div>
                 </div>
                 <div class="col-md-6 mb-4">
                   <p-select
-                    placeholder="Select category"
+                    placeholder="{{ 'SelectCategory' | translate }}"
                     styleClass="w-100"
                     [options]="contactCategories"
                     optionLabel="name"
@@ -134,7 +136,7 @@
                     class="invalid-feedback"
                   >
                     <div *ngIf="f['contactCategoryId'].errors['required']">
-                      Category is required
+                      {{ "Category.Required" | translate }}
                     </div>
                   </div>
                 </div>
@@ -145,7 +147,7 @@
                   cols="30"
                   class="w-100"
                   pTextarea
-                  placeholder="Message"
+                  placeholder="{{ 'YourMessage' | translate }}"
                   formControlName="message"
                   [ngClass]="{
                     'is-invalid': submitted && f['message'].errors
@@ -156,7 +158,7 @@
                   class="invalid-feedback"
                 >
                   <div *ngIf="f['message'].errors['required']">
-                    Message is required
+                    {{ "Message.Required" | translate }}
                   </div>
                 </div>
               </div>
@@ -164,7 +166,7 @@
                 <p-button
                   class="float-end"
                   icon="pi pi-send"
-                  label="Send"
+                  label="{{ 'Send' | translate }}"
                   (click)="save()"
                   type="submit"
                   severity="warn"

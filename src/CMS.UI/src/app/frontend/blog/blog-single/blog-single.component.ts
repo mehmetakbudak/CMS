@@ -103,7 +103,7 @@ export class BlogSingleComponent implements OnInit {
       this.form.reset();
       this.form.clearAsyncValidators();
       this.showCommentModal = true;
-      this.headerCommentModal = 'New Comment';
+      this.headerCommentModal = this.appService.getTranslate('NewComment');
       this.selectedComment = null;
     } else {
       this.alertService.showMessage('Please sign in!', alertType.info);
@@ -115,7 +115,7 @@ export class BlogSingleComponent implements OnInit {
       this.form.reset();
       this.form.clearAsyncValidators();
       this.showCommentModal = true;
-      this.headerCommentModal = 'Reply Comment';
+      this.headerCommentModal = this.appService.getTranslate('ReplyComment');
       this.selectedComment = data;
     } else {
       this.alertService.showMessage('Please sign in!', alertType.info);

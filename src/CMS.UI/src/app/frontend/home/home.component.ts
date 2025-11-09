@@ -1,25 +1,14 @@
 import { environment } from './../../../environments/environment';
 import { Component, model, OnInit } from '@angular/core';
 import { AppService } from '../../services/app.service';
-import { GalleriaModule } from 'primeng/galleria';
-import { CommonModule } from '@angular/common';
-import { CarouselModule } from 'primeng/carousel';
-import { PanelModule } from 'primeng/panel';
-import { Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
+import { SharedModule } from '../../shared.module';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
-  imports: [
-    CommonModule,
-    GalleriaModule,
-    CarouselModule,
-    PanelModule,
-    RouterLink,
-    ButtonModule,
-  ],
+  imports: [SharedModule],
 })
 export class HomeComponent implements OnInit {
   environment = environment;

@@ -1,11 +1,17 @@
 <main class="main">
   <div class="page-title accent-background">
     <div class="container d-lg-flex justify-content-between align-items-center">
-      <h1 class="mb-2 mb-lg-0">Blogs</h1>
+      <h1 class="mb-2 mb-lg-0">{{ "Blogs" | translate }}</h1>
       <nav class="breadcrumbs">
         <ol>
-          <li><a routerLink="/">Home</a></li>
-          <li class="current">Blogs</li>
+          <li>
+            <a routerLink="/">
+              {{ "Homepage" | translate }}
+            </a>
+          </li>
+          <li class="current">
+            {{ "Blogs" | translate }}
+          </li>
         </ol>
       </nav>
     </div>
@@ -73,7 +79,8 @@
               </form>
             </div>
             <h5 class="border-bottom border-2 pb-2">
-              <i class="pi pi-list"></i> Blog Categories
+              <i class="pi pi-list"></i>
+              {{ "BlogCategories" | translate }}
             </h5>
             <div class="pb-4 pt-3">
               <div class="mb-3" *ngFor="let item of blogCategories">
@@ -85,7 +92,9 @@
               </div>
             </div>
             <div class="">
-              <h5 class="border-bottom border-2 pb-2 mb-3">Most Reads</h5>
+              <h5 class="border-bottom border-2 pb-2 mb-3">
+                {{ "MostReads" | translate }}
+              </h5>
               <div class="mb-4" *ngFor="let blog of mostReads">
                 <div
                   class="card border-0 mb-4 cursor-pointer"

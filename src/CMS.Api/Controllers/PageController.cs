@@ -8,6 +8,7 @@ namespace CMS.Api.Controllers
     public class PageController(IPageService pageService) : BaseController
     {
         [HttpGet]
+        [CMSAuthorize]
         [EnableQueryWithMetadata]
         public IActionResult Get()
         {

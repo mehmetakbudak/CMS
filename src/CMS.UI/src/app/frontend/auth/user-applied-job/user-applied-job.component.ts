@@ -2,28 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../../../shared.module';
 import { AppService } from '../../../services/app.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
-import { MenuModule } from 'primeng/menu';
-import { ButtonModule } from 'primeng/button';
-import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { PanelModule } from 'primeng/panel';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 import { AlertService, alertType } from '../../../services/alert.service';
 
 @Component({
   selector: 'app-user-applied-job',
-  imports: [
-    CommonModule,
-    TableModule,
-    MenuModule,
-    ButtonModule,
-    RouterLink,
-    PanelModule,
-    ConfirmDialogModule,
-    ToastModule,
-  ],
+  imports: [SharedModule],
   providers: [ConfirmationService, AlertService, MessageService],
   templateUrl: './user-applied-job.component.html',
   styleUrl: './user-applied-job.component.css',
@@ -42,9 +25,16 @@ export class UserAppliedJobComponent implements OnInit {
 
   ngOnInit() {
     this.getList();
+    this.getGridMenuItems();
+    this.appService.onLangChange().subscribe(() => {
+      this.getGridMenuItems();
+    });
+  }
+
+  getGridMenuItems() {
     this.gridMenuItems = [
       {
-        label: 'Delete',
+        label: this.appService.getTranslate('Delete'),
         command: (e: any) => {
           this.confirmationService.confirm({
             target: e.target as EventTarget,

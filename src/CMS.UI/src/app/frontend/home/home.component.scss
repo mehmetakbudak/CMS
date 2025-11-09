@@ -1,3 +1,53 @@
 .title {
   font-size: 24px;
 }
+
+.blog-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.all-link {
+  text-decoration: none;
+  align-content: center;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.all-link:hover {
+  background-color: #f97316;
+  color: white;
+  text-decoration: none;
+}
+
+.all-link i {
+  margin-left: 2px;
+  font-size: 12px;
+}
+
+#homeSliderImg {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+}
+
+@media screen and (max-width: 768px) {
+  .blog-img {
+    height: 150px;
+  }
+
+  .tenant-name {
+    font-size: 16px;
+  }
+
+  .position-name {
+    font-size: 14px;
+  }
+
+  #homeSliderImg {
+    height: 300px;
+  }
+}

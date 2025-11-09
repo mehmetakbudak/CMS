@@ -8,7 +8,6 @@ namespace CMS.Api.Controllers
     public class ServiceController(IService_Service service) : BaseController
     {
         [HttpGet]
-        [CMSAuthorize]
         [EnableQueryWithMetadata]
         public IActionResult Get()
         {

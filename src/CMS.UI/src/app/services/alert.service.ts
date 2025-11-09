@@ -16,6 +16,7 @@ export class AlertService {
       summary: this.getHeader(type),
       detail: message,
       severity: this.getAlertType(type),
+      life: 2000,
     });
   }
 
@@ -24,6 +25,7 @@ export class AlertService {
       summary: this.getHeader(type),
       severity: this.getAlertType(type),
       detail: this.getDefaultMessage(messageType),
+      life: 2000,
     });
   }
 

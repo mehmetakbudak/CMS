@@ -3,12 +3,14 @@ using CMS.Business.Extensions;
 using CMS.Business.Helper;
 using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Storage.Consts;
 using CMS.Storage.Dtos.Job;
 using CMS.Storage.Dtos.Response;
 using CMS.Storage.Entity;
 using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,7 +22,7 @@ namespace CMS.Business.Services
     public interface IJobService
     {
         IQueryable<JobListDto> Get();
-        Task<IEnumerable<JobListDto>> GetAllActive();
+        Task<List<JobListDto>> GetAllActive();
         Task<List<JobDetailDto>> GetAll();
         Task<JobDetailDto> GetDetailById(int id);
         Task<JobDto> GetById(int id);
@@ -33,12 +35,13 @@ namespace CMS.Business.Services
             IUnitOfWork<CMSContext> unitOfWork,
             IDbConnection dbConnection,
             ILanguageHelper languageHelper,
+            IMemoryCache memoryCache,
             IHttpContextAccessor httpContextAccessor) : IJobService
     {
         public IQueryable<JobListDto> Get()
-        {           
+        {
             return unitOfWork.Repository<Job>()
-                .Where(x => x.IsActive && !x.Deleted)                
+                .Where(x => x.IsActive && !x.Deleted)
                 .Select(x => new JobListDto
                 {
                     Id = x.Id,
@@ -53,14 +56,20 @@ namespace CMS.Business.Services
                     WorkTypeName = x.WorkType.GetDescription(),
                     InsertedUserName = x.InsertedUser.FullName,
                     InsertedDate = x.InsertedDate,
-                    UpdatedDate = x.UpdatedDate                    
+                    UpdatedDate = x.UpdatedDate
                 }).AsQueryable();
-        }        
+        }
 
-        public async Task<IEnumerable<JobListDto>> GetAllActive()
+        public async Task<List<JobListDto>> GetAllActive()
         {
+            if (memoryCache.TryGetValue<List<JobListDto>>(CacheKeys.ActiveJobs, out var cachedData))
+                return cachedData;
+
             var list = await dbConnection.QueryAsync<JobListDto>("select J.[Id], J.[JobLocationId], L.[Name] as JobLocationName, T.[Name] as TenantName, T.[ImageUrl] as TenantImageUrl, J.[Position], J.[Url], J.[WorkType], U.[Name] + ' '  + U.[Surname] as InsertedUserName, J.[InsertedDate], J.[UpdatedDate] from Jobs as J inner join Tenants as T on J.TenantId=T.Id inner join JobLocations as L on J.JobLocationId=L.Id inner join Users as U on J.InsertedUserId=U.Id where J.IsActive=1 and T.IsActive=1 and L.IsActive=1 and J.Deleted=0 and T.Deleted=0 and L.Deleted=0");
-            return list;
+
+            var activeBlogs = list.ToList();
+            memoryCache.Set(CacheKeys.ActiveJobs, activeBlogs);
+            return activeBlogs;
         }
 
         public async Task<List<JobDetailDto>> GetAll()
@@ -164,6 +173,9 @@ namespace CMS.Business.Services
             };
             await unitOfWork.Repository<Job>().Add(job);
             await unitOfWork.Save();
+
+            memoryCache.Remove(CacheKeys.ActiveJobs);            
+
             return ServiceResult.Success();
         }
 
@@ -194,6 +206,9 @@ namespace CMS.Business.Services
 
             unitOfWork.Repository<Job>().Update(job);
             await unitOfWork.Save();
+
+            memoryCache.Remove(CacheKeys.ActiveJobs);
+
             return ServiceResult.Success();
         }
 
@@ -210,6 +225,9 @@ namespace CMS.Business.Services
 
             unitOfWork.Repository<Job>().Update(job);
             await unitOfWork.Save();
+
+            memoryCache.Remove(CacheKeys.ActiveJobs);
+
             return ServiceResult.Success();
         }
     }

@@ -42,6 +42,7 @@ export class DictionaryComponent implements OnInit {
   languages: any = [];
   list: any = [];
   loading = false;
+  btnLoading = false;
   selectedData!: any;
   filterForm!: LanguageValueFilterDto;
   submitted = false;
@@ -113,9 +114,11 @@ export class DictionaryComponent implements OnInit {
         };
       }),
     };
+    this.loading = true;
     this.appService.post(`LanguageValue/Get`, data).subscribe((res: any) => {
       this.list = res;
       this.totalRecords = res.totalCount;
+      this.loading = false;
     });
   }
 
@@ -219,6 +222,7 @@ export class DictionaryComponent implements OnInit {
     if (this.form?.invalid) {
       return;
     }
+    this.btnLoading = true;
     if (this.form.value.id == 0) {
       this.appService
         .post('LanguageValue/Create', this.form.value)
@@ -230,6 +234,7 @@ export class DictionaryComponent implements OnInit {
           );
           this.isVisible = false;
           localStorage.removeItem('translations');
+          this.btnLoading = false;
         });
     } else {
       this.appService
@@ -242,6 +247,7 @@ export class DictionaryComponent implements OnInit {
           );
           this.isVisible = false;
           localStorage.removeItem('translations');
+          this.btnLoading = false;
         });
     }
   }

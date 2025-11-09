@@ -1,4 +1,4 @@
-<nav class="navbar navbar-light bg-white p-1 border-bottom">
+<nav class="navbar navbar-light bg-white p-1 border-bottom sticky-top">
   <div class="navbar-brand d-flex">
     <p-button
       (click)="menuShow()"
@@ -9,9 +9,9 @@
       icon="pi pi-align-justify"
       styleClass="mx-1 d-block d-sm-none"
     ></p-button>
-    <a class="navbar-brand text-left ps-1" routerLink="/admin">{{
-      "AdminPanel" | translate
-    }}</a>
+    <a class="navbar-brand text-left ps-1" routerLink="/admin">
+      {{ "AdminPanel" | translate }}
+    </a>
   </div>
   <div class="navbar-text p-0 d-flex">
     <p-select
@@ -23,6 +23,7 @@
       optionLabel="name"
       optionValue="code"
       size="small"
+      appendTo="body"
       (onChange)="changeLanguage($event)"
     ></p-select>
     <p-menu #menu [model]="userMenu" [popup]="true" appendTo="body"></p-menu>
@@ -73,7 +74,12 @@
 
 <p-drawer [(visible)]="visibleDrawer" header="{{ 'Menu' | translate }}">
   <p>
-    <p-tree [value]="items" class="drawerMenu" [filter]="true" filterPlaceholder="{{ 'Search' | translate }}">
+    <p-tree
+      [value]="items"
+      class="drawerMenu"
+      [filter]="true"
+      filterPlaceholder="{{ 'Search' | translate }}"
+    >
       <ng-template let-node pTemplate="default">
         @if (node.url != null) {
         <a

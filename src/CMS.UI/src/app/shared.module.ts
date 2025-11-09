@@ -1,3 +1,4 @@
+import { CarouselModule } from 'primeng/carousel';
 import { AvatarModule } from 'primeng/avatar';
 import { MenubarModule } from 'primeng/menubar';
 import { NgModule } from '@angular/core';
@@ -103,6 +104,7 @@ import { TranslateModule } from '@ngx-translate/core';
     ListboxModule,
     DrawerModule,
     TranslateModule,
+    CarouselModule
   ],
   exports: [
     RouterOutlet,
@@ -153,7 +155,8 @@ import { TranslateModule } from '@ngx-translate/core';
     TreeSelectModule,
     ListboxModule,
     DrawerModule,
-    TranslateModule
+    TranslateModule,
+    CarouselModule
   ],
   providers: [
     ConfirmationService,

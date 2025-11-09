@@ -5,7 +5,7 @@
     <div class="col-12">
       <p-panel [showHeader]="false">
         <div class="p-md-3">
-          <h2 class="my-3">Applied Jobs</h2>
+          <h2 class="my-3">{{ "AppliedJobs" | translate }}</h2>
           <p-table
             [value]="list"
             [paginator]="true"
@@ -18,11 +18,11 @@
             <ng-template #header>
               <tr>
                 <th class="table-icon-col" pFrozenColumn></th>
-                <th>Tenant</th>
-                <th>Location</th>
-                <th>Position</th>
-                <th>Work Type</th>
-                <th>Inserted Date</th>
+                <th>{{ "TenantName" | translate }}</th>
+                <th>{{ "Location" | translate }}</th>
+                <th>{{ "Position" | translate }}</th>
+                <th>{{ "WorkType" | translate }}</th>
+                <th>{{ "InsertedDate" | translate }}</th>
               </tr>
             </ng-template>
             <ng-template #body let-item>
@@ -51,7 +51,7 @@
             </ng-template>
             <ng-template #emptymessage>
               <tr>
-                <td colspan="6">No data.</td>
+                <td colspan="6">{{ "NoData" | translate }}</td>
               </tr>
             </ng-template>
           </p-table>

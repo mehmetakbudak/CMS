@@ -1,13 +1,13 @@
 ﻿using CMS.Business.Exceptions;
-using CMS.Business.Helper;
 using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Storage.Consts;
 using CMS.Storage.Dtos.HomepageSlider;
 using CMS.Storage.Dtos.Response;
-using CMS.Storage.Dtos.Service;
 using CMS.Storage.Entity;
 using Dapper;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,7 +20,7 @@ namespace CMS.Business.Services
     public interface IHomepageSliderService
     {
         IQueryable<HomepageSliderListDto> Get();
-        Task<IEnumerable<HomepageSliderDto>> GetAllActive();
+        Task<List<HomepageSliderDto>> GetAllActive();
         Task<HomepageSliderDto> GetById(int id);
         Task<ServiceResult> Create(HomepageSliderDto dto);
         Task<ServiceResult> Update(HomepageSliderDto dto);
@@ -30,6 +30,7 @@ namespace CMS.Business.Services
     public class HomepageSliderService(
         IDbConnection dbConnection,
         IWebHostEnvironment environment,
+        IMemoryCache memoryCache,
         IUnitOfWork<CMSContext> unitOfWork) : IHomepageSliderService
     {
         public IQueryable<HomepageSliderListDto> Get()
@@ -46,10 +47,16 @@ namespace CMS.Business.Services
                 });
         }
 
-        public async Task<IEnumerable<HomepageSliderDto>> GetAllActive()
+        public async Task<List<HomepageSliderDto>> GetAllActive()
         {
+            if (memoryCache.TryGetValue<List<HomepageSliderDto>>(CacheKeys.ActiveHomepageSliders, out var cachedData))
+                return cachedData;
+
             var list = await dbConnection.QueryAsync<HomepageSliderDto>("select [Id], [Description], [ImageUrl], [Title], [Url] from HomepageSliders where Deleted=0 and IsActive=1 order by DisplayOrder");
-            return list;
+
+            var activeSliders = list.ToList();
+            memoryCache.Set(CacheKeys.ActiveHomepageSliders, activeSliders);
+            return activeSliders;
         }
 
         public async Task<HomepageSliderDto> GetById(int id)
@@ -68,7 +75,7 @@ namespace CMS.Business.Services
                 Description = homepageSlider.Description,
                 Title = homepageSlider.Title,
                 DisplayOrder = homepageSlider.DisplayOrder,
-                IsActive = homepageSlider.IsActive                
+                IsActive = homepageSlider.IsActive
             };
         }
 
@@ -87,10 +94,12 @@ namespace CMS.Business.Services
                 Title = dto.Title,
                 Url = dto.Url,
                 ImageUrl = imageUrl,
-                DisplayOrder = dto.DisplayOrder                
+                DisplayOrder = dto.DisplayOrder
             });
 
             await unitOfWork.Save();
+
+            memoryCache.Remove(CacheKeys.ActiveHomepageSliders);
 
             return ServiceResult.Success(200);
         }
@@ -128,6 +137,8 @@ namespace CMS.Business.Services
 
             await unitOfWork.Save();
 
+            memoryCache.Remove(CacheKeys.ActiveHomepageSliders);
+
             return ServiceResult.Success(200);
         }
 
@@ -143,6 +154,8 @@ namespace CMS.Business.Services
 
             unitOfWork.Repository<HomepageSlider>().Update(homepageSlider);
             await unitOfWork.Save();
+
+            memoryCache.Remove(CacheKeys.ActiveHomepageSliders);
 
             return ServiceResult.Success(200);
         }

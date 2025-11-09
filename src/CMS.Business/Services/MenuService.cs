@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using CMS.Business.Extensions;
 using CMS.Storage.Dtos.Response;
 using CMS.Business.Exceptions;
+using Microsoft.Extensions.Caching.Memory;
+using CMS.Storage.Consts;
 
 namespace CMS.Business.Services
 {
@@ -18,8 +20,8 @@ namespace CMS.Business.Services
     {
         IQueryable<MenuDto> Get();
         Task<MenuDto> GetById(int id);
-        Task<List<MenubarDto>> GetFrontendMenu(int? parentId = null, List<MenubarDto> children = null);
-        Task<List<TreeMenuDto>> GetFrontendTreeMenu(int? parentId = null, List<TreeMenuDto> children = null);
+        Task<List<MenubarDto>> GetFrontendMenu();
+        Task<List<TreeMenuDto>> GetFrontendTreeMenu();
         Task<List<MenuItemListDto>> GetAdminMenu();
         Task<List<MenuItemTreeDto>> GetUserAdminMenu();
         Task<ServiceResult> Create(MenuDto dto);
@@ -29,6 +31,7 @@ namespace CMS.Business.Services
 
     public class MenuService(
             IUnitOfWork<CMSContext> unitOfWork,
+            IMemoryCache memoryCache,
             IHttpContextAccessor httpContextAccessor) : IMenuService
     {
         public async Task<List<MenuItemListDto>> GetAdminMenu()
@@ -111,7 +114,7 @@ namespace CMS.Business.Services
                         }
                     }
                 }
-                list = await GetUserAdminTreeMenu(items);                
+                list = await GetUserAdminTreeMenu(items);
                 return list;
             }
             return list;
@@ -132,7 +135,7 @@ namespace CMS.Business.Services
             return result;
         }
 
-        public async Task<List<MenubarDto>> GetFrontendMenu(int? parentId = null, List<MenubarDto> children = null)
+        private async Task<List<MenubarDto>> GetFrontendMenuData(int? parentId = null, List<MenubarDto> children = null)
         {
             var menuItems = new List<MenubarDto>();
 
@@ -155,16 +158,28 @@ namespace CMS.Business.Services
 
             foreach (var menuItem in list)
             {
-                var items = await GetFrontendMenu(menuItem.Id, list);
+                var items = await GetFrontendMenuData(menuItem.Id, list);
                 if (items != null && items.Count > 0)
                 {
                     menuItem.Items = items;
                 }
             }
+
+            memoryCache.Set(CacheKeys.GetFrontendMenu, menuItems);
             return menuItems;
         }
 
-        public async Task<List<TreeMenuDto>> GetFrontendTreeMenu(int? parentId = null, List<TreeMenuDto> children = null)
+        public async Task<List<MenubarDto>> GetFrontendMenu()
+        {
+            if (memoryCache.TryGetValue<List<MenubarDto>>(CacheKeys.GetFrontendMenu, out var cachedData))
+                return cachedData;
+
+            var list = await GetFrontendMenuData();
+            memoryCache.Set(CacheKeys.GetFrontendMenu, list);
+            return list;
+        }
+
+        private async Task<List<TreeMenuDto>> GetFrontendTreeMenuData(int? parentId = null, List<TreeMenuDto> children = null)
         {
             var menuItems = new List<TreeMenuDto>();
 
@@ -187,13 +202,23 @@ namespace CMS.Business.Services
 
             foreach (var menuItem in list)
             {
-                var items = await GetFrontendTreeMenu(menuItem.Id, list);
+                var items = await GetFrontendTreeMenuData(menuItem.Id, list);
                 if (items != null && items.Count > 0)
                 {
                     menuItem.Children = items;
                 }
             }
             return menuItems;
+        }
+
+        public async Task<List<TreeMenuDto>> GetFrontendTreeMenu()
+        {
+            if (memoryCache.TryGetValue<List<TreeMenuDto>>(CacheKeys.GetFrontendTreeMenu, out var cachedData))
+                return cachedData;
+
+            var list = await GetFrontendTreeMenuData();
+            memoryCache.Set(CacheKeys.GetFrontendTreeMenu, list);
+            return list;
         }
 
         public IQueryable<MenuDto> Get()

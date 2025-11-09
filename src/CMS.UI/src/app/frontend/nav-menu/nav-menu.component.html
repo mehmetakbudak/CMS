@@ -18,11 +18,11 @@
         <ng-template #item let-item>
           @if(item.route) {
           <a [routerLink]="item.route" class="p-menubar-item-link">
-            <span>{{ item.label }}</span>
+            <span>{{ item.label | translate }}</span>
           </a>
           } @else {
           <div class="p-menubar-item-link">
-            <span>{{ item.label }}</span>
+            <span>{{ item.label | translate }}</span>
             <span class="pi pi-fw pi-angle-down px-0"></span>
           </div>
           }
@@ -79,10 +79,10 @@
             class="text-dark"
             [routerLink]="node.route"
             (click)="visibleDrawer = false"
-            >{{ node.label }}</a
+            >{{ node.label | translate }}</a
           >
           } @else {
-          <span class="text-dark">{{ node.label }}</span>
+          <span class="text-dark">{{ node.label | translate }}</span>
           }
         </ng-template>
       </p-tree>

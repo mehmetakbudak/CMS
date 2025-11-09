@@ -2,11 +2,13 @@
 using CMS.Business.Helper;
 using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Storage.Consts;
 using CMS.Storage.Dtos.Menu;
 using CMS.Storage.Dtos.Response;
 using CMS.Storage.Entity;
 using CMS.Storage.Enum;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +25,9 @@ namespace CMS.Business.Services
         Task<ServiceResult> Delete(int id);
     }
 
-    public class MenuItemService(IUnitOfWork<CMSContext> unitOfWork) : IMenuItemService
+    public class MenuItemService(
+        IUnitOfWork<CMSContext> unitOfWork, 
+        IMemoryCache memoryCache) : IMenuItemService
     {
         public async Task<MenuItemDto> GetById(int id)
         {
@@ -92,7 +96,7 @@ namespace CMS.Business.Services
         }
 
         public async Task<ServiceResult> Create(MenuItemDto dto)
-        {            
+        {
             var menu = await unitOfWork.Repository<Menu>()
                 .FirstOrDefault(x => x.Id == dto.MenuId && !x.Deleted);
 
@@ -134,13 +138,17 @@ namespace CMS.Business.Services
                         await unitOfWork.Save();
                     }
                     await unitOfWork.Commit();
+
+                    memoryCache.Remove(CacheKeys.GetFrontendMenu);
+                    memoryCache.Remove(CacheKeys.GetFrontendTreeMenu);
                 }
                 catch (Exception ex)
                 {
                     await unitOfWork.Rollback();
                     throw new Exception(ex.Message);
                 }
-            });
+            });            
+
             return ServiceResult.Success(200);
         }
 
@@ -196,6 +204,9 @@ namespace CMS.Business.Services
             }
             await unitOfWork.Save();
 
+            memoryCache.Remove(CacheKeys.GetFrontendMenu);
+            memoryCache.Remove(CacheKeys.GetFrontendTreeMenu);
+
             return ServiceResult.Success(200);
         }
 
@@ -211,6 +222,9 @@ namespace CMS.Business.Services
 
             menuItem.Deleted = true;
             await unitOfWork.Save();
+
+            memoryCache.Remove(CacheKeys.GetFrontendMenu);
+            memoryCache.Remove(CacheKeys.GetFrontendTreeMenu);
 
             return ServiceResult.Success(200);
         }

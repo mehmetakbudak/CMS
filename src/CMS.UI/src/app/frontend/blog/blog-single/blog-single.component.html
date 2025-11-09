@@ -5,9 +5,19 @@
       <h1 class="mb-2 mb-lg-0">{{ blog.title }}</h1>
       <nav class="breadcrumbs">
         <ol>
-          <li><a routerLink="/">Home</a></li>
-          <li><a routerLink="/blog">Blogs</a></li>
-          <li class="current">{{ blog?.title }}</li>
+          <li>
+            <a routerLink="/">
+              {{ "Homepage" | translate }}
+            </a>
+          </li>
+          <li>
+            <a routerLink="/blog">
+              {{ "Blogs" | translate }}
+            </a>
+          </li>
+          <li class="current current-breadcrumb">
+            {{ blog?.title }}
+          </li>
         </ol>
       </nav>
     </div>
@@ -42,7 +52,7 @@
                 </li>
                 <li class="d-flex align-items-center mb-2">
                   <i class="pi pi-comments"></i>
-                  <a>{{ blog?.commentCount }} Comments</a>
+                  <a>{{ blog?.commentCount }} {{ "Comment" | translate }}</a>
                 </li>
               </ul>
             </div>
@@ -77,7 +87,7 @@
             <div class="d-flex p-2 w-100 align-items-center">
               <h4 class="comments-count mb-0">
                 <i class="pi pi-comments" style="font-size: 1.5rem"></i>
-                Comments
+                {{ "Comments" | translate }}
               </h4>
             </div>
             <div class="p-2 flex-shrink-1">
@@ -94,10 +104,10 @@
           </div>
 
           <div class="alert alert-info mx-3" *ngIf="!isAuthenticated">
-            <a routerLink="/login" class="text-dark h6"
-              ><i class="pi pi-exclamation-circle font-size-24"></i> Please log
-              in to comment!</a
-            >
+            <a routerLink="/login" class="text-dark h6">
+              <i class="pi pi-exclamation-circle font-size-24"></i>
+              {{ "PleaseLogInToComment" | translate }}
+            </a>
           </div>
           <p-tree [value]="comments" class="w-100" styleClass="px-1 pt-0">
             <ng-template let-node pTemplate="default">
@@ -113,7 +123,7 @@
                       </h5>
                       <p-button
                         severity="warn"
-                        label="Reply"
+                        label="{{ 'Reply' | translate }}"
                         icon="pi pi-reply"
                         size="small"
                         [outlined]="true"
@@ -139,7 +149,9 @@
         <div class="widgets-container">
           <div class="recent-posts-widget widget-item">
             <div>
-              <h5 class="border-bottom border-2 pb-2 mb-3">Most Reads</h5>
+              <h5 class="border-bottom border-2 pb-2 mb-3">
+                {{ "MostReads" | translate }}
+              </h5>
               <div class="mb-4" *ngFor="let item of mostReads">
                 <div
                   class="card border-0 mb-4 cursor-pointer"
@@ -158,7 +170,7 @@
           </div>
 
           <div class="tags-widget widget-item">
-            <h3 class="widget-title">Tags</h3>
+            <h3 class="widget-title">{{ "Tags" | translate }}</h3>
             <ul>
               <li><a href="#">App</a></li>
               <li><a href="#">IT</a></li>
@@ -201,25 +213,27 @@
   </div>
   <form [formGroup]="form">
     <div class="mb-4">
-      <label class="form-label">Comment</label>
+      <label class="form-label">{{ "Comment" | translate }}</label>
       <textarea
         class="w-100"
         rows="5"
         cols="30"
         pTextarea
-        placeholder="Comment"
+        placeholder="{{ 'Comment' | translate }}"
         formControlName="comment"
         [ngClass]="{
           'is-invalid': submitted && f['comment'].errors
         }"
       ></textarea>
       <div *ngIf="submitted && f['comment'].errors" class="invalid-feedback">
-        <div *ngIf="f['comment'].errors['required']">Comment is required</div>
+        <div *ngIf="f['comment'].errors['required']">
+          {{ "CommentIsRequired" | translate }}
+        </div>
       </div>
     </div>
     <p-button
       size="small"
-      label="Save"
+      label="{{ 'Save' | translate }}"
       icon="pi pi-save"
       styleClass="float-end"
       severity="warn"

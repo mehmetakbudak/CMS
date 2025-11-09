@@ -2,6 +2,11 @@
 @import url("https://unpkg.com/quill@1.3.7/dist/quill.snow.css");
 @import url("main.css");
 
+:root {
+  --p-primary-color: #f97316;
+  --p-galleria-nav-button-focus-ring-color: #f97316;
+}
+
 @media (max-width: 768px) {
   .p-paginator .p-paginator-current {
     width: 100% !important;
@@ -122,4 +127,12 @@ h6 {
 #selectLanguage .p-select-dropdown {
   width: 15px !important;
   padding-right: 10px;
+}
+
+.current-breadcrumb {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+  display: inline-block;
 }

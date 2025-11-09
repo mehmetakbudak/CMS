@@ -3,6 +3,7 @@ using CMS.Business.Extensions;
 using CMS.Business.Helper;
 using CMS.Data.Context;
 using CMS.Data.Repository;
+using CMS.Storage.Consts;
 using CMS.Storage.Dtos.Blog;
 using CMS.Storage.Dtos.Response;
 using CMS.Storage.Entity;
@@ -11,11 +12,13 @@ using Dapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace CMS.Business.Services
@@ -23,7 +26,7 @@ namespace CMS.Business.Services
     public interface IBlogService
     {
         IQueryable<BlogGridDto> Get();
-        Task<IEnumerable<BlogGridDto>> GetAllActive();
+        Task<List<BlogSliderDto>> GetAllActive();
         Task<BlogDto> GetById(int id);
         PagedResponse<List<BlogListDto>> GetBlogs(BlogListFilterDto dto);
         Task<IQueryable<BlogListDto>> GetBlogsByCategoryUrl(string blogCategoryUrl);
@@ -40,6 +43,7 @@ namespace CMS.Business.Services
             IUnitOfWork<CMSContext> unitOfWork,
             IHttpContextAccessor httpContextAccessor,
             IDbConnection dbConnection,
+            IMemoryCache memoryCache,
             IWebHostEnvironment environment) : IBlogService
     {
         public IQueryable<BlogGridDto> Get()
@@ -63,10 +67,16 @@ namespace CMS.Business.Services
                 });
         }
 
-        public Task<IEnumerable<BlogGridDto>> GetAllActive()
+        public async Task<List<BlogSliderDto>> GetAllActive()
         {
-            var list = dbConnection.QueryAsync<BlogGridDto>("select B.[Id], B.[DisplayOrder], B.[Title], B.[Url], B.[IsActive], B.[Published], B.[ImageUrl], B.[InsertedDate], B.[UpdatedDate], B.[NumberOfView], U.[Name] + ' ' + U.[Surname] as UserName from Blogs as B inner join Users U on B.UserId=U.Id where B.Deleted=0 and B.IsActive=1 and B.Published=1 order by B.DisplayOrder");
-            return list;
+            if (memoryCache.TryGetValue<List<BlogSliderDto>>(CacheKeys.ActiveBlogs, out var cachedData))
+                return cachedData;
+
+            var list = await dbConnection.QueryAsync<BlogSliderDto>("select B.[Id], B.[Title], B.[Url], B.[ImageUrl], U.[Name] + ' ' + U.[Surname] as UserName from Blogs as B inner join Users U on B.UserId=U.Id where B.Deleted=0 and B.IsActive=1 and B.Published=1 order by B.DisplayOrder");
+
+            var activeBlogs = list.ToList();
+            memoryCache.Set(CacheKeys.ActiveBlogs, activeBlogs);
+            return activeBlogs;
         }
 
         public PagedResponse<List<BlogListDto>> GetBlogs(BlogListFilterDto dto)
@@ -363,6 +373,8 @@ namespace CMS.Business.Services
 
                     await unitOfWork.Save();
                     await unitOfWork.Commit();
+
+                    memoryCache.Remove(CacheKeys.ActiveBlogs);
                 }
                 catch (Exception ex)
                 {
@@ -371,7 +383,7 @@ namespace CMS.Business.Services
                 }
             });
             return ServiceResult.Success(200);
-        }        
+        }
 
         public async Task<ServiceResult> Update(BlogCreateOrUpdateDto model)
         {
@@ -488,6 +500,8 @@ namespace CMS.Business.Services
 
                     await unitOfWork.Save();
                     await unitOfWork.Commit();
+
+                    memoryCache.Remove(CacheKeys.ActiveBlogs);
                 }
                 catch (Exception ex)
                 {
@@ -528,6 +542,8 @@ namespace CMS.Business.Services
 
             if (File.Exists(currentFileUrl))
                 File.Delete(currentFileUrl);
+
+            memoryCache.Remove(CacheKeys.ActiveBlogs);
 
             return ServiceResult.Success(200);
         }

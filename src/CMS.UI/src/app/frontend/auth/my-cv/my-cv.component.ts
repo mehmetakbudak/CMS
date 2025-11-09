@@ -28,9 +28,16 @@ export class MyCvComponent implements OnInit {
 
   ngOnInit() {
     this.getList();
+    this.getGridMenuItems();
+    this.appService.onLangChange().subscribe(() => {
+      this.getGridMenuItems();
+    });
+  }
+
+  getGridMenuItems() {
     this.gridMenuItems = [
       {
-        label: 'Set Default',
+        label: this.appService.getTranslate('SetDefault'),
         command: (e: any) => {
           this.appService
             .put(`UserFile/SetDefault/${this.selectedData.id}`, {})
@@ -44,7 +51,7 @@ export class MyCvComponent implements OnInit {
         },
       },
       {
-        label: 'Delete',
+        label: this.appService.getTranslate('Delete'),
         command: (e: any) => {
           this.confirmationService.confirm({
             target: e.target as EventTarget,

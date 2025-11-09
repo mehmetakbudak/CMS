@@ -4,9 +4,19 @@
       <h1 class="mb-2 mb-lg-0">{{ service.name }}</h1>
       <nav class="breadcrumbs">
         <ol>
-          <li><a routerLink="/">Home</a></li>
-          <li><a routerLink="/service">Services</a></li>
-          <li class="current">{{ service.name }}</li>
+          <li>
+            <a routerLink="/">
+              {{ "Homepage" | translate }}
+            </a>
+          </li>
+          <li>
+            <a routerLink="/service">
+              {{ "Services" | translate }}
+            </a>
+          </li>
+          <li class="current current-breadcrumb">
+            {{ service.name }}
+          </li>
         </ol>
       </nav>
     </div>
@@ -20,7 +30,8 @@
             <ng-template #header>
               <div class="my-1 cursor-pointer">
                 <h5 routerLink="/service">
-                  <i class="pi pi-cog"></i> Services
+                  <i class="pi pi-cog"></i>
+                  {{ "Services" | translate }}
                 </h5>
               </div>
             </ng-template>

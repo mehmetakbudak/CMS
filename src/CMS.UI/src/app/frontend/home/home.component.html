@@ -10,8 +10,8 @@
       >
         <ng-template #item let-item>
           <img
+            id="homeSliderImg"
             (click)="onSliderClick(item)"
-            [height]="homeSliderImgHeight"
             [src]="environment.host + item.imageUrl"
             class="d-block w-100 cursor-pointer"
           />
@@ -28,18 +28,14 @@
     </div>
     <div class="mb-5" *ngIf="jobs.length > 0">
       <p-panel [showHeader]="false">
-        <div class="d-flex mt-4">
-          <div class="ms-3 flex-grow-1 align-content-center title">Jobs</div>
-          <p-button
-            severity="warn"
-            class="me-3"
-            size="small"
-            iconPos="right"
-            icon="pi pi-arrow-right"
-            routerLink="job"
-            label="All"
-            [text]="true"
-          />
+        <div class="d-flex mt-3 mb-2">
+          <h4 class="ms-md-2 flex-grow-1 align-content-center">
+            {{ "Jobs" | translate }}
+          </h4>
+          <a routerLink="job" class="all-link me-md-2">
+            {{ "All" | translate }}
+            <i class="pi pi-arrow-right"></i>
+          </a>
         </div>
         <p-carousel
           [value]="jobs"
@@ -52,16 +48,22 @@
         >
           <ng-template let-job #item>
             <div
-              class="cursor-pointer text-center border rounded-1 m-3 p-3"
+              class="cursor-pointer border rounded-1 m-md-2 p-3 d-flex"
               routerLink="job/{{ job.id }}"
             >
-              <div class="mb-3">
+              <div class="">
                 <img src="{{ environment.host }}{{ job.tenantImageUrl }}" />
               </div>
-              <div>
-                <h6>
+              <div class="ms-3">
+                <h5 class="mb-2 tenant-name">
+                  {{ job.tenantName }}
+                </h5>
+                <h6 class="mb-2 position-name">
                   {{ job.position }}
                 </h6>
+                <div class="badge text-bg-secondary text-white">
+                  {{ job.jobLocationName }}
+                </div>
               </div>
             </div>
           </ng-template>
@@ -70,18 +72,14 @@
     </div>
     <div class="mb-5" *ngIf="blogs.length > 0">
       <p-panel [showHeader]="false">
-        <div class="d-flex mt-4">
-          <div class="ms-3 flex-grow-1 align-content-center title">Blogs</div>
-          <p-button
-            [text]="true"
-            severity="warn"
-            class="me-3"
-            size="small"
-            iconPos="right"
-            icon="pi pi-arrow-right"
-            routerLink="blog"
-            label="All"
-          />
+        <div class="d-flex mt-3 mb-2">
+          <h4 class="ms-md-2 flex-grow-1 align-content-center">
+            {{ "Blogs" | translate }}
+          </h4>
+          <a routerLink="blog" class="all-link me-md-2">
+            {{ "All" | translate }}
+            <i class="pi pi-arrow-right"></i>
+          </a>
         </div>
         <p-carousel
           [value]="blogs"
@@ -94,16 +92,16 @@
         >
           <ng-template let-blog #item>
             <div
-              class="m-3 cursor-pointer"
+              class="m-md-2 cursor-pointer"
               routerLink="/blog/{{ blog.url }}/{{ blog.id }}"
             >
               <div class="mb-2">
                 <img
-                  class="img-thumbnail"
+                  class="blog-img"
                   src="{{ environment.host }}{{ blog.imageUrl }}"
                 />
               </div>
-              <h6>{{ blog.title }}</h6>
+              <h6 class="mt-2">{{ blog.title }}</h6>
             </div>
           </ng-template>
         </p-carousel>

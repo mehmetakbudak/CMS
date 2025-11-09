@@ -4,12 +4,12 @@
     <div class="col-12">
       <p-panel [showHeader]="false">
         <div class="p-3">
-          <h2 class="my-3">Profile</h2>
+          <h2 class="my-3">{{ "Profile" | translate }}</h2>
           <form [formGroup]="form">
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Name</label>
+                  <label class="form-label">{{ "Name" | translate }}</label>
                   <input
                     pInputText
                     class="w-100"
@@ -21,14 +21,14 @@
                     class="invalid-feedback"
                   >
                     <div *ngIf="f['name'].errors['required']">
-                      Name is required
+                      {{ "Name.Required" | translate }}
                     </div>
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Surname</label>
+                  <label class="form-label">{{ "Surname" | translate }}</label>
                   <input
                     pInputText
                     class="w-100"
@@ -42,51 +42,50 @@
                     class="invalid-feedback"
                   >
                     <div *ngIf="f['surname'].errors['required']">
-                      Surname is required
+                      {{ "Surname.Required" | translate }}
                     </div>
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Email Address</label>
+                  <label class="form-label">{{
+                    "EmailAddress" | translate
+                  }}</label>
                   <input
                     pInputText
                     class="w-100"
                     formControlName="emailAddress"
-                    [ngClass]="{
-                      'is-invalid': submitted && f['emailAddress'].errors
-                    }"
                   />
-                  <div
-                    *ngIf="submitted && f['emailAddress'].errors"
-                    class="invalid-feedback"
-                  >
-                    <div *ngIf="f['emailAddress'].errors['required']">
-                      Email Address is required
-                    </div>
-                    <div *ngIf="f['emailAddress'].errors['email']">
-                      Email Address invalid format
-                    </div>
-                  </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Phone</label>
+                  <label class="form-label">{{ "Phone" | translate }}</label>
                   <p-inputmask
                     styleClass="w-100"
                     mask="(999) 999-9999"
                     formControlName="phone"
                     placeholder="(999) 999-9999"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['phone'].errors
+                    }"
                   />
+                  <div
+                    *ngIf="submitted && f['phone'].errors"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f['phone'].errors['required']">
+                      {{ "Phone.Required" | translate }}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             <div class="mt-3">
               <p-button
                 size="small"
-                label="Save"
+                label="{{ 'Save' | translate }}"
                 severity="warn"
                 styleClass="px-3"
                 (click)="save($event)"
