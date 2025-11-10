@@ -3,6 +3,15 @@
   class="header d-flex align-items-center sticky-top border-bottom"
 >
   <div class="container position-relative d-flex align-items-center">
+    <p-button
+      (click)="showMenu()"
+      variant="outlined"
+      severity="secondary"
+      rounded="true"
+      size="small"
+      icon="pi pi-align-justify"
+      styleClass="me-1 d-block d-sm-none"
+    />
     <a
       [routerLink]="['/']"
       class="logo d-flex align-items-center h4 flex-grow-1 mb-0"
@@ -29,15 +38,6 @@
         </ng-template>
       </p-menubar>
     </div>
-    <p-button
-      (click)="showMenu()"
-      variant="outlined"
-      severity="secondary"
-      rounded="true"
-      size="small"
-      icon="pi pi-align-justify"
-      styleClass="me-1 d-block d-sm-none"
-    />
     <div class="align-content-end">
       <div class="d-flex">
         <p-select
@@ -70,22 +70,20 @@
 </header>
 
 <div *ngIf="!visibleMenu">
-  <p-drawer [(visible)]="visibleDrawer" header="Menu">
-    <p>
-      <p-tree [value]="mobileMenuItems">
-        <ng-template let-node pTemplate="default">
-          @if (node.route != null) {
-          <a
-            class="text-dark"
-            [routerLink]="node.route"
-            (click)="visibleDrawer = false"
-            >{{ node.label | translate }}</a
-          >
-          } @else {
-          <span class="text-dark">{{ node.label | translate }}</span>
-          }
-        </ng-template>
-      </p-tree>
-    </p>
+  <p-drawer [(visible)]="visibleDrawer" header="{{ 'Menu' | translate }}">
+    <p-tree [value]="mobileMenuItems">
+      <ng-template let-node pTemplate="default">
+        @if (node.route != null) {
+        <a
+          class="text-dark"
+          [routerLink]="node.route"
+          (click)="visibleDrawer = false"
+          >{{ node.label | translate }}</a
+        >
+        } @else {
+        <span class="text-dark">{{ node.label | translate }}</span>
+        }
+      </ng-template>
+    </p-tree>
   </p-drawer>
 </div>

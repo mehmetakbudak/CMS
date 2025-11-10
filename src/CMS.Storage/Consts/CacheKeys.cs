@@ -2,6 +2,7 @@
 {
     public class CacheKeys
     {
+        public const string AllLanguages = "AllLanguages";
         public const string ActiveLanguages = "ActiveLanguages";
         public const string ActiveLanguageValues = "ActiveLanguageValues";
         public const string ActiveJobs = "ActiveJobs";

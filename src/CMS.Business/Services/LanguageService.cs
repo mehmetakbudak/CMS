@@ -46,7 +46,7 @@ namespace CMS.Business.Services
 
         public List<Language> GetAllFromCache()
         {
-            return memoryCache.GetOrCreate(CacheKeys.ActiveLanguages, entry =>
+            return memoryCache.GetOrCreate(CacheKeys.AllLanguages, entry =>
             {
                 return unitOfWork.Repository<Language>()
                     .Where(x => !x.Deleted)
@@ -97,7 +97,7 @@ namespace CMS.Business.Services
             };
             await unitOfWork.Repository<Language>().Add(language);
             await unitOfWork.Save();
-            memoryCache.Remove(CacheKeys.ActiveLanguages);
+            memoryCache.Remove(CacheKeys.AllLanguages);
 
             return ServiceResult.Success();
         }
@@ -123,7 +123,7 @@ namespace CMS.Business.Services
 
             unitOfWork.Repository<Language>().Update(language);
             await unitOfWork.Save();
-            memoryCache.Remove(CacheKeys.ActiveLanguages);
+            memoryCache.Remove(CacheKeys.AllLanguages);
             return ServiceResult.Success();
         }
 
@@ -138,7 +138,7 @@ namespace CMS.Business.Services
             language.Deleted = true;
             unitOfWork.Repository<Language>().Update(language);
             await unitOfWork.Save();
-            memoryCache.Remove(CacheKeys.ActiveLanguages);
+            memoryCache.Remove(CacheKeys.AllLanguages);
 
             return ServiceResult.Success();
         }
