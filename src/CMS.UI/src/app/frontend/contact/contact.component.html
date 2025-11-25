@@ -121,8 +121,9 @@
                 <div class="col-md-6 mb-4">
                   <p-select
                     placeholder="{{ 'SelectCategory' | translate }}"
-                    styleClass="w-100"
                     [options]="contactCategories"
+                    class="w-100"
+                    appendTo="body"
                     optionLabel="name"
                     optionValue="id"
                     [filter]="true"

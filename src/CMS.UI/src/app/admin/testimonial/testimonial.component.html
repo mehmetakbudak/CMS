@@ -5,7 +5,7 @@
     <p-panel>
       <ng-template pTemplate="header">
         <div class="font-bold">
-          <h3>Testimonial</h3>
+          <h3>{{ "Testimonial" | translate }}</h3>
         </div>
       </ng-template>
       <ng-template pTemplate="icons">
@@ -22,7 +22,12 @@
         <div class="row">
           <div class="col-md-4">
             <div class="mb-3">
-              <input class="w-100" type="text" pInputText placeholder="Name" />
+              <input
+                class="w-100"
+                type="text"
+                pInputText
+                placeholder="{{ 'Name' | translate }}"
+              />
             </div>
           </div>
         </div>
@@ -40,17 +45,19 @@
         (onPage)="pageChange($event)"
         [rowsPerPageOptions]="[5, 10, 25, 50]"
         [totalRecords]="totalRecords"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{{
+          'CurrentPageReportTemplate' | translate
+        }}"
         [showCurrentPageReport]="true"
       >
         <ng-template pTemplate="header">
           <tr>
             <th class="table-icon-col" pFrozenColumn></th>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Corporate</th>
-            <th>Title</th>
-            <th>Active</th>
+            <th>{{ "Name" | translate }}</th>
+            <th>{{ "Surname" | translate }}</th>
+            <th>{{ "TenantName" | translate }}</th>
+            <th>{{ "Title" | translate }}</th>
+            <th>{{ "IsActive" | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
@@ -105,11 +112,12 @@
     <div class="row">
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Name</label>
+          <label class="form-label">{{ "Name" | translate }}</label>
           <input
             class="w-100"
             type="text"
             pInputText
+            placeholder="{{ 'Name' | translate }}"
             formControlName="name"
             [ngClass]="{ 'is-invalid': submitted && f['name'].errors }"
           />
@@ -120,11 +128,12 @@
       </div>
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Surname</label>
+          <label class="form-label">{{ "Surname" | translate }}</label>
           <input
             class="w-100"
             type="text"
             pInputText
+            placeholder="{{ 'Surname' | translate }}"
             formControlName="surname"
             [ngClass]="{ 'is-invalid': submitted && f['surname'].errors }"
           />
@@ -140,12 +149,13 @@
       </div>
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Corporate</label>
+          <label class="form-label">{{ "TenantName" | translate }}</label>
           <input
             class="w-100"
             type="text"
             pInputText
             formControlName="corporateName"
+            placeholder="{{ 'TenantName' | translate }}"
             [ngClass]="{ 'is-invalid': submitted && f['corporateName'].errors }"
           />
           <div
@@ -153,19 +163,20 @@
             class="invalid-feedback"
           >
             <div *ngIf="f['corporateName'].errors['required']">
-              Corporate is required
+              Tenant is required
             </div>
           </div>
         </div>
       </div>
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Title</label>
+          <label class="form-label">{{ "Title" | translate }}</label>
           <input
             class="w-100"
             type="text"
             pInputText
             formControlName="title"
+            placeholder="{{ 'Title' | translate }}"
             [ngClass]="{ 'is-invalid': submitted && f['title'].errors }"
           />
           <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
@@ -175,21 +186,18 @@
       </div>
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label w-100">Active</label>
-          <p-toggle-switch
-            class="w-100"
-            formControlName="isActive"
-          ></p-toggle-switch>
+          <label class="form-label w-100">{{ "IsActive" | translate }}</label>
+          <p-toggleswitch formControlName="isActive" />
         </div>
       </div>
     </div>
   </form>
   <div class="mb-3">
-    <label class="form-label w-100">Description</label>
+    <label class="form-label w-100">{{ "Description" | translate }}</label>
     <p-editor class="w-100" [(ngModel)]="description"></p-editor>
   </div>
   <div class="card">
-    <div class="card-header">Image</div>
+    <div class="card-header">{{ "Image" | translate }}</div>
     <div class="card-body">
       <img
         height="150"
@@ -200,7 +208,7 @@
       <div class="my-2">
         <p-fileUpload
           styleClass="align-content-center justify-content-start"
-          [chooseLabel]="'Choose Image'"
+          [chooseLabel]="'Choose.Image' | translate"
           mode="basic"
           [maxFileSize]="1000000"
           accept="image/*"
@@ -215,12 +223,19 @@
 
   <ng-template pTemplate="footer">
     <p-button
-      size="small"
+      severity="secondary"
+      (click)="isVisible = false"
+      class="float-end"
+      icon="pi pi-times"
+      label="{{ 'Close' | translate }}"
+      [outlined]="true"
+    />
+    <p-button
       (click)="save()"
       type="submit"
       class="float-end"
       icon="pi pi-save"
-      label="Save"
+      label="{{ 'Save' | translate }}"
       pAutoFocus
       [autofocus]="true"
     ></p-button>

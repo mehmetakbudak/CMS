@@ -4,7 +4,7 @@
   <ng-template #header>
     <div class="d-flex w-100">
       <div class="w-100 align-content-center">
-        <h3 class="mb-0">Access Right Categories</h3>
+        <h3 class="mb-0">{{ "AccessRightCategories" | translate }}</h3>
       </div>
       <div class="flex-shrink-1">
         <p-button
@@ -22,7 +22,12 @@
     <div class="row">
       <div class="col-md-4">
         <div class="mb-3">
-          <input class="w-100" type="text" pInputText placeholder="Name" />
+          <input
+            class="w-100"
+            type="text"
+            pInputText
+            placeholder="{{ 'Name' | translate }}"
+          />
         </div>
       </div>
     </div>
@@ -34,7 +39,7 @@
     [loading]="loading"
     [scrollable]="true"
     [rowsPerPageOptions]="[5, 10, 25, 50]"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    currentPageReportTemplate="{{ 'CurrentPageReportTemplate' | translate }}"
     [showCurrentPageReport]="true"
     rowExpandMode="single"
     dataKey="id"
@@ -46,9 +51,9 @@
       <tr>
         <th class="table-icon-col"></th>
         <th class="table-icon-col"></th>
-        <th>Name</th>
-        <th>Display Order</th>
-        <th>Active</th>
+        <th>{{ "Name" | translate }}</th>
+        <th>{{ "DisplayOrder" | translate }}</th>
+        <th>{{ "IsActive" | translate }}</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-item let-expanded="expanded">
@@ -87,13 +92,13 @@
         </td>
       </tr>
     </ng-template>
-    <ng-template pTemplate="rowexpansion" let-item>
+    <ng-template #expandedrow let-item>
       <tr>
         <td colspan="5">
           <div class="p-2">
             <div class="d-flex w-100 pb-2">
               <div class="w-100 align-content-center">
-                <h3 class="mb-0">Access Rights</h3>
+                <h3 class="mb-0">{{ "AccessRights" | translate }}</h3>
               </div>
               <div class="flex-shrink-1">
                 <p-button
@@ -114,9 +119,9 @@
               <ng-template #header>
                 <tr>
                   <th class="table-icon-col"></th>
-                  <th>Name</th>
-                  <th>Display Order</th>
-                  <th>Active</th>
+                  <th>{{ "Name" | translate }}</th>
+                  <th>{{ "DisplayOrder" | translate }}</th>
+                  <th>{{ "IsActive" | translate }}</th>
                 </tr>
               </ng-template>
               <ng-template #body let-accessRight>
@@ -172,7 +177,7 @@
 
 <p-dialog
   [header]="titleAccessRightCategory"
-  [(visible)]="showAccessRightCategory"
+  [(visible)]="visibleAccessRightCategory"
   [breakpoints]="{ '960px': '90vw' }"
   [modal]="true"
   position="top"
@@ -205,11 +210,11 @@
     </div>
     <div class="mb-3">
       <label class="form-label">Order</label>
-      <p-inputNumber
+      <p-inputnumber
         class="w-100"
         inputId="integeronly"
         formControlName="displayOrder"
-        min="1"
+        [min]="1"
         [showButtons]="true"
         [ngClass]="{
           'is-invalid':
@@ -231,7 +236,7 @@
     </div>
     <div class="mb-3">
       <label class="form-label w-100">Active</label>
-      <p-toggleSwitch formControlName="isActive"></p-toggleSwitch>
+      <p-toggleswitch formControlName="isActive" />
     </div>
   </form>
 
@@ -251,9 +256,8 @@
 
 <p-dialog
   [header]="titleAccessRight"
-  [(visible)]="showAccessRight"
+  [(visible)]="visibleAccessRight"
   [breakpoints]="{ '960px': '90vw' }"
-  [style]="{ width: '30vw' }"
   [modal]="true"
   position="top"
   [draggable]="false"
@@ -261,12 +265,13 @@
 >
   <form [formGroup]="formAccessRight">
     <div class="mb-3">
-      <label class="form-label">Name</label>
+      <label class="form-label">{{ "Name" | translate }}</label>
       <input
         class="w-100"
         type="text"
         pInputText
         formControlName="name"
+        placeholder="{{ 'Name' | translate }}"
         [ngClass]="{
           'is-invalid': submittedAccessRight && fAccessRight['name'].errors
         }"
@@ -281,12 +286,13 @@
       </div>
     </div>
     <div class="mb-3">
-      <label class="form-label">Order</label>
-      <p-inputNumber
+      <label class="form-label">{{ "DisplayOrder" | translate }}</label>
+      <p-inputnumber
         class="w-100"
         inputId="integeronly"
         formControlName="displayOrder"
-        min="1"
+        placeholder="{{ 'DisplayOrder' | translate }}"
+        [min]="1"
         [showButtons]="true"
         [ngClass]="{
           'is-invalid':
@@ -303,29 +309,36 @@
       </div>
     </div>
     <div class="mb-3">
-      <label class="form-label w-100">Active</label>
-      <p-toggleSwitch formControlName="isActive"></p-toggleSwitch>
+      <label class="form-label w-100">{{ "IsActive" | translate }}</label>
+      <p-toggleswitch formControlName="isActive" />
     </div>
   </form>
 
   <ng-template pTemplate="footer">
+     <p-button
+      severity="secondary"
+      (click)="visibleAccessRight = false"
+      class="float-end"
+      icon="pi pi-times"
+      label="{{ 'Close' | translate }}"
+      [outlined]="true"
+    />
     <p-button
       (click)="saveAccessRight()"
-      size="small"
       type="submit"
       class="float-end"
       icon="pi pi-save"
-      label="Save"
+      label="{{ 'Save' | translate }}"
       severity="warn"
       pAutoFocus
       [autofocus]="true"
-    ></p-button>
+    />
   </ng-template>
 </p-dialog>
 
 <p-dialog
   header="Endpoints"
-  [(visible)]="showAccessRightEndpoints"
+  [(visible)]="visibleAccessRightEndpoints"
   [breakpoints]="{ '960px': '90vw' }"
   [style]="{ width: '50vw' }"
   [modal]="true"
@@ -395,7 +408,7 @@
 
 <p-dialog
   [header]="titleAccessRightEndpointForm"
-  [(visible)]="showAccessRightEndpointForm"
+  [(visible)]="visibleAccessRightEndpointForm"
   [breakpoints]="{ '960px': '90vw' }"
   [style]="{ width: '30vw' }"
   [modal]="true"

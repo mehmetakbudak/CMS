@@ -60,14 +60,16 @@
           (onPage)="pageChange($event)"
           [rowsPerPageOptions]="[5, 10, 25, 50]"
           [totalRecords]="totalRecords"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          currentPageReportTemplate="{{
+            'CurrentPageReportTemplate' | translate
+          }}"
           [showCurrentPageReport]="true"
         >
           <ng-template pTemplate="header">
             <tr>
               <th class="table-icon-col" pFrozenColumn></th>
               <th>Email Address</th>
-              <th>Name</th>
+              <th>{{ "Name" | translate }}</th>
               <th>Surname</th>
               <th>Phone</th>
               <th>User Type</th>

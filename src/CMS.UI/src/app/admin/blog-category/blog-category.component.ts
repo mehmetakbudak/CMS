@@ -59,7 +59,7 @@ export class BlogCategoryComponent implements OnInit {
           this.form.reset();
           this.isVisible = true;
           this.form.patchValue({ id: 0, isActive: true });
-          this.title = 'Add Blog Category';
+          this.title = this.appService.getTranslate('Add.BlogCategory');
         },
       },
     ];
@@ -123,7 +123,7 @@ export class BlogCategoryComponent implements OnInit {
     this.appService.get(`BlogCategory/GetById/${id}`).subscribe((res: any) => {
       this.form.patchValue(res);
       this.isVisible = true;
-      this.title = 'Edit Blog Category';
+      this.title = this.appService.getTranslate('Edit.BlogCategory');
     });
   }
 

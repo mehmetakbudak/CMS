@@ -27,7 +27,7 @@
                 type="text"
                 pInputText
                 [(ngModel)]="filterForm.title"
-                placeholder="Name"
+                placeholder="{{ 'Name' | translate }}"
               />
             </div>
           </div>
@@ -60,19 +60,21 @@
           (onPage)="pageChange($event)"
           [rowsPerPageOptions]="[5, 10, 25, 50]"
           [totalRecords]="totalRecords"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          currentPageReportTemplate="{{
+            'CurrentPageReportTemplate' | translate
+          }}"
           [showCurrentPageReport]="true"
         >
           <ng-template pTemplate="header">
             <tr>
               <th class="table-icon-col" pFrozenColumn></th>
-              <th>Title</th>
+              <th>{{ "Title" | translate }}</th>
               <th>Url</th>
-              <th>Number Of View</th>
-              <th>Published</th>
-              <th>Active</th>
-              <th>Inserted Date</th>
-              <th>Updated Date</th>
+              <th>{{ "NumberOfView" | translate }}</th>
+              <th>{{ "Published" | translate }}</th>
+              <th>{{ "IsActive" | translate }}</th>
+              <th>{{ "InsertedDate" | translate }}</th>
+              <th>{{ "UpdatedDate" | translate }}</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-item>

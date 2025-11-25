@@ -62,7 +62,7 @@ export class PageComponent implements OnInit {
     this.getPages();
     this.menuItems = [
       {
-        label: 'Add',
+        label: this.appService.getTranslate('Add'),
         command: () => {
           this.add();
         },
@@ -70,13 +70,13 @@ export class PageComponent implements OnInit {
     ];
     this.gridMenuItems = [
       {
-        label: 'Edit',
+        label: this.appService.getTranslate('Edit'),
         command: () => {
           this.edit(this.selectedData.id);
         },
       },
       {
-        label: 'Delete',
+        label: this.appService.getTranslate('Delete'),
         command: (e: any) => {
           this.delete(e);
         },
@@ -85,10 +85,12 @@ export class PageComponent implements OnInit {
   }
 
   getPages() {
-    this.appService.get(`Page/Get?$count=true&$orderBy=id desc`).subscribe((res: any) => {
-      this.pages = res.data;
-      this.totalRecords = res.total;
-    });
+    this.appService
+      .get(`Page/Get?$count=true&$orderBy=id desc`)
+      .subscribe((res: any) => {
+        this.pages = res.data;
+        this.totalRecords = res.total;
+      });
   }
 
   getMenus() {
@@ -159,7 +161,7 @@ export class PageComponent implements OnInit {
     this.content = '';
     this.selectedMenuItems = [];
     this.form.patchValue({ id: 0, isActive: true, published: true });
-    this.title = 'Add Page';
+    this.title = this.appService.getTranslate('Add.Page');
   }
 
   edit(id: any) {
@@ -190,7 +192,7 @@ export class PageComponent implements OnInit {
       }
       this.content = res.content;
       this.isVisible = true;
-      this.title = 'Edit Page';
+      this.title = this.appService.getTranslate('Edit.Page');
     });
   }
 

@@ -135,7 +135,8 @@ export class MenuComponent implements OnInit {
                 parentValue: parentValue,
               });
               this.visibleMenuItemModal = true;
-              this.menuItemTitle = 'Edit Item Menu';
+              this.menuItemTitle =
+                this.appService.getTranslate('Edit.MenuItem');
             });
         },
       },
@@ -260,14 +261,14 @@ export class MenuComponent implements OnInit {
     this.formMenu.reset();
     this.formMenu.patchValue({ id: 0, isActive: true });
     this.visibleMenuModal = true;
-    this.title = 'Add Menu';
+    this.title = this.appService.getTranslate('Add.Menu');
   }
 
   editMenu(id: number) {
     this.appService.get(`Menu/GetById/${id}`).subscribe((res: any) => {
       this.formMenu.patchValue(res);
       this.visibleMenuModal = true;
-      this.title = 'Edit Menu';
+      this.title = this.appService.getTranslate('Edit.Menu');
     });
   }
 
@@ -305,7 +306,7 @@ export class MenuComponent implements OnInit {
     this.formMenuItem.reset();
     this.formMenuItem.patchValue({ id: 0, isActive: true });
     this.visibleMenuItemModal = true;
-    this.menuItemTitle = 'Add Menu Item';
+    this.menuItemTitle = this.appService.getTranslate('Add.MenuItem');
   }
 
   get fMenuItem(): { [key: string]: AbstractControl } {

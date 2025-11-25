@@ -5,7 +5,7 @@
     <p-panel>
       <ng-template pTemplate="header">
         <div class="font-bold">
-          <h3>Comments</h3>
+          <h3>{{ "Comments" | translate }}</h3>
         </div>
       </ng-template>
       <ng-template pTemplate="icons">
@@ -20,7 +20,7 @@
                 class="w-100"
                 type="text"
                 pInputText
-                placeholder="User Name"
+                placeholder="{{ 'UserName' | translate }}"
               />
             </div>
           </div>
@@ -39,7 +39,9 @@
         (onPage)="pageChange($event)"
         [rowsPerPageOptions]="[5, 10, 25, 50]"
         [totalRecords]="totalRecords"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{{
+          'CurrentPageReportTemplate' | translate
+        }}"
         [showCurrentPageReport]="true"
         dataKey="id"
       >
@@ -47,11 +49,11 @@
           <tr>
             <th class="table-icon-col"></th>
             <th class="table-icon-col" pFrozenColumn></th>
-            <th>Source</th>
-            <th>Status</th>
-            <th>User Name</th>
-            <th>Inserted Date</th>
-            <th>Updated Date</th>
+            <th>{{ "Source" | translate }}</th>
+            <th>{{ "Status" | translate }}</th>
+            <th>{{ "UserName" | translate }}</th>
+            <th>{{ "InsertedDate" | translate }}</th>
+            <th>{{ "UpdatedDate" | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item let-expanded="expanded">
@@ -83,13 +85,15 @@
             <td>{{ item.updatedDate | date : "dd.MM.yyyy HH:mm" }}</td>
           </tr>
         </ng-template>
-        <ng-template pTemplate="rowexpansion" let-item>
+        <ng-template #expandedrow let-item>
           <tr>
             <td colspan="7">
               <div class="p-2">
                 <div class="card w-100">
                   <div class="card-header bg-white">
-                    <h5><i class="pi pi-comment"></i> Comment</h5>
+                    <h5>
+                      <i class="pi pi-comment"></i> {{ "Comment" | translate }}
+                    </h5>
                   </div>
                   <div class="card-body">{{ item.description }}</div>
                   <div class="card-footer bg-white">
@@ -103,10 +107,10 @@
                     />
                     <p-button
                       (click)="updateComment(item)"
-                      size="small"
+                      [size]="'small'"
                       class="ms-2"
                       icon="pi pi-save"
-                      label="Save"
+                      label="{{ 'Save' | translate }}"
                     />
                   </div>
                 </div>

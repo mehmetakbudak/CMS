@@ -5,7 +5,7 @@
     <p-panel>
       <ng-template pTemplate="header">
         <div class="font-bold">
-          <h3>Menus</h3>
+          <h3>{{ "Menus" | translate }}</h3>
         </div>
       </ng-template>
       <ng-template pTemplate="icons">
@@ -38,7 +38,7 @@
                 type="text"
                 pInputText
                 [(ngModel)]="filterForm.name"
-                placeholder="Name"
+                placeholder="{{ 'Name' | translate }}"
               />
             </div>
           </div>
@@ -72,7 +72,9 @@
         (onPage)="pageChange($event)"
         [rowsPerPageOptions]="[5, 10, 25, 50]"
         [totalRecords]="totalRecords"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{{
+          'CurrentPageReportTemplate' | translate
+        }}"
         [showCurrentPageReport]="true"
         rowExpandMode="single"
         dataKey="id"
@@ -82,10 +84,10 @@
           <tr>
             <th class="table-icon-col"></th>
             <th class="table-icon-col" pFrozenColumn></th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Deletable</th>
-            <th>Active</th>
+            <th>{{ "Name" | translate }}</th>
+            <th>{{ "Type" | translate }}</th>
+            <th>{{ "IsDeletable" | translate }}</th>
+            <th>{{ "IsActive" | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item let-expanded="expanded">
@@ -135,14 +137,14 @@
             </td>
           </tr>
         </ng-template>
-        <ng-template pTemplate="rowexpansion" let-item>
+        <ng-template #expandedrow let-item>
           <tr>
             <td colspan="6">
               <div class="card">
                 <div class="card-header bg-white">
                   <div class="d-flex w-100">
                     <div class="w-100 align-content-center">
-                      <h3>Menu Items</h3>
+                      <h3>{{"MenuItems" | translate}}</h3>
                     </div>
                     <div class="flex-shrink-1">
                       <p-button
@@ -203,12 +205,13 @@
 >
   <form [formGroup]="formMenu">
     <div class="mb-3">
-      <label class="form-label">Name</label>
+      <label class="form-label">{{ "Name" | translate }}</label>
       <input
         class="w-100"
         type="text"
         pInputText
         formControlName="name"
+        placeholder="{{ 'Name' | translate }}"
         [ngClass]="{
           'is-invalid': submittedMenu && fMenu['name'].errors
         }"
@@ -222,11 +225,12 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label">Type</label>
+      <label class="form-label">{{ "Type" | translate }}</label>
       <p-select
         class="w-100"
         formControlName="type"
         [filter]="true"
+        placeholder="{{ 'Type' | translate }}"
         [options]="menuTypes"
         optionLabel="name"
         optionValue="id"
@@ -241,22 +245,29 @@
       </div>
     </div>
     <div>
-      <label class="form-label w-100">Active</label>
+      <label class="form-label w-100">{{ "IsActive" | translate }}</label>
       <p-toggleSwitch formControlName="isActive"></p-toggleSwitch>
     </div>
   </form>
 
   <ng-template pTemplate="footer">
     <p-button
-      size="small"
+      severity="secondary"
+      (click)="visibleMenuModal = false"
+      class="float-end"
+      icon="pi pi-times"
+      label="{{ 'Close' | translate }}"
+      [outlined]="true"
+    />
+    <p-button
       (click)="saveMenu()"
       type="submit"
       class="float-end"
       icon="pi pi-save"
-      label="Save"
+      label="{{ 'Save' | translate }}"
       pAutoFocus
       [autofocus]="true"
-    ></p-button>
+    />
   </ng-template>
 </p-dialog>
 
@@ -274,14 +285,14 @@
     <div class="row">
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Parent Menu</label>
+          <label class="form-label">{{ "ParentMenu" | translate }}</label>
           <p-treeselect
             class="w-100"
             appendTo="body"
-            containerStyleClass="w-100"
+            class="w-100"
             formControlName="parentValue"
             [options]="selectedMenuItems"
-            placeholder="Select Parent Menu Item"
+            placeholder="{{ 'SelectParentMenuItem' | translate }}"
             [filter]="true"
             [showClear]="true"
           />
@@ -289,11 +300,11 @@
       </div>
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Title</label>
+          <label class="form-label">{{ "Title" | translate }}</label>
           <input
             class="w-100"
             type="text"
-            placeholder="Title"
+            placeholder="{{ 'Title' | translate }}"
             pInputText
             formControlName="title"
             [ngClass]="{
@@ -324,12 +335,12 @@
       </div>
       <div class="col-md-6">
         <div class="mb-3">
-          <label class="form-label">Display Order</label>
+          <label class="form-label">{{ "DisplayOrder" | translate }}</label>
           <p-inputnumber
             class="w-100"
             [min]="1"
             [showButtons]="true"
-            placeholder="Select Display Order"
+            placeholder="{{ 'DisplayOrder' | translate }}"
             formControlName="displayOrder"
             [ngClass]="{
               'is-invalid':
@@ -372,7 +383,7 @@
       </div>
       <div class="col-md-6">
         <div>
-          <label class="form-label w-100">Active</label>
+          <label class="form-label w-100">{{ "IsActive" | translate }}</label>
           <p-toggleSwitch formControlName="isActive"></p-toggleSwitch>
         </div>
       </div>
@@ -380,14 +391,21 @@
   </form>
   <ng-template pTemplate="footer">
     <p-button
-      size="small"
+      severity="secondary"
+      (click)="visibleMenuItemModal = false"
+      class="float-end"
+      icon="pi pi-times"
+      label="{{ 'Close' | translate }}"
+      [outlined]="true"
+    />
+    <p-button
       (click)="saveMenuItem()"
       type="submit"
       class="float-end"
       icon="pi pi-save"
-      label="Save"
+      label="{{ 'Save' | translate }}"
       pAutoFocus
       [autofocus]="true"
-    ></p-button>
+    />
   </ng-template>
 </p-dialog>

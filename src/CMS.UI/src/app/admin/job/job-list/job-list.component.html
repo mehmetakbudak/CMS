@@ -5,7 +5,7 @@
     <p-panel>
       <ng-template pTemplate="header">
         <div class="font-bold">
-          <h3>Jobs</h3>
+          <h3>{{ "Jobs" | translate }}</h3>
         </div>
       </ng-template>
       <ng-template pTemplate="icons">
@@ -27,7 +27,7 @@
                 class="w-100"
                 type="text"
                 pInputText
-                placeholder="Position"
+                placeholder="{{ 'Position' | translate }}"
               />
             </div>
           </div>
@@ -46,19 +46,21 @@
         (onPage)="pageChange($event)"
         [rowsPerPageOptions]="[5, 10, 25, 50]"
         [totalRecords]="totalRecords"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{{
+          'CurrentPageReportTemplate' | translate
+        }}"
         [showCurrentPageReport]="true"
       >
         <ng-template pTemplate="header">
           <tr>
             <th class="table-icon-col" pFrozenColumn></th>
-            <th>Position</th>
-            <th>Tenant</th>
-            <th>Location</th>
-            <th>Work Type</th>
-            <th>Inserted User</th>
-            <th>Inserted Date</th>
-            <th>Updated Date</th>
+            <th>{{ "Position" | translate }}</th>
+            <th>{{ "TenantName" | translate }}</th>
+            <th>{{ "Location" | translate }}</th>
+            <th>{{ "WorkType" | translate }}</th>
+            <th>{{ "InsertedUser" | translate }}</th>
+            <th>{{ "InsertedDate" | translate }}</th>
+            <th>{{ "UpdatedDate" | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
@@ -83,7 +85,7 @@
             </td>
             <td>{{ item.tenantName }}</td>
             <td>{{ item.jobLocationName }}</td>
-            <td>{{ item.workTypeName | translate}}</td>
+            <td>{{ item.workTypeName | translate }}</td>
             <td>{{ item.insertedUserName }}</td>
             <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
             <td>{{ item.updatedDate | date : "dd.MM.yyyy HH:mm" }}</td>

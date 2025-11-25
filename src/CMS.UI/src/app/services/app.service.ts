@@ -21,7 +21,7 @@ export class AppService {
   }
 
   onLangChange() {
-    return this.translateService.onLangChange.asObservable();
+    return this.translateService.onLangChange.pipe();
   }
 
   get(url: string) {

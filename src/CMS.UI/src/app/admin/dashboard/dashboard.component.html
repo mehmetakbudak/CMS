@@ -157,7 +157,9 @@
           (onPage)="pageChange($event)"
           [rowsPerPageOptions]="[5, 10, 25, 50]"
           [totalRecords]="totalRecords"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          currentPageReportTemplate="{{
+            'CurrentPageReportTemplate' | translate
+          }}"
           [showCurrentPageReport]="true"
           dataKey="id"
         >
@@ -216,7 +218,7 @@
               </td>
             </tr>
           </ng-template>
-          <ng-template pTemplate="rowexpansion" let-task>
+          <ng-template #expandedrow let-task>
             <tr>
               <td colspan="8">
                 <div class="p-2">

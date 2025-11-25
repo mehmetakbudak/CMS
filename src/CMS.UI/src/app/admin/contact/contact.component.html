@@ -5,7 +5,7 @@
     <p-panel>
       <ng-template pTemplate="header">
         <div class="font-bold">
-          <h3>Contact Messages</h3>
+          <h3>{{ "ContactMessages" | translate }}</h3>
         </div>
       </ng-template>
       <ng-template pTemplate="icons">
@@ -16,7 +16,12 @@
         <div class="row">
           <div class="col-md-4">
             <div class="mb-3">
-              <input class="w-100" type="text" pInputText placeholder="Name" />
+              <input
+                class="w-100"
+                type="text"
+                pInputText
+                placeholder="{{ 'Name' | translate }}"
+              />
             </div>
           </div>
         </div>
@@ -34,7 +39,9 @@
         (onPage)="pageChange($event)"
         [rowsPerPageOptions]="[5, 10, 25, 50]"
         [totalRecords]="totalRecords"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{{
+          'CurrentPageReportTemplate' | translate
+        }}"
         [showCurrentPageReport]="true"
         dataKey="id"
       >
@@ -42,11 +49,11 @@
           <tr>
             <th class="table-icon-col"></th>
             <th class="table-icon-col" pFrozenColumn></th>
-            <th>Category Name</th>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Email Address</th>
-            <th>Inserted Date</th>
+            <th>{{ "CategoryName" | translate }}</th>
+            <th>{{ "Name" | translate }}</th>
+            <th>{{ "Surname" | translate }}</th>
+            <th>{{ "EmailAddress" | translate }}</th>
+            <th>{{ "InsertedDate" | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item let-expanded="expanded">
@@ -78,7 +85,7 @@
             <td>{{ item.insertedDate | date : "dd.MM.yyyy HH:mm" }}</td>
           </tr>
         </ng-template>
-        <ng-template pTemplate="rowexpansion" let-item>
+        <ng-template #expandedrow let-item>
           <tr>
             <td colspan="7">
               <div class="p-2">
@@ -89,7 +96,8 @@
                     padding-bottom: 10px;
                   "
                 >
-                  <i class="pi pi-info-circle"></i> Message :
+                  <i class="pi pi-info-circle"></i>
+                  {{ "Message" | translate }} :
                 </div>
                 <div>{{ item.message }}</div>
               </div>

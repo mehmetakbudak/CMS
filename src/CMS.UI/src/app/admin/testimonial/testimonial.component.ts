@@ -59,7 +59,7 @@ export class TestimonialComponent implements OnInit {
           this.form.reset();
           this.isVisible = true;
           this.form.patchValue({ id: 0, isActive: true });
-          this.title = 'Add Testimonial';
+          this.title = this.appService.getTranslate('Add.Testimonial');
           this.description = '';
           this.imageUrl = '';
         },
@@ -135,7 +135,7 @@ export class TestimonialComponent implements OnInit {
     this.appService.get(`Testimonial/GetById/${id}`).subscribe((res: any) => {
       this.form.patchValue(res);
       this.isVisible = true;
-      this.title = 'Edit Testimonial';
+      this.title = this.appService.getTranslate('Edit.Testimonial');
       this.description = res.description;
       this.imageUrl = res.imageUrl;
     });
@@ -165,23 +165,27 @@ export class TestimonialComponent implements OnInit {
     formData.append('isActive', data.isActive);
     formData.append('image', this.file);
     if (data.id == 0) {
-      this.appService.post('Testimonial/Create', formData).subscribe((res: any) => {
-        this.alertService.showMessage(
-          'Addition was successful',
-          alertType.success
-        );
-        this.isVisible = false;
-        this.getList();
-      });
+      this.appService
+        .post('Testimonial/Create', formData)
+        .subscribe((res: any) => {
+          this.alertService.showMessage(
+            'Addition was successful',
+            alertType.success
+          );
+          this.isVisible = false;
+          this.getList();
+        });
     } else {
-      this.appService.put('Testimonial/Update', formData).subscribe((res: any) => {
-        this.alertService.showMessage(
-          'The update was successful',
-          alertType.success
-        );
-        this.isVisible = false;
-        this.getList();
-      });
+      this.appService
+        .put('Testimonial/Update', formData)
+        .subscribe((res: any) => {
+          this.alertService.showMessage(
+            'The update was successful',
+            alertType.success
+          );
+          this.isVisible = false;
+          this.getList();
+        });
     }
   }
 }

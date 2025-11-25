@@ -5,7 +5,7 @@
     <p-panel>
       <ng-template pTemplate="header">
         <div class="font-bold">
-          <h3>Services</h3>
+          <h3>{{ "Services" | translate }}</h3>
         </div>
       </ng-template>
       <ng-template pTemplate="icons">
@@ -21,7 +21,12 @@
       <div class="my-3">
         <div class="row">
           <div class="col-md-4">
-            <input class="w-100" type="text" pInputText placeholder="Name" />
+            <input
+              class="w-100"
+              type="text"
+              pInputText
+              placeholder="{{ 'Name' | translate }}"
+            />
           </div>
         </div>
       </div>
@@ -38,15 +43,17 @@
         (onPage)="pageChange($event)"
         [rowsPerPageOptions]="[5, 10, 25, 50]"
         [totalRecords]="totalRecords"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{{
+          'CurrentPageReportTemplate' | translate
+        }}"
         [showCurrentPageReport]="true"
       >
         <ng-template pTemplate="header">
           <tr>
             <th class="table-icon-col" pFrozenColumn></th>
-            <th>Name</th>
+            <th>{{ "Name" | translate }}</th>
             <th>Url</th>
-            <th>Active</th>
+            <th>{{ "IsActive" | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
@@ -97,11 +104,12 @@
 >
   <form [formGroup]="form">
     <div class="mb-3">
-      <label class="form-label">Name</label>
+      <label class="form-label">{{ "Name" | translate }}</label>
       <input
         class="w-100"
         type="text"
         pInputText
+        placeholder="{{ 'Name' | translate }}"
         formControlName="name"
         [ngClass]="{ 'is-invalid': submitted && f['name'].errors }"
       />
@@ -116,6 +124,7 @@
         class="w-100"
         type="text"
         pInputText
+        placeholder="{{ 'Url' | translate }}"
         formControlName="url"
         [ngClass]="{ 'is-invalid': submitted && f['url'].errors }"
       />
@@ -124,19 +133,16 @@
       </div>
     </div>
     <div class="mb-3">
-      <label class="form-label w-100">Active</label>
-      <p-toggle-switch
-        class="w-100"
-        formControlName="isActive"
-      ></p-toggle-switch>
+      <label class="form-label w-100">{{ "IsActive" | translate }}</label>
+      <p-toggleswitch formControlName="isActive" />
     </div>
   </form>
   <div class="mb-3">
-    <label class="form-label w-100">Content</label>
+    <label class="form-label w-100">{{ "Content" | translate }}</label>
     <p-editor class="w-100" [(ngModel)]="content"></p-editor>
   </div>
   <div class="card">
-    <div class="card-header">Image</div>
+    <div class="card-header">{{ "Image" | translate }}</div>
     <div class="card-body">
       <img
         height="150"
@@ -147,7 +153,7 @@
       <div class="my-2">
         <p-fileUpload
           styleClass="align-content-center justify-content-start"
-          [chooseLabel]="'Choose Image'"
+          [chooseLabel]="'Choose.Image' | translate"
           mode="basic"
           [maxFileSize]="1000000"
           accept="image/*"
@@ -162,12 +168,19 @@
 
   <ng-template pTemplate="footer">
     <p-button
-      size="small"
+      severity="secondary"
+      (click)="isVisible = false"
+      class="float-end"
+      icon="pi pi-times"
+      label="{{ 'Close' | translate }}"
+      [outlined]="true"
+    />
+    <p-button
       (click)="save()"
       type="submit"
       class="float-end"
       icon="pi pi-save"
-      label="Save"
+      label="{{ 'Save' | translate }}"
       pAutoFocus
       [autofocus]="true"
     ></p-button>

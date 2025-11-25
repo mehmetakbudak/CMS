@@ -52,12 +52,12 @@ export class ServiceComponent implements OnInit {
     this.getList();
     this.menuItems = [
       {
-        label: 'Add',
+        label: this.appService.getTranslate('Add'),
         command: () => {
           this.form.reset();
           this.isVisible = true;
           this.form.patchValue({ id: 0, isActive: true });
-          this.title = 'Add Service';
+          this.title = this.appService.getTranslate('Add.Service');
           this.content = '';
           this.imageUrl = '';
         },
@@ -65,13 +65,13 @@ export class ServiceComponent implements OnInit {
     ];
     this.gridMenuItems = [
       {
-        label: 'Edit',
+        label: this.appService.getTranslate('Edit'),
         command: () => {
           this.edit(this.selectedData.id);
         },
       },
       {
-        label: 'Delete',
+        label: this.appService.getTranslate('Delete'),
         command: (e: any) => {
           this.confirmationService.confirm({
             target: e.target as EventTarget,
@@ -133,7 +133,7 @@ export class ServiceComponent implements OnInit {
     this.appService.get(`Service/GetById/${id}`).subscribe((res: any) => {
       this.form.patchValue(res);
       this.isVisible = true;
-      this.title = 'Edit Service';
+      this.title = this.appService.getTranslate('Edit.Service');
       this.content = res.content;
       this.imageUrl = res.imageUrl;
     });

@@ -5,7 +5,7 @@
     <p-panel>
       <ng-template #header>
         <div class="font-bold">
-          <h3>Homepage Sliders</h3>
+          <h3>{{ "HomepageSlider" | translate }}</h3>
         </div>
       </ng-template>
       <ng-template pTemplate="icons">
@@ -21,7 +21,12 @@
       <div class="my-3">
         <div class="row">
           <div class="col-md-4">
-            <input class="w-100" type="text" pInputText placeholder="Title" />
+            <input
+              class="w-100"
+              type="text"
+              pInputText
+              placeholder="{{ 'Title' | translate }}"
+            />
           </div>
         </div>
       </div>
@@ -38,16 +43,18 @@
         (onPage)="pageChange($event)"
         [rowsPerPageOptions]="[5, 10, 25, 50]"
         [totalRecords]="totalRecords"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{{
+          'CurrentPageReportTemplate' | translate
+        }}"
         [showCurrentPageReport]="true"
       >
         <ng-template pTemplate="header">
           <tr>
             <th class="table-icon-col" pFrozenColumn></th>
-            <th>Title</th>
+            <th>{{ "Title" | translate }}</th>
             <th>Url</th>
-            <th>Display Order</th>
-            <th>Active</th>
+            <th>{{ "DisplayOrder" | translate }}</th>
+            <th>{{ "IsActive" | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
@@ -99,12 +106,13 @@
 >
   <form [formGroup]="form">
     <div class="mb-3">
-      <label class="form-label">Title</label>
+      <label class="form-label">{{ "Title" | translate }}</label>
       <input
         class="w-100"
         type="text"
         pInputText
         formControlName="title"
+        placeholder="{{ 'Title' | translate }}"
         [ngClass]="{ 'is-invalid': submitted && f['title'].errors }"
       />
       <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
@@ -119,49 +127,58 @@
         type="text"
         pInputText
         formControlName="url"
+        placeholder="Url"
         [ngClass]="{ 'is-invalid': submitted && f['url'].errors }"
       />
       <div *ngIf="submitted && f['url'].errors" class="invalid-feedback">
         <div *ngIf="f['url'].errors['required']">Url is required</div>
       </div>
     </div>
-    <div class="mb-3">
-      <div class="d-flex">
-        <div style="width: 250px">
-          <label class="form-label w-100">Display Order</label>
-          <p-inputNumber
-            formControlName="displayOrder"
-            [min]="1"
-            [showButtons]="true"
-            placeholder="Select Display Order"
-            formControlName="displayOrder"
-            [ngClass]="{
-              'is-invalid': submitted && f['displayOrder'].errors
-            }"
-          />
-          <div
-            *ngIf="submitted && f['displayOrder'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="f['displayOrder'].errors['required']">
-              Display Order is required
-            </div>
+    <div class="row">
+      <div class="col-md-2 mb-3">
+        <label class="form-label w-100">
+          {{ "DisplayOrder" | translate }}
+        </label>
+        <p-inputNumber
+          formControlName="displayOrder"
+          [min]="1"
+          [showButtons]="true"
+          placeholder="{{ 'DisplayOrder' | translate }}"
+          formControlName="displayOrder"
+          [ngClass]="{
+            'is-invalid': submitted && f['displayOrder'].errors
+          }"
+        />
+        <div
+          *ngIf="submitted && f['displayOrder'].errors"
+          class="invalid-feedback"
+        >
+          <div *ngIf="f['displayOrder'].errors['required']">
+            Display Order is required
           </div>
         </div>
-        <div>
-          <label class="form-label w-100">Active</label>
-          <p-toggle-switch class="w-100" formControlName="isActive" />
-        </div>
+      </div>
+      <div class="col-md-2 mb-3">
+        <label class="form-label w-100">
+          {{ "IsActive" | translate }}
+        </label>
+        <p-toggleswitch formControlName="isActive" />
       </div>
     </div>
     <div class="mb-3">
-      <label class="form-label w-100">Description</label>
-      <textarea pTextarea class="w-100" formControlName="description" rows="5"></textarea>
+      <label class="form-label w-100">{{ "Description" | translate }}</label>
+      <textarea
+        pTextarea
+        class="w-100"
+        formControlName="description"
+        placeholder="{{ 'Description' | translate }}"
+        rows="5"
+      ></textarea>
     </div>
   </form>
 
   <div class="card">
-    <div class="card-header">Image</div>
+    <div class="card-header">{{ "Image" | translate }}</div>
     <div class="card-body">
       <img
         height="150"
@@ -172,7 +189,7 @@
       <div class="my-2">
         <p-fileUpload
           styleClass="align-content-center justify-content-start"
-          [chooseLabel]="'Choose Image'"
+          [chooseLabel]="'Choose.Image' | translate"
           mode="basic"
           [maxFileSize]="1000000"
           accept="image/*"
@@ -187,14 +204,21 @@
 
   <ng-template pTemplate="footer">
     <p-button
-      size="small"
+      severity="secondary"
+      (click)="isVisible = false"
+      class="float-end"
+      icon="pi pi-times"
+      label="{{ 'Close' | translate }}"
+      [outlined]="true"
+    />
+    <p-button
       (click)="save()"
       type="submit"
       class="float-end"
       icon="pi pi-save"
-      label="Save"
+      label="{{ 'Save' | translate }}"
       pAutoFocus
       [autofocus]="true"
-    ></p-button>
+    />
   </ng-template>
 </p-dialog>

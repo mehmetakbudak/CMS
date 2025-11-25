@@ -1,9 +1,7 @@
 import { FormBuilder, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { AppService } from '../../services/app.service';
-import {
-  AbstractControl
-} from '@angular/forms';
+import { AbstractControl } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { AlertService, alertType } from '../../services/alert.service';
 import { SharedModule } from '../../shared.module';
@@ -39,7 +37,7 @@ export class AccessRightComponent implements OnInit {
   accessRightCategories: any = [];
   menuItemsCategory: any = [];
   titleAccessRightCategory = '';
-  showAccessRightCategory = false;
+  visibleAccessRightCategory = false;
   submittedAccessRightCategory = false;
   selectedCategory: any;
   selectedAccessRightCategory: any;
@@ -49,14 +47,14 @@ export class AccessRightComponent implements OnInit {
   menuItemsAccessRight: any = [];
   titleAccessRight = '';
   selectedAccessRight: any;
-  showAccessRight = false;
+  visibleAccessRight = false;
   submittedAccessRight = false;
   //#endregion
   //#region Access Right Endpoint
   menuItemsAccessRightEndpoint: any = [];
-  showAccessRightEndpoints = false;
+  visibleAccessRightEndpoints = false;
   accessRightEndpoints: any = [];
-  showAccessRightEndpointForm = false;
+  visibleAccessRightEndpointForm = false;
   titleAccessRightEndpointForm = '';
   submittedAccessRightEndpoint = false;
   methodTypes: any = [];
@@ -77,8 +75,8 @@ export class AccessRightComponent implements OnInit {
         label: 'Edit',
         command: () => {
           this.getAccessRightCategory(this.selectedCategory.id);
-          this.showAccessRightCategory = true;
-          this.titleAccessRightCategory = 'Edit Access Right Category';
+          this.visibleAccessRightCategory = true;
+          this.titleAccessRightCategory = this.appService.getTranslate('Edit.AccessRightCategory');
         },
       },
       {
@@ -111,7 +109,7 @@ export class AccessRightComponent implements OnInit {
       {
         label: 'Endpoints',
         command: () => {
-          this.showAccessRightEndpoints = true;
+          this.visibleAccessRightEndpoints = true;
           this.getAccessRightEndpoints();
         },
       },
@@ -119,8 +117,8 @@ export class AccessRightComponent implements OnInit {
         label: 'Edit',
         command: () => {
           this.getAccessRight(this.selectedAccessRight.id);
-          this.showAccessRight = true;
-          this.titleAccessRight = 'Edit Access Right';
+          this.visibleAccessRight = true;
+          this.titleAccessRight = this.appService.getTranslate('Edit.AccessRight');
         },
       },
       {
@@ -153,8 +151,8 @@ export class AccessRightComponent implements OnInit {
       {
         label: 'Edit',
         command: () => {
-          this.showAccessRightEndpointForm = true;
-          this.titleAccessRightEndpointForm = 'Edit Access Right Endpoint';
+          this.visibleAccessRightEndpointForm = true;
+          this.titleAccessRightEndpointForm =  this.appService.getTranslate('Edit.AccessRightEndpoint');
           this.getAccessRightEndpoint(this.selectedAccessRightEndpoint.id);
           this.getMethodTypes();
         },
@@ -172,7 +170,10 @@ export class AccessRightComponent implements OnInit {
             rejectButtonStyleClass: 'p-button-text',
             accept: () => {
               this.appService
-                .delete('AccessRightEndpoint/Delete', this.selectedAccessRightEndpoint.id)
+                .delete(
+                  'AccessRightEndpoint/Delete',
+                  this.selectedAccessRightEndpoint.id
+                )
                 .subscribe((res: any) => {
                   this.getAccessRightEndpoints();
                   this.alertService.showMessage(
@@ -291,8 +292,8 @@ export class AccessRightComponent implements OnInit {
       isActive: true,
     });
     this.submittedAccessRightCategory = false;
-    this.showAccessRightCategory = true;
-    this.titleAccessRightCategory = 'Add Access Right Category';
+    this.visibleAccessRightCategory = true;
+    this.titleAccessRightCategory = this.appService.getTranslate('Add.AccessRightCategory');
   }
 
   saveAccessRightCategory() {
@@ -309,7 +310,7 @@ export class AccessRightComponent implements OnInit {
             'Addition was successful',
             alertType.success
           );
-          this.showAccessRightCategory = false;
+          this.visibleAccessRightCategory = false;
         });
     } else {
       this.appService
@@ -320,7 +321,7 @@ export class AccessRightComponent implements OnInit {
             'The update was successful',
             alertType.success
           );
-          this.showAccessRightCategory = false;
+          this.visibleAccessRightCategory = false;
         });
     }
   }
@@ -333,8 +334,8 @@ export class AccessRightComponent implements OnInit {
       isActive: true,
     });
     this.submittedAccessRight = false;
-    this.showAccessRight = true;
-    this.titleAccessRight = 'Add Access Right';
+    this.visibleAccessRight = true;
+    this.titleAccessRight = this.appService.getTranslate('Add.AccessRight');
   }
 
   saveAccessRight() {
@@ -351,7 +352,7 @@ export class AccessRightComponent implements OnInit {
             'Addition was successful',
             alertType.success
           );
-          this.showAccessRight = false;
+          this.visibleAccessRight = false;
         });
     } else {
       this.appService
@@ -362,7 +363,7 @@ export class AccessRightComponent implements OnInit {
             'The update was successful',
             alertType.success
           );
-          this.showAccessRight = false;
+          this.visibleAccessRight = false;
         });
     }
   }
@@ -374,8 +375,10 @@ export class AccessRightComponent implements OnInit {
       accessRightId: this.selectedAccessRight.id,
     });
     this.submittedAccessRightEndpoint = false;
-    this.showAccessRightEndpointForm = true;
-    this.titleAccessRightEndpointForm = 'Add Access Right Endpoint';
+    this.visibleAccessRightEndpointForm = true;
+    this.titleAccessRightEndpointForm = this.appService.getTranslate(
+      'Add.AccessRightEndpoint'
+    );
     this.getMethodTypes();
   }
 
@@ -393,7 +396,7 @@ export class AccessRightComponent implements OnInit {
             'Addition was successful',
             alertType.success
           );
-          this.showAccessRightEndpointForm = false;
+          this.visibleAccessRightEndpointForm = false;
         });
     } else {
       this.appService
@@ -404,7 +407,7 @@ export class AccessRightComponent implements OnInit {
             'The update was successful',
             alertType.success
           );
-          this.showAccessRightEndpointForm = false;
+          this.visibleAccessRightEndpointForm = false;
         });
     }
   }

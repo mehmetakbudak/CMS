@@ -11,7 +11,6 @@ import { ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { MenuModule } from 'primeng/menu';
 import { PasswordModule } from 'primeng/password';
-import { DropdownModule } from 'primeng/dropdown';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AlertService } from './services/alert.service';
 import { AppService } from './services/app.service';
@@ -21,12 +20,11 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TreeModule } from 'primeng/tree';
 import { DataViewModule } from 'primeng/dataview';
 import { TagModule } from 'primeng/tag';
-import { SelectButton } from 'primeng/selectbutton';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { PaginatorModule } from 'primeng/paginator';
 import { EditorModule } from 'primeng/editor';
 import { TabsModule } from 'primeng/tabs';
@@ -51,35 +49,35 @@ import { TreeSelectModule } from 'primeng/treeselect';
 import { ListboxModule } from 'primeng/listbox';
 import { DrawerModule } from 'primeng/drawer';
 import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @NgModule({
   declarations: [],
   imports: [
-    RouterOutlet,
+     RouterOutlet,
     RouterLink,
     CommonModule,
     ReactiveFormsModule,
     AnimateOnScrollModule,
     FormsModule,
-    TableModule,
     InputTextModule,
     TextareaModule,
+    TableModule,
     DialogModule,
     CheckboxModule,
     ButtonModule,
     PanelModule,
     MenuModule,
     PasswordModule,
-    DropdownModule,
     MenubarModule,
     ToastModule,
     ConfirmDialogModule,
-    CalendarModule,
+    DatePickerModule,
     MultiSelectModule,
     TreeModule,
     DataViewModule,
     TagModule,
-    SelectButton,
+    SelectButtonModule,
     PaginatorModule,
     EditorModule,
     TabsModule,
@@ -122,16 +120,15 @@ import { TranslateModule } from '@ngx-translate/core';
     PanelModule,
     MenuModule,
     PasswordModule,
-    DropdownModule,
     MenubarModule,
     ToastModule,
     ConfirmDialogModule,
-    CalendarModule,
+    DatePickerModule,
     MultiSelectModule,
     TreeModule,
     DataViewModule,
     TagModule,
-    SelectButton,
+    SelectButtonModule,
     PaginatorModule,
     EditorModule,
     TabsModule,

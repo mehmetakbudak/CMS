@@ -6,7 +6,9 @@
         class="pi pi-arrow-left cursor-pointer align-content-center"
         routerLink="/admin/job"
       ></i>
-      <h5 class="ms-3 mb-0">{{ id ? "Job Update" : "New Job" }}</h5>
+      <h5 class="ms-3 mb-0">
+        {{ id ? ("Job.Update" | translate) : ("Job.New" | translate) }}
+      </h5>
     </div>
   </div>
   <div class="card-body">

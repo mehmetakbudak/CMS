@@ -41,7 +41,7 @@
     [loading]="loading"
     [scrollable]="true"
     [rowsPerPageOptions]="[5, 10, 25, 50]"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    currentPageReportTemplate="{{ 'CurrentPageReportTemplate' | translate }}"
     [showCurrentPageReport]="true"
     rowExpandMode="single"
     dataKey="id"
@@ -51,7 +51,7 @@
       <tr>
         <th class="table-icon-col"></th>
         <th class="table-icon-col" pFrozenColumn></th>
-        <th>Name</th>
+        <th>{{ "Name" | translate }}</th>
         <th>Active</th>
       </tr>
     </ng-template>
@@ -88,7 +88,7 @@
         </td>
       </tr>
     </ng-template>
-    <ng-template pTemplate="rowexpansion" let-item>
+    <ng-template #expandedrow let-item>
       <tr>
         <td colspan="4">
           <div class="p-2">
@@ -96,7 +96,7 @@
             <p-table [value]="taskStatuses">
               <ng-template #header>
                 <tr>
-                  <th>Name</th>
+                  <th>{{ "Name" | translate }}</th>
                   <th>Display Order</th>
                   <th>Completed</th>
                   <th>Active</th>
